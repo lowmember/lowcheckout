@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CheckoutStatusBadge, checkoutQueries, useCheckout } from "@/features/checkouts";
 import { PageHeader } from "@/shared/ui/page-header";
 
-export const Route = createFileRoute("/checkouts/$checkoutId")({
+export const Route = createFileRoute("/_app/checkouts/$checkoutId")({
   loader: ({ context, params }) =>
     context.queryClient.ensureQueryData(checkoutQueries.detail(params.checkoutId)),
   component: CheckoutDetailsPage,

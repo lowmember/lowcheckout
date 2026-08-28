@@ -9,86 +9,157 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from "./routes/__root";
-import { Route as IndexRouteImport } from "./routes/index";
-import { Route as CheckoutsIndexRouteImport } from "./routes/checkouts/index";
-import { Route as CheckoutsCheckoutIdRouteImport } from "./routes/checkouts/$checkoutId";
+import { Route as AppRouteImport } from "./routes/_app";
+import { Route as AuthRouteImport } from "./routes/_auth";
+import { Route as AppIndexRouteImport } from "./routes/_app/index";
+import { Route as AuthCadastroRouteImport } from "./routes/_auth/cadastro";
+import { Route as AppCheckoutsIndexRouteImport } from "./routes/_app/checkouts/index";
+import { Route as AppCheckoutsCheckoutIdRouteImport } from "./routes/_app/checkouts/$checkoutId";
 
-const IndexRoute = IndexRouteImport.update({
+const AppRoute = AppRouteImport.update({
+  id: "/_app",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const AuthRoute = AuthRouteImport.update({
+  id: "/_auth",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const AppIndexRoute = AppIndexRouteImport.update({
   id: "/",
   path: "/",
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any);
-const CheckoutsIndexRoute = CheckoutsIndexRouteImport.update({
+const AuthCadastroRoute = AuthCadastroRouteImport.update({
+  id: "/cadastro",
+  path: "/cadastro",
+  getParentRoute: () => AuthRoute,
+} as any);
+const AppCheckoutsIndexRoute = AppCheckoutsIndexRouteImport.update({
   id: "/checkouts/",
   path: "/checkouts/",
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any);
-const CheckoutsCheckoutIdRoute = CheckoutsCheckoutIdRouteImport.update({
+const AppCheckoutsCheckoutIdRoute = AppCheckoutsCheckoutIdRouteImport.update({
   id: "/checkouts/$checkoutId",
   path: "/checkouts/$checkoutId",
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any);
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/checkouts/$checkoutId": typeof CheckoutsCheckoutIdRoute;
-  "/checkouts/": typeof CheckoutsIndexRoute;
+  "/": typeof AppIndexRoute;
+  "/cadastro": typeof AuthCadastroRoute;
+  "/checkouts/$checkoutId": typeof AppCheckoutsCheckoutIdRoute;
+  "/checkouts/": typeof AppCheckoutsIndexRoute;
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/checkouts/$checkoutId": typeof CheckoutsCheckoutIdRoute;
-  "/checkouts": typeof CheckoutsIndexRoute;
+  "/": typeof AppIndexRoute;
+  "/cadastro": typeof AuthCadastroRoute;
+  "/checkouts/$checkoutId": typeof AppCheckoutsCheckoutIdRoute;
+  "/checkouts": typeof AppCheckoutsIndexRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
-  "/": typeof IndexRoute;
-  "/checkouts/$checkoutId": typeof CheckoutsCheckoutIdRoute;
-  "/checkouts/": typeof CheckoutsIndexRoute;
+  "/_app": typeof AppRouteWithChildren;
+  "/_auth": typeof AuthRouteWithChildren;
+  "/_auth/cadastro": typeof AuthCadastroRoute;
+  "/_app/": typeof AppIndexRoute;
+  "/_app/checkouts/$checkoutId": typeof AppCheckoutsCheckoutIdRoute;
+  "/_app/checkouts/": typeof AppCheckoutsIndexRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/" | "/checkouts/$checkoutId" | "/checkouts/";
+  fullPaths: "/" | "/cadastro" | "/checkouts/$checkoutId" | "/checkouts/";
   fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/checkouts/$checkoutId" | "/checkouts";
-  id: "__root__" | "/" | "/checkouts/$checkoutId" | "/checkouts/";
+  to: "/" | "/cadastro" | "/checkouts/$checkoutId" | "/checkouts";
+  id:
+    | "__root__"
+    | "/_app"
+    | "/_auth"
+    | "/_auth/cadastro"
+    | "/_app/"
+    | "/_app/checkouts/$checkoutId"
+    | "/_app/checkouts/";
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  CheckoutsCheckoutIdRoute: typeof CheckoutsCheckoutIdRoute;
-  CheckoutsIndexRoute: typeof CheckoutsIndexRoute;
+  AppRoute: typeof AppRouteWithChildren;
+  AuthRoute: typeof AuthRouteWithChildren;
 }
 
 declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    "/": {
-      id: "/";
+    "/_app": {
+      id: "/_app";
+      path: "";
+      fullPath: "/";
+      preLoaderRoute: typeof AppRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/_auth": {
+      id: "/_auth";
+      path: "";
+      fullPath: "/";
+      preLoaderRoute: typeof AuthRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/_app/": {
+      id: "/_app/";
       path: "/";
       fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
+      preLoaderRoute: typeof AppIndexRouteImport;
+      parentRoute: typeof AppRoute;
     };
-    "/checkouts/": {
-      id: "/checkouts/";
+    "/_auth/cadastro": {
+      id: "/_auth/cadastro";
+      path: "/cadastro";
+      fullPath: "/cadastro";
+      preLoaderRoute: typeof AuthCadastroRouteImport;
+      parentRoute: typeof AuthRoute;
+    };
+    "/_app/checkouts/": {
+      id: "/_app/checkouts/";
       path: "/checkouts";
       fullPath: "/checkouts/";
-      preLoaderRoute: typeof CheckoutsIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
+      preLoaderRoute: typeof AppCheckoutsIndexRouteImport;
+      parentRoute: typeof AppRoute;
     };
-    "/checkouts/$checkoutId": {
-      id: "/checkouts/$checkoutId";
+    "/_app/checkouts/$checkoutId": {
+      id: "/_app/checkouts/$checkoutId";
       path: "/checkouts/$checkoutId";
       fullPath: "/checkouts/$checkoutId";
-      preLoaderRoute: typeof CheckoutsCheckoutIdRouteImport;
-      parentRoute: typeof rootRouteImport;
+      preLoaderRoute: typeof AppCheckoutsCheckoutIdRouteImport;
+      parentRoute: typeof AppRoute;
     };
   }
 }
 
+interface AppRouteChildren {
+  AppIndexRoute: typeof AppIndexRoute;
+  AppCheckoutsCheckoutIdRoute: typeof AppCheckoutsCheckoutIdRoute;
+  AppCheckoutsIndexRoute: typeof AppCheckoutsIndexRoute;
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppIndexRoute: AppIndexRoute,
+  AppCheckoutsCheckoutIdRoute: AppCheckoutsCheckoutIdRoute,
+  AppCheckoutsIndexRoute: AppCheckoutsIndexRoute,
+};
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren);
+
+interface AuthRouteChildren {
+  AuthCadastroRoute: typeof AuthCadastroRoute;
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthCadastroRoute: AuthCadastroRoute,
+};
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren);
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  CheckoutsCheckoutIdRoute: CheckoutsCheckoutIdRoute,
-  CheckoutsIndexRoute: CheckoutsIndexRoute,
+  AppRoute: AppRouteWithChildren,
+  AuthRoute: AuthRouteWithChildren,
 };
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
