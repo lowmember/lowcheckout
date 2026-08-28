@@ -16,17 +16,22 @@ interface FieldProps {
   id: string;
   label: string;
   error?: string;
+  hint?: ReactNode;
   children: ReactNode;
 }
 
-export function Field({ id, label, error, children }: FieldProps) {
+export function Field({ id, label, error, hint, children }: FieldProps) {
   return (
     <div>
       <label htmlFor={id} className="mb-2 block font-medium text-neutral-700 text-sm">
         {label}
       </label>
       {children}
-      {error && <p className="mt-1.5 animate-fade-in text-red-600 text-xs">{error}</p>}
+      {error ? (
+        <p className="mt-1.5 animate-fade-in text-red-600 text-xs">{error}</p>
+      ) : (
+        hint && <p className="mt-1.5 text-neutral-500 text-xs leading-relaxed">{hint}</p>
+      )}
     </div>
   );
 }

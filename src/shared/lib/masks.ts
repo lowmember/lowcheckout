@@ -39,3 +39,8 @@ export function maskPhone(value: string) {
     ? `(${digits.slice(0, 2)}) ${prefix}-${suffix}`
     : `(${digits.slice(0, 2)}) ${prefix}`;
 }
+
+/** Exibe CPF/CNPJ já formatado a partir dos dígitos vindos da API. */
+export function formatDocument(document: string, documentType: "cpf" | "cnpj") {
+  return documentType === "cpf" ? maskCpf(document) : maskCnpj(document);
+}

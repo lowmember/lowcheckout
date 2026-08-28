@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { useId } from "react";
 
 import { cn } from "@/shared/lib/cn";
@@ -14,13 +14,21 @@ interface SelectFieldProps extends Omit<ComponentProps<"select">, "id" | "childr
   label: string;
   options: SelectOption[];
   error?: string;
+  hint?: ReactNode;
 }
 
-export function SelectField({ label, options, error, className, ...props }: SelectFieldProps) {
+export function SelectField({
+  label,
+  options,
+  error,
+  hint,
+  className,
+  ...props
+}: SelectFieldProps) {
   const id = useId();
 
   return (
-    <Field id={id} label={label} error={error}>
+    <Field id={id} label={label} error={error} hint={hint}>
       <div className="relative">
         <select
           id={id}

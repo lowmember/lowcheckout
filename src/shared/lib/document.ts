@@ -1,4 +1,4 @@
-import { onlyDigits } from "@/features/signup/lib/masks";
+import { onlyDigits } from "@/shared/lib/masks";
 
 export function isValidCpf(value: string) {
   const digits = onlyDigits(value);
