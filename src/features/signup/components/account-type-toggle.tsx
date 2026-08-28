@@ -1,17 +1,17 @@
-import type { AccountType } from "@/features/signup/types/signup";
+import type { AccountDocumentType } from "@/features/account";
 import { cn } from "@/shared/lib/cn";
 import { BuildingIcon, UserIcon } from "@/shared/ui/icons";
 
-const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
+const DOCUMENT_TYPE_LABELS: Record<AccountDocumentType, string> = {
   cpf: "CPF",
   cnpj: "CNPJ",
 };
 
-const ACCOUNT_TYPES = Object.keys(ACCOUNT_TYPE_LABELS) as AccountType[];
+const DOCUMENT_TYPES = Object.keys(DOCUMENT_TYPE_LABELS) as AccountDocumentType[];
 
 interface AccountTypeToggleProps {
-  value: AccountType;
-  onChange: (accountType: AccountType) => void;
+  value: AccountDocumentType;
+  onChange: (documentType: AccountDocumentType) => void;
 }
 
 export function AccountTypeToggle({ value, onChange }: AccountTypeToggleProps) {
@@ -20,16 +20,16 @@ export function AccountTypeToggle({ value, onChange }: AccountTypeToggleProps) {
       <legend className="mb-2 block font-medium text-neutral-700 text-sm">Tipo de conta</legend>
 
       <div className="grid grid-cols-2 gap-3">
-        {ACCOUNT_TYPES.map((accountType) => {
-          const isSelected = accountType === value;
-          const Icon = accountType === "cpf" ? UserIcon : BuildingIcon;
+        {DOCUMENT_TYPES.map((documentType) => {
+          const isSelected = documentType === value;
+          const Icon = documentType === "cpf" ? UserIcon : BuildingIcon;
 
           return (
             <button
-              key={accountType}
+              key={documentType}
               type="button"
               aria-pressed={isSelected}
-              onClick={() => onChange(accountType)}
+              onClick={() => onChange(documentType)}
               className={cn(
                 "group flex h-10 items-center justify-center gap-2 rounded-lg border bg-white font-medium text-sm",
                 "transition-[color,border-color,box-shadow,scale] duration-200 ease-out active:scale-[0.98]",
@@ -45,7 +45,7 @@ export function AccountTypeToggle({ value, onChange }: AccountTypeToggleProps) {
                   isSelected ? "animate-pop-in" : "group-hover:scale-110",
                 )}
               />
-              {ACCOUNT_TYPE_LABELS[accountType]}
+              {DOCUMENT_TYPE_LABELS[documentType]}
             </button>
           );
         })}

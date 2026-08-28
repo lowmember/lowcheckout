@@ -1,7 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-import { createAccount } from "@/features/signup/api/signup.api";
-import type { Account } from "@/features/signup/types/signup";
+import { type Account, completeOnboarding } from "@/features/account";
 import { getApiErrorMessage } from "@/shared/api/get-error-message";
 
 interface UseSignupOptions {
@@ -10,7 +9,7 @@ interface UseSignupOptions {
 
 export function useSignup({ onSuccess }: UseSignupOptions = {}) {
   const { mutate, isPending, isError, error } = useMutation({
-    mutationFn: createAccount,
+    mutationFn: completeOnboarding,
     onSuccess,
   });
 
@@ -20,7 +19,7 @@ export function useSignup({ onSuccess }: UseSignupOptions = {}) {
     hasSignupError: isError,
     signupErrorMessage: getApiErrorMessage(
       error,
-      "Não foi possível criar sua conta. Tente novamente.",
+      "Não foi possível concluir seu cadastro. Tente novamente.",
     ),
   };
 }

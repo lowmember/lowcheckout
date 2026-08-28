@@ -1,32 +1,27 @@
 import { type FormEvent, useState } from "react";
 
+import type { AccountDocumentType, EstimatedRevenue, SellsWhat } from "@/features/account";
 import { AccountTypeToggle } from "@/features/signup/components/account-type-toggle";
 import { useSignup } from "@/features/signup/hooks/use-signup";
-import { maskCnpj, maskCpf, maskPhone, onlyDigits } from "@/features/signup/lib/masks";
 import { validateSignup } from "@/features/signup/lib/validate-signup";
-import type {
-  AccountType,
-  ProductType,
-  RevenueRange,
-  SignupFieldErrors,
-  SignupFormValues,
-} from "@/features/signup/types/signup";
+import type { SignupFieldErrors, SignupFormValues } from "@/features/signup/types/signup";
+import { maskCnpj, maskCpf, maskPhone, onlyDigits } from "@/shared/lib/masks";
 import { Button } from "@/shared/ui/button";
 import { ArrowRightIcon, SpinnerIcon } from "@/shared/ui/icons";
 import { SelectField } from "@/shared/ui/select-field";
 import { TextField } from "@/shared/ui/text-field";
 
-const DOCUMENT_LABELS: Record<AccountType, string> = {
+const DOCUMENT_LABELS: Record<AccountDocumentType, string> = {
   cpf: "CPF",
   cnpj: "CNPJ",
 };
 
-const DOCUMENT_PLACEHOLDERS: Record<AccountType, string> = {
+const DOCUMENT_PLACEHOLDERS: Record<AccountDocumentType, string> = {
   cpf: "000.000.000-00",
   cnpj: "00.000.000/0000-00",
 };
 
-const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
+const SELLS_WHAT_LABELS: Record<SellsWhat, string> = {
   infoproduct: "Infoproduto",
   physical: "Produto físico",
   service: "Serviço",
@@ -35,31 +30,29 @@ const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
   other: "Outro",
 };
 
-const REVENUE_RANGE_LABELS: Record<RevenueRange, string> = {
-  up_to_1k: "Até R$ 1.000",
-  from_1k_to_5k: "R$ 1.000 a R$ 5.000",
-  from_5k_to_20k: "R$ 5.000 a R$ 20.000",
-  from_20k_to_50k: "R$ 20.000 a R$ 50.000",
+const ESTIMATED_REVENUE_LABELS: Record<EstimatedRevenue, string> = {
+  up_to_10k: "Até R$ 10.000",
+  from_10k_to_50k: "R$ 10.000 a R$ 50.000",
   from_50k_to_100k: "R$ 50.000 a R$ 100.000",
   above_100k: "Acima de R$ 100.000",
 };
 
-const PRODUCT_TYPE_OPTIONS = Object.entries(PRODUCT_TYPE_LABELS).map(([value, label]) => ({
+const SELLS_WHAT_OPTIONS = Object.entries(SELLS_WHAT_LABELS).map(([value, label]) => ({
   value,
   label,
 }));
 
-const REVENUE_RANGE_OPTIONS = Object.entries(REVENUE_RANGE_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
+const ESTIMATED_REVENUE_OPTIONS = Object.entries(ESTIMATED_REVENUE_LABELS).map(
+  ([value, label]) => ({ value, label }),
+);
 
 const INITIAL_VALUES: SignupFormValues = {
-  accountType: "cpf",
+  businessName: "",
+  documentType: "cpf",
   document: "",
   phone: "",
-  productType: "infoproduct",
-  revenueRange: "from_1k_to_5k",
+  sellsWhat: "infoproduct",
+  estimatedRevenue: "up_to_10k",
 };
 
 interface SignupFormProps {
@@ -81,8 +74,8 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
     setErrors((current) => ({ ...current, [field]: undefined }));
   }
 
-  function handleAccountTypeChange(accountType: AccountType) {
-    setValues((current) => ({ ...current, accountType, document: "" }));
+  function handleDocumentTypeChange(documentType: AccountDocumentType) {
+    setValues((current) => ({ ...current, documentType, document: "" }));
     setErrors((current) => ({ ...current, document: undefined }));
   }
 
@@ -96,25 +89,37 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
 
     signup({
       ...values,
+      businessName: values.businessName.trim(),
       document: onlyDigits(values.document),
       phone: onlyDigits(values.phone),
     });
   }
 
-  const maskDocument = values.accountType === "cpf" ? maskCpf : maskCnpj;
+  const maskDocument = values.documentType === "cpf" ? maskCpf : maskCnpj;
 
   return (
     <form onSubmit={handleSubmit} noValidate>
       <div className="space-y-5">
-        <AccountTypeToggle value={values.accountType} onChange={handleAccountTypeChange} />
+        <TextField
+          label="Nome do negócio"
+          placeholder="Como sua marca aparece para o comprador"
+          value={values.businessName}
+          error={errors.businessName}
+          autoComplete="organization"
+          maxLength={160}
+          onChange={(event) => setField("businessName", event.target.value)}
+        />
+
+        <AccountTypeToggle value={values.documentType} onChange={handleDocumentTypeChange} />
 
         <TextField
-          label={DOCUMENT_LABELS[values.accountType]}
-          placeholder={DOCUMENT_PLACEHOLDERS[values.accountType]}
+          label={DOCUMENT_LABELS[values.documentType]}
+          placeholder={DOCUMENT_PLACEHOLDERS[values.documentType]}
           value={values.document}
           error={errors.document}
           inputMode="numeric"
           autoComplete="off"
+          hint="Depois do cadastro, o documento não pode mais ser alterado por aqui."
           onChange={(event) => setField("document", maskDocument(event.target.value))}
         />
 
@@ -130,16 +135,16 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
 
         <SelectField
           label="O que você vende?"
-          options={PRODUCT_TYPE_OPTIONS}
-          value={values.productType}
-          onChange={(event) => setField("productType", event.target.value as ProductType)}
+          options={SELLS_WHAT_OPTIONS}
+          value={values.sellsWhat}
+          onChange={(event) => setField("sellsWhat", event.target.value as SellsWhat)}
         />
 
         <SelectField
           label="Faturamento estimado"
-          options={REVENUE_RANGE_OPTIONS}
-          value={values.revenueRange}
-          onChange={(event) => setField("revenueRange", event.target.value as RevenueRange)}
+          options={ESTIMATED_REVENUE_OPTIONS}
+          value={values.estimatedRevenue}
+          onChange={(event) => setField("estimatedRevenue", event.target.value as EstimatedRevenue)}
         />
       </div>
 
