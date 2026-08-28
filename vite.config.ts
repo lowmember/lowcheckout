@@ -23,5 +23,21 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    /**
+     * Proxy de desenvolvimento para a API.
+     *
+     * Em produção o CORS é resolvido pelo próprio API Gateway (bloco `httpApi.cors`
+     * do serverless.ts), mas o `serverless-offline` não emula isso: a preflight
+     * `OPTIONS` volta 204 **sem nenhum header de CORS**, e o navegador bloqueia
+     * toda chamada que carrega `x-account-id` ou `Authorization`. Servir a API sob
+     * o mesmo origin em dev elimina a preflight em vez de contorná-la.
+     */
+    proxy: {
+      "/api": {
+        target: "http://localhost:3333",
+        changeOrigin: true,
+        rewrite: (requestPath) => requestPath.replace(/^\/api/, ""),
+      },
+    },
   },
 });
