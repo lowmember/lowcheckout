@@ -1,0 +1,37 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "tui",
+  "globalDependencies": ["biome.json", ".nvmrc"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "env": ["VITE_*"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "typecheck": {
+      "dependsOn": ["^build"]
+    },
+    "lint": {
+      "dependsOn": ["^build"]
+    },
+    "lint:fix": {
+      "cache": false
+    },
+    "package": {
+      "dependsOn": ["^build"],
+      "outputs": [".serverless/**"]
+    },
+    "deploy": {
+      "dependsOn": ["^build", "typecheck"],
+      "cache": false
+    },
+    "deploy:prod": {
+      "dependsOn": ["^build", "typecheck"],
+      "cache": false
+    }
+  }
+}

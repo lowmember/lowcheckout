@@ -1,0 +1,29 @@
+# Dependências
+node_modules
+
+# Saídas de build
+dist
+dist-ssr
+.turbo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Ambiente
+.env
+.env.local
+.env.*.local
+*.local
+
+# Editores
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.sw?
+
+# Scratch de agentes (worktrees, caches)
+.claude/

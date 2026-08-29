@@ -1,0 +1,17 @@
+# https://lefthook.dev/configuration/
+# Hooks do monorepo: rodam na raiz e alcançam apps/* pelos caminhos staged.
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: biome
+      glob: "*.{js,jsx,mjs,ts,tsx,json,jsonc,css}"
+      exclude:
+        - apps/web/src/routeTree.gen.ts
+      run: pnpm exec biome check --write --no-errors-on-unmatched --colors=off {staged_files}
+      stage_fixed: true
+
+commit-msg:
+  jobs:
+    - name: commitlint
+      run: pnpm exec commitlint --edit {1}

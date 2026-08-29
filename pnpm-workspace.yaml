@@ -1,0 +1,13 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Único lugar do monorepo que autoriza scripts de build de dependências.
+# O pnpm ignora o campo `pnpm.onlyBuiltDependencies` dos pacotes filhos,
+# então esta lista é a união do que api, web e landing precisavam.
+onlyBuiltDependencies:
+  - "@biomejs/biome"
+  - "@swc/core"
+  - esbuild
+  - lefthook
+  - serverless
