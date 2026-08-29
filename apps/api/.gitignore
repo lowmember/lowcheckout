@@ -1,0 +1,4 @@
+# Artefatos do Serverless Framework (o resto vem do .gitignore da raiz)
+.serverless
+.esbuild
+.build

@@ -12,6 +12,8 @@
     "lint": "turbo lint",
     "lint:fix": "turbo lint:fix",
     "typecheck": "turbo typecheck",
+    "deploy:api": "turbo deploy --filter=lowcheckout-api",
+    "deploy:api:prod": "turbo deploy:prod --filter=lowcheckout-api",
     "prepare": "lefthook install || true"
   },
   "devDependencies": {

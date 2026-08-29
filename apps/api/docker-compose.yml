@@ -1,0 +1,28 @@
+# Nome de projeto explícito: sem isto o Compose usaria o nome do diretório ("api"),
+# que colide com outras stacks locais deste mesmo nome.
+name: lowcheckout
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: lowcheckout
+      POSTGRES_PASSWORD: lowcheckout
+      POSTGRES_DB: lowcheckout
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      # Volume nomeado: sobrevive a `docker compose down` e a reinicializações.
+      # Só `docker compose down -v` apaga os dados.
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lowcheckout -d lowcheckout"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
+    name: lowcheckout-postgres-data
