@@ -11,6 +11,7 @@ export function toOfferDto(offer: Offer, productDefaultDeliveryUrl: string | nul
     name: snapshot.name,
     priceInCents: snapshot.priceInCents,
     currency: snapshot.currency,
+    imageUrl: snapshot.imageUrl,
     deliveryUrl: snapshot.deliveryUrl,
     resolvedDeliveryUrl: resolveDeliveryUrl(snapshot.deliveryUrl, productDefaultDeliveryUrl),
     status: snapshot.status,

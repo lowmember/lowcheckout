@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useState } from "react";
 
 import { useSaveOffer } from "@/features/offers/hooks/use-save-offer";
 import type { Offer, OfferFieldErrors } from "@/features/offers/types/offer";
+import { ImageField } from "@/features/uploads";
 import { formatCurrency, maskCurrency, parseCurrencyToCents } from "@/shared/lib/format-currency";
 import { isAbsoluteUrl } from "@/shared/lib/is-absolute-url";
 import { Button } from "@/shared/ui/button";
@@ -11,10 +12,11 @@ import { TextField } from "@/shared/ui/text-field";
 interface FormValues {
   name: string;
   price: string;
+  imageUrl: string;
   deliveryUrl: string;
 }
 
-const EMPTY_VALUES: FormValues = { name: "", price: "", deliveryUrl: "" };
+const EMPTY_VALUES: FormValues = { name: "", price: "", imageUrl: "", deliveryUrl: "" };
 
 function toFormValues(offer?: Offer): FormValues {
   if (!offer) return EMPTY_VALUES;
@@ -22,6 +24,7 @@ function toFormValues(offer?: Offer): FormValues {
   return {
     name: offer.name,
     price: maskCurrency(String(offer.priceInCents)),
+    imageUrl: offer.imageUrl ?? "",
     deliveryUrl: offer.deliveryUrl ?? "",
   };
 }
@@ -67,11 +70,16 @@ export function OfferFormDialog({
     event.preventDefault();
 
     const priceInCents = parseCurrencyToCents(values.price);
+    const imageUrl = values.imageUrl.trim();
     const deliveryUrl = values.deliveryUrl.trim();
     const validationErrors: OfferFieldErrors = {};
 
     if (!values.name.trim()) validationErrors.name = "Informe o nome interno da oferta.";
     if (priceInCents <= 0) validationErrors.price = "O valor precisa ser maior que zero.";
+
+    if (imageUrl && !isAbsoluteUrl(imageUrl)) {
+      validationErrors.imageUrl = "Informe uma URL absoluta (https://...).";
+    }
 
     if (deliveryUrl && !isAbsoluteUrl(deliveryUrl)) {
       validationErrors.deliveryUrl = "Informe uma URL absoluta (https://...).";
@@ -89,6 +97,7 @@ export function OfferFormDialog({
       name: values.name.trim(),
       priceInCents,
       currency: offer?.currency ?? "BRL",
+      imageUrl: imageUrl || null,
       deliveryUrl: deliveryUrl || null,
     }).catch(() => undefined);
   }
@@ -120,6 +129,14 @@ export function OfferFormDialog({
           inputMode="numeric"
           hint={previewPrice > 0 ? `Cobrança de ${formatCurrency(previewPrice)}.` : undefined}
           onChange={(event) => setField("price", maskCurrency(event.target.value))}
+        />
+
+        <ImageField
+          label="Imagem da oferta"
+          value={values.imageUrl}
+          error={errors.imageUrl}
+          hint="Opcional. Sem ela, o checkout usa a imagem do produto."
+          onChange={(imageUrl) => setField("imageUrl", imageUrl)}
         />
 
         <TextField

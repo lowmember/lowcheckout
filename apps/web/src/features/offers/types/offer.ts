@@ -6,6 +6,8 @@ export interface Offer {
   name: string;
   priceInCents: number;
   currency: string;
+  /** Imagem própria da oferta. `null` = o checkout usa a imagem do produto. */
+  imageUrl: string | null;
   /** URL própria da oferta. `null` significa herdar a do produto (RF-OFER-02). */
   deliveryUrl: string | null;
   /** Já resolvida pela API: oferta → produto. */
@@ -19,6 +21,7 @@ export interface CreateOfferInput {
   name: string;
   priceInCents: number;
   currency: string;
+  imageUrl?: string | null;
   deliveryUrl?: string | null;
 }
 
@@ -26,4 +29,6 @@ export interface UpdateOfferInput extends Partial<Omit<CreateOfferInput, "curren
   status?: OfferStatus;
 }
 
-export type OfferFieldErrors = Partial<Record<"name" | "price" | "deliveryUrl", string>>;
+export type OfferFieldErrors = Partial<
+  Record<"name" | "price" | "imageUrl" | "deliveryUrl", string>
+>;

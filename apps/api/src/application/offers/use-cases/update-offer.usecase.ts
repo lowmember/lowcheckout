@@ -15,6 +15,7 @@ export interface UpdateOfferInput {
   name?: string;
   priceInCents?: number;
   currency?: string;
+  imageUrl?: string | null;
   deliveryUrl?: string | null;
   status?: OfferStatus;
 }
@@ -63,6 +64,10 @@ export class DefaultUpdateOfferUseCase implements UpdateOfferUseCase {
         input.currency ?? snapshot.currency,
         now,
       );
+    }
+
+    if (input.imageUrl !== undefined) {
+      offer.changeImageUrl(input.imageUrl, now);
     }
 
     if (input.deliveryUrl !== undefined) {

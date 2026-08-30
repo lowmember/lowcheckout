@@ -69,7 +69,11 @@ function ProductDetailsPage() {
       />
 
       <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
-        <OfferList productId={product.id} productDefaultDeliveryUrl={product.defaultDeliveryUrl} />
+        <OfferList
+          productId={product.id}
+          productDefaultDeliveryUrl={product.defaultDeliveryUrl}
+          productImageUrl={product.imageUrl}
+        />
 
         <Card className="self-start">
           <CardHeader title="Detalhes" />

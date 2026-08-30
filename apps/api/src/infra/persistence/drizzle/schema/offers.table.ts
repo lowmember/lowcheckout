@@ -21,6 +21,8 @@ export const offers = pgTable(
     name: varchar("name", { length: 120 }).notNull(),
     priceInCents: integer("price_in_cents").notNull(),
     currency: varchar("currency", { length: 3 }).notNull(),
+    /** `null` = a página pública usa `products.image_url`. */
+    imageUrl: text("image_url"),
     /** `null` = herda `products.default_delivery_url` (RF-OFER-02). */
     deliveryUrl: text("delivery_url"),
     status: offerStatus("status").notNull().default("active"),

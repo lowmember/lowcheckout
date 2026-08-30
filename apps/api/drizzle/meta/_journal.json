@@ -15,6 +15,20 @@
       "when": 1787960168253,
       "tag": "0001_nullable_revision_author",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788101892333,
+      "tag": "0002_reset_legacy_checkout_customization",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788110158914,
+      "tag": "0003_offer_image_url",
+      "breakpoints": true
     }
   ]
 }

@@ -15,6 +15,7 @@ export interface CreateOfferInput {
   name: string;
   priceInCents: number;
   currency: string;
+  imageUrl?: string | null;
   deliveryUrl?: string | null;
 }
 
@@ -52,6 +53,7 @@ export class DefaultCreateOfferUseCase implements CreateOfferUseCase {
       name: input.name,
       priceInCents: input.priceInCents,
       currency: input.currency,
+      imageUrl: input.imageUrl,
       deliveryUrl: input.deliveryUrl,
       now: this.clock.now(),
     });

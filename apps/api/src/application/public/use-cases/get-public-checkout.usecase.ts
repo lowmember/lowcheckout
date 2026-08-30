@@ -77,7 +77,9 @@ export class DefaultGetPublicCheckoutUseCase implements GetPublicCheckoutUseCase
       product: {
         name: product.name,
         description: product.description,
-        imageUrl: product.imageUrl,
+        // A imagem da oferta é a variação comercial que o comprador vê; sem
+        // ela, a página cai na imagem do produto.
+        imageUrl: offer.imageUrl ?? product.imageUrl,
       },
       offer: { priceInCents: offer.priceInCents, currency: offer.currency },
       paymentAvailable: connection?.isConnected === true,

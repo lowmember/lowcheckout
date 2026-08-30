@@ -1,25 +1,40 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { OfferFormDialog } from "@/features/offers/components/offer-form-dialog";
 import { useProductOffers } from "@/features/offers/hooks/use-product-offers";
 import type { Offer } from "@/features/offers/types/offer";
+import { cn } from "@/shared/lib/cn";
 import { formatCurrency } from "@/shared/lib/format-currency";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card, CardHeader } from "@/shared/ui/card";
 import { EmptyState } from "@/shared/ui/empty-state";
-import { LinkIcon, PencilIcon, PlusIcon, TicketIcon } from "@/shared/ui/icons";
+import { AlertTriangleIcon, LinkIcon, PencilIcon, PlusIcon, TicketIcon } from "@/shared/ui/icons";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 interface OfferListProps {
   productId: string;
   productDefaultDeliveryUrl: string | null;
+  productImageUrl?: string | null;
 }
 
-export function OfferList({ productId, productDefaultDeliveryUrl }: OfferListProps) {
+export function OfferList({
+  productId,
+  productDefaultDeliveryUrl,
+  productImageUrl,
+}: OfferListProps) {
   const { offers, isLoadingOffers, hasOffersError } = useProductOffers(productId);
   const [editingOffer, setEditingOffer] = useState<Offer>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  /** Arquivadas descem para o fim: a lista abre pelo que ainda vende. */
+  const sortedOffers = useMemo(
+    () =>
+      [...offers].sort((a, b) => Number(a.status === "archived") - Number(b.status === "archived")),
+    [offers],
+  );
+
+  const activeCount = offers.filter((offer) => offer.status === "active").length;
 
   function openCreate() {
     setEditingOffer(undefined);
@@ -32,22 +47,36 @@ export function OfferList({ productId, productDefaultDeliveryUrl }: OfferListPro
   }
 
   return (
-    <Card>
+    <Card className="self-start overflow-hidden">
       <CardHeader
         title="Ofertas"
         description="Cada oferta é uma variação comercial do produto. O preço mora aqui."
         action={
-          <Button size="sm" variant="secondary" onClick={openCreate}>
-            <PlusIcon className="size-4" />
-            Nova oferta
-          </Button>
+          <div className="flex shrink-0 items-center gap-2">
+            {offers.length > 0 && (
+              <Badge tone={activeCount > 0 ? "success" : "neutral"}>
+                {activeCount === 1 ? "1 ativa" : `${activeCount} ativas`}
+              </Badge>
+            )}
+            <Button size="sm" variant="secondary" onClick={openCreate}>
+              <PlusIcon className="size-4" />
+              Nova oferta
+            </Button>
+          </div>
         }
       />
 
       {isLoadingOffers && (
-        <div className="space-y-3 px-5 pb-5">
+        <div className="divide-y divide-neutral-100 border-neutral-200 border-t">
           {[0, 1].map((index) => (
-            <Skeleton key={index} className="h-16 w-full" />
+            <div key={index} className="flex items-center gap-4 px-5 py-4">
+              <Skeleton className="size-11 shrink-0 rounded-lg" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-3.5 w-40" />
+                <Skeleton className="h-3 w-56" />
+              </div>
+              <Skeleton className="h-4 w-20 shrink-0" />
+            </div>
           ))}
         </div>
       )}
@@ -74,53 +103,17 @@ export function OfferList({ productId, productDefaultDeliveryUrl }: OfferListPro
         </div>
       )}
 
-      {offers.length > 0 && (
-        <ul className="border-neutral-200 border-t">
-          {offers.map((offer) => {
-            const inheritsDelivery = offer.deliveryUrl === null;
-
-            return (
-              <li
-                key={offer.id}
-                className="flex items-start justify-between gap-4 border-neutral-100 border-b px-5 py-4 last:border-b-0"
-              >
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-medium text-neutral-900 text-sm">{offer.name}</p>
-                    {offer.status === "archived" && <Badge tone="neutral">Arquivada</Badge>}
-                  </div>
-
-                  <p className="mt-1 font-semibold text-lg text-neutral-900 leading-none tracking-tight">
-                    {formatCurrency(offer.priceInCents, offer.currency)}
-                  </p>
-
-                  <p className="mt-2 flex items-start gap-1.5 text-neutral-500 text-xs leading-relaxed">
-                    <LinkIcon className="mt-px size-3.5 shrink-0" />
-                    <span className="min-w-0 break-all">
-                      {inheritsDelivery ? (
-                        <>
-                          <span className="font-medium text-neutral-600">
-                            Herda o entregável do produto:
-                          </span>{" "}
-                          {offer.resolvedDeliveryUrl ?? productDefaultDeliveryUrl ?? "não definido"}
-                        </>
-                      ) : (
-                        <>
-                          <span className="font-medium text-neutral-600">Entregável próprio:</span>{" "}
-                          {offer.deliveryUrl}
-                        </>
-                      )}
-                    </span>
-                  </p>
-                </div>
-
-                <Button variant="ghost" size="sm" onClick={() => openEdit(offer)}>
-                  <PencilIcon className="size-4" />
-                  Editar
-                </Button>
-              </li>
-            );
-          })}
+      {sortedOffers.length > 0 && (
+        <ul className="divide-y divide-neutral-100 border-neutral-200 border-t">
+          {sortedOffers.map((offer) => (
+            <OfferRow
+              key={offer.id}
+              offer={offer}
+              productDefaultDeliveryUrl={productDefaultDeliveryUrl}
+              productImageUrl={productImageUrl}
+              onEdit={() => openEdit(offer)}
+            />
+          ))}
         </ul>
       )}
 
@@ -132,5 +125,106 @@ export function OfferList({ productId, productDefaultDeliveryUrl }: OfferListPro
         offer={editingOffer}
       />
     </Card>
+  );
+}
+
+interface OfferRowProps {
+  offer: Offer;
+  productDefaultDeliveryUrl: string | null;
+  productImageUrl?: string | null;
+  onEdit: () => void;
+}
+
+function OfferRow({ offer, productDefaultDeliveryUrl, productImageUrl, onEdit }: OfferRowProps) {
+  const isArchived = offer.status === "archived";
+  const inheritsDelivery = offer.deliveryUrl === null;
+  const deliveryUrl = inheritsDelivery
+    ? (offer.resolvedDeliveryUrl ?? productDefaultDeliveryUrl)
+    : offer.deliveryUrl;
+  const imageUrl = offer.imageUrl ?? productImageUrl ?? null;
+
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onEdit}
+        aria-label={`Editar oferta ${offer.name}`}
+        className={cn(
+          "group flex w-full items-center gap-4 px-5 py-3.5 text-left",
+          "transition-colors duration-200 ease-out hover:bg-neutral-50",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-inset",
+        )}
+      >
+        <div
+          className={cn(
+            "flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg",
+            "border border-neutral-200 bg-neutral-50 text-neutral-400",
+            isArchived && "opacity-60 grayscale",
+          )}
+        >
+          {imageUrl ? (
+            <img src={imageUrl} alt="" className="size-full object-cover" loading="lazy" />
+          ) : (
+            <TicketIcon className="size-4.5" />
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <p
+              className={cn(
+                "truncate font-medium text-sm",
+                isArchived ? "text-neutral-500" : "text-neutral-900",
+              )}
+            >
+              {offer.name}
+            </p>
+            {isArchived && <Badge tone="neutral">Arquivada</Badge>}
+          </div>
+
+          <p
+            className="mt-1 flex items-center gap-1.5 text-neutral-500 text-xs"
+            title={deliveryUrl ?? undefined}
+          >
+            {deliveryUrl ? (
+              <>
+                <LinkIcon className="size-3.5 shrink-0" />
+                <span className="truncate">{deliveryUrl}</span>
+                <span className="shrink-0 rounded border border-neutral-200 bg-neutral-50 px-1.5 py-px font-medium text-[11px] text-neutral-500">
+                  {inheritsDelivery ? "Herdado do produto" : "Próprio"}
+                </span>
+              </>
+            ) : (
+              <>
+                <AlertTriangleIcon className="size-3.5 shrink-0 text-amber-500" />
+                <span className="truncate text-amber-700">
+                  Sem entregável — defina uma URL nesta oferta ou no produto.
+                </span>
+              </>
+            )}
+          </p>
+        </div>
+
+        <p
+          className={cn(
+            "shrink-0 font-semibold text-sm tabular-nums",
+            isArchived ? "text-neutral-400" : "text-neutral-900",
+          )}
+        >
+          {formatCurrency(offer.priceInCents, offer.currency)}
+        </p>
+
+        <span
+          className={cn(
+            "flex size-8 shrink-0 items-center justify-center rounded-md text-neutral-300",
+            "transition-[color,background-color] duration-200 ease-out",
+            "group-hover:bg-neutral-100 group-hover:text-neutral-700",
+            "group-focus-visible:bg-neutral-100 group-focus-visible:text-neutral-700",
+          )}
+        >
+          <PencilIcon className="size-4" />
+        </span>
+      </button>
+    </li>
   );
 }

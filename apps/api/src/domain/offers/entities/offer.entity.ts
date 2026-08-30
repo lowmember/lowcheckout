@@ -12,6 +12,7 @@ export interface OfferSnapshot {
   name: string;
   priceInCents: number;
   currency: string;
+  imageUrl: string | null;
   deliveryUrl: string | null;
   status: OfferStatus;
   createdAt: Date;
@@ -25,6 +26,7 @@ export interface CreateOfferProps {
   name: string;
   priceInCents: number;
   currency: string;
+  imageUrl?: string | null;
   deliveryUrl?: string | null;
   now: Date;
 }
@@ -35,6 +37,7 @@ export class Offer {
   private readonly productId: string;
   private name: OfferName;
   private price: Money;
+  private imageUrl: Url | null;
   private deliveryUrl: Url | null;
   private status: OfferStatus;
   private readonly createdAt: Date;
@@ -46,6 +49,7 @@ export class Offer {
     productId: string;
     name: OfferName;
     price: Money;
+    imageUrl: Url | null;
     deliveryUrl: Url | null;
     status: OfferStatus;
     createdAt: Date;
@@ -56,6 +60,7 @@ export class Offer {
     this.productId = props.productId;
     this.name = props.name;
     this.price = props.price;
+    this.imageUrl = props.imageUrl;
     this.deliveryUrl = props.deliveryUrl;
     this.status = props.status;
     this.createdAt = props.createdAt;
@@ -69,6 +74,7 @@ export class Offer {
       productId: props.productId,
       name: OfferName.create(props.name),
       price: Offer.toPrice(props.priceInCents, props.currency),
+      imageUrl: Url.createOptional(props.imageUrl),
       deliveryUrl: Url.createOptional(props.deliveryUrl),
       status: "active",
       createdAt: props.now,
@@ -84,6 +90,7 @@ export class Offer {
       productId: snapshot.productId,
       name: OfferName.create(snapshot.name),
       price: Money.create(snapshot.priceInCents, snapshot.currency),
+      imageUrl: snapshot.imageUrl === null ? null : Url.create(snapshot.imageUrl),
       deliveryUrl: snapshot.deliveryUrl === null ? null : Url.create(snapshot.deliveryUrl),
       status: toOfferStatus(snapshot.status),
       createdAt: snapshot.createdAt,
@@ -102,6 +109,11 @@ export class Offer {
   /** Imutável: uma oferta não pode ser movida para outro produto (RF-OFER-03). */
   get parentProductId(): string {
     return this.productId;
+  }
+
+  /** `null` = a página pública cai na imagem do produto. */
+  get currentImageUrl(): string | null {
+    return this.imageUrl?.toString() ?? null;
   }
 
   get currentDeliveryUrl(): string | null {
@@ -135,6 +147,17 @@ export class Offer {
     this.touch(now);
   }
 
+  changeImageUrl(imageUrl: string | null, now: Date): void {
+    const nextImageUrl = Url.createOptional(imageUrl);
+
+    if (this.imageUrl?.toString() === nextImageUrl?.toString()) {
+      return;
+    }
+
+    this.imageUrl = nextImageUrl;
+    this.touch(now);
+  }
+
   changeDeliveryUrl(deliveryUrl: string | null, now: Date): void {
     const nextDeliveryUrl = Url.createOptional(deliveryUrl);
 
@@ -163,6 +186,7 @@ export class Offer {
       name: this.name.toString(),
       priceInCents: this.price.cents,
       currency: this.price.currency,
+      imageUrl: this.imageUrl?.toString() ?? null,
       deliveryUrl: this.deliveryUrl?.toString() ?? null,
       status: this.status,
       createdAt: this.createdAt,
