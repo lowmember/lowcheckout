@@ -17,5 +17,10 @@ export const env = {
     import.meta.env.VITE_PUBLIC_CHECKOUT_URL,
     typeof window === "undefined" ? "http://localhost:5173" : window.location.origin,
   ),
+  /**
+   * Client ID OAuth do Google (RF-AUTH-01). Vazio derruba só o login — por isso
+   * não é `required`: o painel ainda carrega e o botão explica o que falta.
+   */
+  googleClientId: optional(import.meta.env.VITE_GOOGLE_CLIENT_ID, ""),
   isDev: import.meta.env.DEV,
 } as const;

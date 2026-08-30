@@ -4,8 +4,11 @@ import { createRoot } from "react-dom/client";
 
 import { AppProviders } from "@/app/providers";
 import { router } from "@/app/router";
+import { wireSessionRefresh } from "@/app/session-refresh";
 
 import "@/styles/global.css";
+
+wireSessionRefresh();
 
 const rootElement = document.getElementById("root");
 

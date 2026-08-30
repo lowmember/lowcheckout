@@ -1,5 +1,5 @@
 import type { Session } from "@/features/auth/types/session";
-import { setAccessToken, setAccountId } from "@/shared/api/auth-storage";
+import { setAccessToken, setAccountId, setRefreshToken } from "@/shared/api/auth-storage";
 
 const SESSION_KEY = "lowcheckout.session";
 
@@ -27,6 +27,7 @@ let currentSession: Session | null = readFromStorage();
 function syncHttpCredentials(session: Session | null) {
   setAccountId(session?.accountId ?? null);
   setAccessToken(session?.accessToken ?? null);
+  setRefreshToken(session?.refreshToken ?? null);
 }
 
 syncHttpCredentials(currentSession);

@@ -1,9 +1,8 @@
 import { useState } from "react";
 
+import { GoogleSignInButton } from "@/features/auth/components/google-sign-in-button";
 import { useSession } from "@/features/auth/hooks/use-session";
 import { getApiErrorMessage } from "@/shared/api/get-error-message";
-import { Button } from "@/shared/ui/button";
-import { GoogleIcon } from "@/shared/ui/icons";
 
 interface LoginCardProps {
   /** Recebe se a conta já concluiu o onboarding, para a rota decidir o destino. */
@@ -15,12 +14,12 @@ export function LoginCard({ onSuccess }: LoginCardProps) {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  async function handleSignIn() {
+  async function handleCredential(idToken: string) {
     setIsSigningIn(true);
     setErrorMessage(null);
 
     try {
-      const session = await signIn();
+      const session = await signIn(idToken);
       onSuccess(session.onboardingCompletedAt !== null);
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error, "Não foi possível entrar. Tente novamente."));
@@ -30,15 +29,10 @@ export function LoginCard({ onSuccess }: LoginCardProps) {
 
   return (
     <div className="space-y-6">
-      <Button
-        variant="secondary"
-        className="w-full gap-3"
-        isLoading={isSigningIn}
-        onClick={() => void handleSignIn()}
-      >
-        <GoogleIcon className="size-[18px]" />
-        Entrar com Google
-      </Button>
+      <GoogleSignInButton
+        isDisabled={isSigningIn}
+        onCredential={(idToken) => void handleCredential(idToken)}
+      />
 
       {errorMessage && (
         <p role="alert" className="animate-fade-in text-center text-red-600 text-sm">
@@ -49,15 +43,6 @@ export function LoginCard({ onSuccess }: LoginCardProps) {
       <p className="text-center text-neutral-500 text-xs leading-relaxed">
         Ao continuar, você concorda com os Termos de Uso e a Política de Privacidade do LowCheckout.
       </p>
-
-      <div className="flex items-start gap-2.5 rounded-lg border border-neutral-200 bg-neutral-50 px-3.5 py-3">
-        <span className="mt-0.5 inline-flex size-1.5 shrink-0 rounded-full bg-amber-400" />
-        <p className="text-neutral-500 text-xs leading-relaxed">
-          <span className="font-medium text-neutral-700">Sessão de desenvolvimento.</span> Enquanto
-          o login Google não entra, este botão provisiona a conta de desenvolvimento na API. A rota
-          que faz isso não existe em produção.
-        </p>
-      </div>
     </div>
   );
 }

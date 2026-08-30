@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from "react";
 
-import { startDevSession } from "@/features/auth/api/auth.api";
-import { toSession } from "@/features/auth/lib/dev-session";
+import { signInWithGoogle } from "@/features/auth/api/auth.api";
+import { disableGoogleAutoSelect } from "@/features/auth/lib/google-identity";
+import { toSession } from "@/features/auth/lib/session";
 import {
   getSession,
   patchSession,
@@ -9,13 +10,7 @@ import {
   subscribeToSession,
 } from "@/features/auth/lib/session-store";
 
-/**
- * Ponto único de troca da autenticação.
- *
- * TODO(RF-AUTH-01): `signIn` provisiona hoje a conta de desenvolvimento na API.
- * Quando o OAuth entrar, troque `startDevSession()` por `signInWithGoogle(...)` —
- * a resposta tem o mesmo shape, então nada além desta linha precisa mudar.
- */
+/** Ponto único de troca da autenticação (RF-AUTH-01). */
 export function useSession() {
   const session = useSyncExternalStore(subscribeToSession, getSession, getSession);
 
@@ -23,12 +18,16 @@ export function useSession() {
     session,
     isAuthenticated: session !== null,
     hasCompletedOnboarding: session?.onboardingCompletedAt !== null,
-    signIn: async () => {
-      const session = toSession(await startDevSession());
+    signIn: async (idToken: string) => {
+      const session = toSession(await signInWithGoogle({ idToken }));
       setSession(session);
       return session;
     },
-    signOut: () => setSession(null),
+    signOut: () => {
+      // Antes de limpar: senão o GIS reautentica na próxima visita (One Tap).
+      disableGoogleAutoSelect();
+      setSession(null);
+    },
     completeOnboarding: () => patchSession({ onboardingCompletedAt: new Date().toISOString() }),
     updateSessionUser: (name: string) => {
       const current = getSession();

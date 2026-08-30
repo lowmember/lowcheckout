@@ -1,15 +1,11 @@
 import type { GoogleSignInResponse, Session } from "@/features/auth/types/session";
 
-/**
- * Converte o `SessionDto` da API na sessão local.
- *
- * TODO(RF-AUTH-01): é o mesmo shape que `POST /auth/google` vai devolver, então
- * ligar o OAuth de verdade não muda nada aqui — só quem chama.
- */
+/** Converte o `SessionDto` de `POST /auth/google` e `/auth/refresh` na sessão local. */
 export function toSession(response: GoogleSignInResponse): Session {
   return {
     accountId: response.account.id,
     accessToken: response.accessToken,
+    refreshToken: response.refreshToken,
     onboardingCompletedAt: response.account.onboardingCompletedAt,
     user: response.user,
   };

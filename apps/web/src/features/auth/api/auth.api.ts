@@ -2,26 +2,17 @@ import type { GoogleSignInInput, GoogleSignInResponse } from "@/features/auth/ty
 import { httpClient } from "@/shared/api/http-client";
 import type { ApiResponse } from "@/shared/api/types";
 
-/**
- * Sessão de desenvolvimento: provisiona (ou reencontra) a conta e o usuário de dev
- * na API e devolve o mesmo `SessionDto` do login Google. A rota responde 404 fora
- * de desenvolvimento.
- *
- * TODO(RF-AUTH-01): sai junto com esta função quando o OAuth do Google entrar.
- */
-export async function startDevSession() {
-  const response = await httpClient.post<ApiResponse<GoogleSignInResponse>>("/auth/dev-session");
-  return response.data.data;
-}
-
-/** TODO(RF-AUTH-01): ainda não chamado — o painel usa `startDevSession`. */
+/** Troca o id token do Google pela sessão da API (RF-AUTH-01). */
 export async function signInWithGoogle(input: GoogleSignInInput) {
   const response = await httpClient.post<ApiResponse<GoogleSignInResponse>>("/auth/google", input);
   return response.data.data;
 }
 
-export async function refreshSession() {
-  const response = await httpClient.post<ApiResponse<GoogleSignInResponse>>("/auth/refresh");
+/** O refresh token é rotacionado pela API: a resposta traz um novo par. */
+export async function refreshSession(refreshToken: string) {
+  const response = await httpClient.post<ApiResponse<GoogleSignInResponse>>("/auth/refresh", {
+    refreshToken,
+  });
   return response.data.data;
 }
 

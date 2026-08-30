@@ -64,15 +64,16 @@ async function resolvePrincipal(
   const bearerToken = readBearerToken(headers.authorization);
 
   if (bearerToken) {
-    const principal = await accessTokenIssuer.verify(bearerToken);
-
-    if (principal) {
-      return principal;
-    }
+    // Um Bearer apresentado e recusado encerra a decisão: cair no atalho abaixo
+    // trocaria "token expirado" por uma identidade de dev inventada, e o 401
+    // que renovaria a sessão viraria erro no primeiro repositório que exigisse
+    // o usuário — o `userId` do atalho é o id da *conta*, que não existe em
+    // `users`. Quem tenta se identificar e falha recebe 401.
+    return (await accessTokenIssuer.verify(bearerToken)) ?? undefined;
   }
 
   // TODO(RF-AUTH-03): atalho só de desenvolvimento. O fluxo real é o Bearer
-  // acima; este header existe porque o frontend ainda não liga o OAuth do
+  // acima; este header existe para exercitar a API sem passar pelo OAuth do
   // Google, e é bloqueado em produção pelo guarda de stage.
   if (env.stage !== "prod") {
     const devAccountId = headers["x-account-id"];

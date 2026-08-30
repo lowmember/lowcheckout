@@ -8,6 +8,8 @@ export interface SessionUser {
 export interface Session {
   accountId: string;
   accessToken: string | null;
+  /** Renova o `accessToken` sem refazer o consentimento do Google (RF-AUTH-03). */
+  refreshToken: string | null;
   /** `null` enquanto o onboarding da conta estiver pendente (RF-ONB-01). */
   onboardingCompletedAt: string | null;
   user: SessionUser;
@@ -17,8 +19,8 @@ export interface Session {
  * Resposta de `POST /auth/google` e `POST /auth/refresh` — o `SessionDto` da API.
  *
  * Note que ela não devolve `accountId` solto nem `onboardingCompletedAt`: a conta
- * vem inteira e o atalho de redirecionamento é `onboardingPending`. Converter
- * isto na `Session` local é trabalho de `use-session` quando o OAuth entrar.
+ * vem inteira e o atalho de redirecionamento é `onboardingPending`. `toSession`
+ * (lib/session.ts) converte isto na `Session` local.
  */
 export interface GoogleSignInResponse {
   tokenType: "Bearer";
@@ -31,6 +33,6 @@ export interface GoogleSignInResponse {
 }
 
 export interface GoogleSignInInput {
-  /** `code` do OAuth ou `id_token`, conforme o fluxo que a API adotar. */
-  credential: string;
+  /** O `credential` que o GIS devolve — id token JWT, validado contra o JWKS do Google. */
+  idToken: string;
 }
