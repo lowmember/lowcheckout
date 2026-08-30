@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { AddSectionDialog } from "@/features/checkouts/components/builder/add-section-dialog";
 import { CheckoutJsonDialog } from "@/features/checkouts/components/builder/checkout-json-dialog";
+import { ItemPropertiesPanel } from "@/features/checkouts/components/builder/item-properties-panel";
 import { PreviewFrame } from "@/features/checkouts/components/builder/preview-frame";
 import { PropertiesPanel } from "@/features/checkouts/components/builder/properties-panel";
 import { SectionListPanel } from "@/features/checkouts/components/builder/section-list-panel";
@@ -12,6 +13,7 @@ import { useCheckoutContent } from "@/features/checkouts/hooks/use-checkout-cont
 import { useCheckoutEditor } from "@/features/checkouts/hooks/use-checkout-editor";
 import type { Checkout } from "@/features/checkouts/types/checkout";
 import { cn } from "@/shared/lib/cn";
+import { Badge, type BadgeTone } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import {
   AlertTriangleIcon,
@@ -38,6 +40,24 @@ const INSPECTOR_OPTIONS = [
   { value: "theme" as const, label: "Tema", icon: <PaletteIcon className="size-3.5" /> },
 ];
 
+interface EditorStatus {
+  tone: BadgeTone;
+  label: string;
+}
+
+/** Um estado só, na ordem em que importa para quem edita. */
+function getEditorStatus(editor: {
+  isDirty: boolean;
+  hasUnpublishedChanges: boolean;
+  isPublished: boolean;
+}): EditorStatus {
+  if (editor.isDirty) return { tone: "warning", label: "Alterações não salvas" };
+  if (editor.hasUnpublishedChanges) return { tone: "info", label: "Aguardando publicação" };
+  if (editor.isPublished) return { tone: "success", label: "Publicado" };
+
+  return { tone: "neutral", label: "Rascunho" };
+}
+
 interface CheckoutEditorProps {
   checkout: Checkout;
 }
@@ -55,8 +75,25 @@ export function CheckoutEditor({ checkout }: CheckoutEditorProps) {
   const [isJsonOpen, setIsJsonOpen] = useState(false);
   const [isAddSectionOpen, setIsAddSectionOpen] = useState(false);
 
+  const status = getEditorStatus(editor);
+
+  function handleSelectSection(sectionId: string) {
+    editor.selectSection(sectionId);
+    setInspectorTab("section");
+  }
+
+  function handleSelectItem(sectionId: string, fieldKey: string, itemId: string) {
+    editor.selectItem(sectionId, fieldKey, itemId);
+    setInspectorTab("section");
+  }
+
+  const selectedItem = editor.selectedItem;
+  const selectedItemField = editor.selectedItemField;
+  const selectedItemValue = editor.selectedItemValue;
+  const selectedSection = editor.selectedSection;
+
   return (
-    <div className="flex h-screen flex-col bg-white">
+    <div className="flex h-screen flex-col overflow-hidden bg-white">
       <header className="flex shrink-0 flex-wrap items-center gap-3 border-neutral-200 border-b px-4 py-2.5">
         <Link
           to="/checkouts/$checkoutId"
@@ -67,17 +104,12 @@ export function CheckoutEditor({ checkout }: CheckoutEditorProps) {
           Voltar
         </Link>
 
-        <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
           <p className="truncate font-medium text-neutral-900 text-sm">{checkout.internalTitle}</p>
-          <p className="truncate text-neutral-500 text-xs">
-            {editor.isDirty
-              ? "Alterações não salvas"
-              : editor.hasUnpublishedChanges
-                ? "Salvo, aguardando publicação"
-                : editor.isPublished
-                  ? "Publicado"
-                  : "Rascunho"}
-          </p>
+          <Badge tone={status.tone} className="shrink-0">
+            <span aria-hidden="true" className="size-1.5 rounded-full bg-current opacity-70" />
+            {status.label}
+          </Badge>
         </div>
 
         <SegmentedControl
@@ -86,6 +118,8 @@ export function CheckoutEditor({ checkout }: CheckoutEditorProps) {
           onChange={setViewport}
           ariaLabel="Dispositivo do preview"
         />
+
+        <div aria-hidden="true" className="mx-0.5 h-6 w-px shrink-0 bg-neutral-200" />
 
         <Button variant="secondary" size="sm" onClick={() => setIsJsonOpen(true)}>
           <CodeIcon className="size-4" />
@@ -132,24 +166,36 @@ export function CheckoutEditor({ checkout }: CheckoutEditorProps) {
         </div>
       )}
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 xl:grid-cols-[264px_1fr_320px]">
-        <aside className="hidden min-h-0 border-neutral-200 border-r xl:block">
+      <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] overflow-hidden xl:grid-cols-[264px_1fr_320px]">
+        <aside className="hidden min-h-0 overflow-hidden border-neutral-200 border-r xl:block">
           <SectionListPanel
             schema={editor.schema}
             selectedSectionId={editor.selectedSectionId}
-            onSelect={(sectionId) => {
-              editor.selectSection(sectionId);
-              setInspectorTab("section");
-            }}
+            selectedItemId={editor.selectedItemId}
+            onSelect={handleSelectSection}
+            onSelectItem={handleSelectItem}
             onToggle={editor.toggleSection}
             onRemove={editor.removeSection}
             onMove={editor.moveSection}
             onAdd={() => setIsAddSectionOpen(true)}
+            onAddItem={editor.addSectionItem}
+            onRemoveItem={editor.removeSectionItem}
+            onMoveItem={editor.moveSectionItem}
           />
         </aside>
 
         <main className="min-h-0 overflow-hidden @container">
-          <PreviewFrame schema={editor.schema} content={content} viewport={viewport} />
+          <PreviewFrame
+            schema={editor.schema}
+            content={content}
+            viewport={viewport}
+            selection={{
+              selectedSectionId: editor.selectedSectionId,
+              selectedItemId: editor.selectedItemId,
+              onSelectSection: handleSelectSection,
+              onSelectItem: handleSelectItem,
+            }}
+          />
         </main>
 
         <aside className="hidden min-h-0 overflow-y-auto border-neutral-200 border-l xl:block">
@@ -163,16 +209,50 @@ export function CheckoutEditor({ checkout }: CheckoutEditorProps) {
             />
           </div>
 
-          {inspectorTab === "section" ? (
+          {inspectorTab !== "section" ? (
+            <ThemePanel theme={editor.schema.theme} onChange={editor.updateTheme} />
+          ) : selectedSection && selectedItem && selectedItemField && selectedItemValue ? (
+            <ItemPropertiesPanel
+              section={selectedSection}
+              field={selectedItemField}
+              item={selectedItemValue}
+              index={editor.selectedItemIndex}
+              total={editor.selectedItemCount}
+              onChange={(patch) =>
+                editor.updateSectionItem(
+                  selectedSection.id,
+                  selectedItem.fieldKey,
+                  selectedItem.itemId,
+                  patch,
+                )
+              }
+              onMove={(from, to) =>
+                editor.moveSectionItem(selectedSection.id, selectedItem.fieldKey, from, to)
+              }
+              onDuplicate={() =>
+                editor.duplicateSectionItem(
+                  selectedSection.id,
+                  selectedItem.fieldKey,
+                  selectedItem.itemId,
+                )
+              }
+              onRemove={() =>
+                editor.removeSectionItem(
+                  selectedSection.id,
+                  selectedItem.fieldKey,
+                  selectedItem.itemId,
+                )
+              }
+              onBack={() => editor.selectSection(selectedSection.id)}
+            />
+          ) : (
             <PropertiesPanel
-              section={editor.selectedSection}
+              section={selectedSection}
               onChange={(patch) => {
                 if (!editor.selectedSectionId) return;
                 editor.updateSectionProps(editor.selectedSectionId, patch);
               }}
             />
-          ) : (
-            <ThemePanel theme={editor.schema.theme} onChange={editor.updateTheme} />
           )}
         </aside>
       </div>

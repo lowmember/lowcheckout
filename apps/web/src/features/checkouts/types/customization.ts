@@ -1,7 +1,3 @@
-import type { CheckoutSchema } from "@/features/checkouts/types/checkout-schema";
-
-export const CHECKOUT_CUSTOMIZATION_VERSION = 1;
-
 /**
  * Documento gravado no JSONB `checkout.customization`.
  *
@@ -10,20 +6,18 @@ export const CHECKOUT_CUSTOMIZATION_VERSION = 1;
  * é o par mínimo para "salvar sem publicar" (RF-CHK-07). O histórico continua
  * sendo a revisão que a API grava a cada escrita.
  *
- * TODO(contrato): a API validava o catálogo plano antigo com `strictObject`.
- * Ela precisa aceitar este documento aninhado para a experiência de templates
- * + seções existir. O envelope da requisição (`{ customization, source }`) e a
- * gravação de revisões continuam exatamente iguais.
+ * A definição vive em `@lowcheckout/contracts`: é o mesmo documento que
+ * `PUT /checkouts/{id}/customization` valida por inteiro.
  */
-export interface CheckoutCustomization {
-  version: number;
-  draft: CheckoutSchema;
-  published: CheckoutSchema | null;
-  publishedAt: string | null;
-}
+
+export type { CheckoutCustomization } from "@lowcheckout/contracts";
+export { CHECKOUT_CUSTOMIZATION_VERSION } from "@lowcheckout/contracts";
 
 /**
  * Origem da escrita. A API grava uma revisão em `checkout_customization_revisions`
  * com esse `source`, e é ele que permite reverter um "Importar" (RF-CHK-08).
+ *
+ * O contrato também aceita `"ai"`, que o builder ainda não produz — o slice
+ * expõe só o que ele sabe enviar.
  */
 export type CustomizationSource = "builder" | "json_import";

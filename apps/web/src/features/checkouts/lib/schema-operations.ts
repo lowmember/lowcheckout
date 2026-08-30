@@ -1,4 +1,9 @@
-import { createSection, getSectionDefinition } from "@/features/checkouts/lib/section-registry";
+import { isRecord, toPropsRecord } from "@/features/checkouts/lib/schema-normalizers";
+import {
+  createSection,
+  findListField,
+  getSectionDefinition,
+} from "@/features/checkouts/lib/section-registry";
 import type {
   CheckoutSchema,
   CheckoutSection,
@@ -59,6 +64,151 @@ export function updateSectionProps(
         : section,
     ),
   };
+}
+
+/* — Elementos dentro de uma seção —
+ *
+ * Benefícios, depoimentos, perguntas e links são arrays dentro dos props. Para
+ * o editor eles são "elementos" de primeira classe: dá para selecionar,
+ * reordenar e excluir sem abrir o painel da seção. As operações continuam
+ * puras e passam por `updateSectionProps`, então o preview, o JSON e a
+ * validação de publicação enxergam a mesma mudança.
+ */
+
+export function getSectionItems(
+  section: CheckoutSection,
+  fieldKey: string,
+): Record<string, unknown>[] {
+  const value = toPropsRecord(section.props)[fieldKey];
+
+  return Array.isArray(value) ? value.filter(isRecord) : [];
+}
+
+export function findSectionItem(
+  schema: CheckoutSchema,
+  sectionId: string | null,
+  fieldKey: string | null,
+  itemId: string | null,
+) {
+  const section = findSection(schema, sectionId);
+  if (!section || !fieldKey || !itemId) return undefined;
+
+  return getSectionItems(section, fieldKey).find((item) => item.id === itemId);
+}
+
+export function findSectionItemIndex(
+  schema: CheckoutSchema,
+  sectionId: string | null,
+  fieldKey: string | null,
+  itemId: string | null,
+) {
+  const section = findSection(schema, sectionId);
+  if (!section || !fieldKey || !itemId) return -1;
+
+  return getSectionItems(section, fieldKey).findIndex((item) => item.id === itemId);
+}
+
+function replaceSectionItems(
+  schema: CheckoutSchema,
+  sectionId: string,
+  fieldKey: string,
+  build: (items: Record<string, unknown>[]) => Record<string, unknown>[] | null,
+): CheckoutSchema {
+  const section = findSection(schema, sectionId);
+  if (!section) return schema;
+
+  const next = build(getSectionItems(section, fieldKey));
+  if (!next) return schema;
+
+  return updateSectionProps(schema, sectionId, { [fieldKey]: next });
+}
+
+/** Devolve `null` quando a lista já está cheia — o chamador não precisa saber o limite. */
+export function addSectionItem(
+  schema: CheckoutSchema,
+  sectionId: string,
+  fieldKey: string,
+): { schema: CheckoutSchema; itemId: string | null } {
+  const section = findSection(schema, sectionId);
+  const field = section ? findListField(section.type, fieldKey) : undefined;
+  if (!section || !field) return { schema, itemId: null };
+
+  const items = getSectionItems(section, fieldKey);
+  if (items.length >= field.maxItems) return { schema, itemId: null };
+
+  const item = field.createItem();
+  const itemId = typeof item.id === "string" ? item.id : null;
+
+  return {
+    schema: updateSectionProps(schema, sectionId, { [fieldKey]: [...items, item] }),
+    itemId,
+  };
+}
+
+export function removeSectionItem(
+  schema: CheckoutSchema,
+  sectionId: string,
+  fieldKey: string,
+  itemId: string,
+): CheckoutSchema {
+  return replaceSectionItems(schema, sectionId, fieldKey, (items) =>
+    items.filter((item) => item.id !== itemId),
+  );
+}
+
+export function moveSectionItem(
+  schema: CheckoutSchema,
+  sectionId: string,
+  fieldKey: string,
+  fromIndex: number,
+  toIndex: number,
+): CheckoutSchema {
+  return replaceSectionItems(schema, sectionId, fieldKey, (items) => {
+    const lastIndex = items.length - 1;
+
+    if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) return null;
+    if (fromIndex > lastIndex || toIndex > lastIndex) return null;
+
+    const next = [...items];
+    const [moved] = next.splice(fromIndex, 1);
+    next.splice(toIndex, 0, moved);
+
+    return next;
+  });
+}
+
+export function duplicateSectionItem(
+  schema: CheckoutSchema,
+  sectionId: string,
+  fieldKey: string,
+  itemId: string,
+  nextItemId: string,
+): CheckoutSchema {
+  const section = findSection(schema, sectionId);
+  const field = section ? findListField(section.type, fieldKey) : undefined;
+  if (!section || !field) return schema;
+
+  return replaceSectionItems(schema, sectionId, fieldKey, (items) => {
+    const index = items.findIndex((item) => item.id === itemId);
+    if (index < 0 || items.length >= field.maxItems) return null;
+
+    const next = [...items];
+    next.splice(index + 1, 0, { ...items[index], id: nextItemId });
+
+    return next;
+  });
+}
+
+export function updateSectionItem(
+  schema: CheckoutSchema,
+  sectionId: string,
+  fieldKey: string,
+  itemId: string,
+  patch: Record<string, unknown>,
+): CheckoutSchema {
+  return replaceSectionItems(schema, sectionId, fieldKey, (items) =>
+    items.map((item) => (item.id === itemId ? { ...item, ...patch } : item)),
+  );
 }
 
 export interface ThemePatch {

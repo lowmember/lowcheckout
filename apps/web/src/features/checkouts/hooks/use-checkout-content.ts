@@ -18,7 +18,8 @@ export function useCheckoutContent(checkout: Checkout) {
     displayName: checkout.displayName,
     productName: product?.name ?? checkout.displayName,
     productDescription: product?.description ?? null,
-    productImageUrl: product?.imageUrl ?? null,
+    // Mesma precedência da página pública: a imagem da oferta ganha da do produto.
+    productImageUrl: firstOffer?.imageUrl ?? product?.imageUrl ?? null,
     offerName: firstOffer?.name ?? null,
     priceInCents: firstOffer?.priceInCents ?? null,
     currency: firstOffer?.currency ?? "BRL",

@@ -6,22 +6,38 @@ import {
   toCustomization,
   validateSchemaForPublish,
 } from "@/features/checkouts/lib/checkout-schema";
+import { createLocalId } from "@/features/checkouts/lib/create-id";
 import {
   addSection,
+  addSectionItem,
+  duplicateSectionItem,
   findSection,
+  findSectionItem,
+  findSectionItemIndex,
+  getSectionItems,
   moveSection,
+  moveSectionItem,
   removeSection,
+  removeSectionItem,
   type ThemePatch,
   toggleSection,
+  updateSectionItem,
   updateSectionProps,
   updateTheme,
 } from "@/features/checkouts/lib/schema-operations";
+import { findListField } from "@/features/checkouts/lib/section-registry";
 import type { Checkout } from "@/features/checkouts/types/checkout";
 import type {
   CheckoutSchema,
   CheckoutSectionType,
 } from "@/features/checkouts/types/checkout-schema";
 import type { CustomizationSource } from "@/features/checkouts/types/customization";
+
+/** Elemento dentro de uma seção: o array em que ele vive mais o id dele. */
+export interface EditorItemSelection {
+  fieldKey: string;
+  itemId: string;
+}
 
 interface UseCheckoutEditorOptions {
   checkout: Checkout;
@@ -39,6 +55,7 @@ export function useCheckoutEditor({ checkout, hasLinkedOffer }: UseCheckoutEdito
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
     saved.draft.sections[0]?.id ?? null,
   );
+  const [selectedItem, setSelectedItem] = useState<EditorItemSelection | null>(null);
   const [pendingSource, setPendingSource] = useState<CustomizationSource>("builder");
 
   const {
@@ -57,6 +74,19 @@ export function useCheckoutEditor({ checkout, hasLinkedOffer }: UseCheckoutEdito
   }, [saved.draft]);
 
   const selectedSection = findSection(schema, selectedSectionId);
+  const selectedItemValue = findSectionItem(
+    schema,
+    selectedSectionId,
+    selectedItem?.fieldKey ?? null,
+    selectedItem?.itemId ?? null,
+  );
+  // O elemento pode ter sumido (exclusão, importação de JSON): sem valor, a
+  // seleção volta a ser da seção e nenhum painel fica apontando para o vazio.
+  const activeItem = selectedItemValue ? selectedItem : null;
+  const activeItemField =
+    activeItem && selectedSection
+      ? findListField(selectedSection.type, activeItem.fieldKey)
+      : undefined;
   const isDirty = !isSameSchema(schema, saved.draft);
   const publishErrors = validateSchemaForPublish(schema);
   const isPublished = saved.published !== null;
@@ -73,7 +103,18 @@ export function useCheckoutEditor({ checkout, hasLinkedOffer }: UseCheckoutEdito
 
     if (!next.sections.some((section) => section.id === selectedSectionId)) {
       setSelectedSectionId(next.sections[0]?.id ?? null);
+      setSelectedItem(null);
     }
+  }
+
+  function selectSection(sectionId: string) {
+    setSelectedSectionId(sectionId);
+    setSelectedItem(null);
+  }
+
+  function selectItem(sectionId: string, fieldKey: string, itemId: string) {
+    setSelectedSectionId(sectionId);
+    setSelectedItem({ fieldKey, itemId });
   }
 
   return {
@@ -81,7 +122,24 @@ export function useCheckoutEditor({ checkout, hasLinkedOffer }: UseCheckoutEdito
     savedCustomization: saved,
     selectedSection,
     selectedSectionId,
-    selectSection: setSelectedSectionId,
+    selectSection,
+
+    /** Seleção fina: um elemento dentro da seção (benefício, FAQ, link...). */
+    selectItem,
+    selectedItem: activeItem,
+    selectedItemId: activeItem?.itemId ?? null,
+    selectedItemField: activeItemField,
+    selectedItemValue,
+    selectedItemIndex: findSectionItemIndex(
+      schema,
+      selectedSectionId,
+      activeItem?.fieldKey ?? null,
+      activeItem?.itemId ?? null,
+    ),
+    selectedItemCount:
+      selectedSection && activeItem
+        ? getSectionItems(selectedSection, activeItem.fieldKey).length
+        : 0,
 
     isDirty,
     isPublished,
@@ -103,6 +161,33 @@ export function useCheckoutEditor({ checkout, hasLinkedOffer }: UseCheckoutEdito
       setSelectedSectionId(next.sections[next.sections.length - 1].id);
     },
     removeSection: (sectionId: string) => replaceSchema(removeSection(schema, sectionId)),
+
+    addSectionItem: (sectionId: string, fieldKey: string) => {
+      const result = addSectionItem(schema, sectionId, fieldKey);
+      if (!result.itemId) return;
+
+      replaceSchema(result.schema);
+      selectItem(sectionId, fieldKey, result.itemId);
+    },
+    removeSectionItem: (sectionId: string, fieldKey: string, itemId: string) => {
+      replaceSchema(removeSectionItem(schema, sectionId, fieldKey, itemId));
+
+      if (selectedItem?.itemId === itemId) setSelectedItem(null);
+    },
+    moveSectionItem: (sectionId: string, fieldKey: string, from: number, to: number) =>
+      replaceSchema(moveSectionItem(schema, sectionId, fieldKey, from, to)),
+    duplicateSectionItem: (sectionId: string, fieldKey: string, itemId: string) => {
+      const nextItemId = createLocalId("item");
+
+      replaceSchema(duplicateSectionItem(schema, sectionId, fieldKey, itemId, nextItemId));
+      selectItem(sectionId, fieldKey, nextItemId);
+    },
+    updateSectionItem: (
+      sectionId: string,
+      fieldKey: string,
+      itemId: string,
+      patch: Record<string, unknown>,
+    ) => replaceSchema(updateSectionItem(schema, sectionId, fieldKey, itemId, patch)),
     toggleSection: (sectionId: string) => replaceSchema(toggleSection(schema, sectionId)),
     moveSection: (from: number, to: number) => replaceSchema(moveSection(schema, from, to)),
     updateSectionProps: (sectionId: string, patch: Record<string, unknown>) =>

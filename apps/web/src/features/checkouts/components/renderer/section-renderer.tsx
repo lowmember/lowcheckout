@@ -1,3 +1,4 @@
+import { SectionScopeProvider } from "@/features/checkouts/components/renderer/renderer-context";
 import { BenefitsSection } from "@/features/checkouts/components/renderer/sections/benefits-section";
 import { CheckoutFormSection } from "@/features/checkouts/components/renderer/sections/checkout-form-section";
 import { FaqSection } from "@/features/checkouts/components/renderer/sections/faq-section";
@@ -18,6 +19,12 @@ interface SectionRendererProps {
  * garante em compilação que toda seção do schema tem um renderizador.
  */
 export function SectionRenderer({ section }: SectionRendererProps) {
+  return (
+    <SectionScopeProvider sectionId={section.id}>{renderSection(section)}</SectionScopeProvider>
+  );
+}
+
+function renderSection(section: CheckoutSection) {
   switch (section.type) {
     case "hero":
       return <HeroSection props={section.props} />;

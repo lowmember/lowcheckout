@@ -1,4 +1,5 @@
 import type { LeafPropertyField } from "@/features/checkouts/lib/section-registry";
+import { ImageField } from "@/features/uploads";
 import { cn } from "@/shared/lib/cn";
 import { SelectField } from "@/shared/ui/select-field";
 import { TextField } from "@/shared/ui/text-field";
@@ -17,7 +18,6 @@ interface PropertyControlProps {
 export function PropertyControl({ field, value, onChange }: PropertyControlProps) {
   switch (field.kind) {
     case "text":
-    case "image":
       return (
         <TextField
           label={field.label}
@@ -25,8 +25,18 @@ export function PropertyControl({ field, value, onChange }: PropertyControlProps
           value={typeof value === "string" ? value : ""}
           maxLength={field.maxLength}
           placeholder={field.placeholder}
-          inputMode={field.kind === "image" ? "url" : undefined}
           onChange={(event) => onChange(event.target.value)}
+        />
+      );
+
+    case "image":
+      return (
+        <ImageField
+          label={field.label}
+          hint={field.hint}
+          value={typeof value === "string" ? value : ""}
+          placeholder={field.placeholder}
+          onChange={onChange}
         />
       );
 

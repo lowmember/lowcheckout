@@ -3,7 +3,9 @@ import {
   SectionContainer,
   Text,
 } from "@/features/checkouts/components/renderer/renderer-primitives";
-import type { BenefitsProps } from "@/features/checkouts/types/checkout-schema";
+import { useSelectableItem } from "@/features/checkouts/components/renderer/selectable-item";
+import type { BenefitItem, BenefitsProps } from "@/features/checkouts/types/checkout-schema";
+import { cn } from "@/shared/lib/cn";
 import { CheckIcon } from "@/shared/ui/icons";
 
 interface BenefitsSectionProps {
@@ -22,26 +24,35 @@ export function BenefitsSection({ props }: BenefitsSectionProps) {
 
       <ul className="mt-5 grid gap-4 @xl:grid-cols-2">
         {props.items.map((item) => (
-          <li key={item.id} className="flex gap-3">
-            <span
-              className="flex size-6 shrink-0 items-center justify-center rounded-full"
-              style={{ backgroundColor: "var(--lc-primary)", color: "var(--lc-primary-text)" }}
-            >
-              <CheckIcon className="size-3.5" />
-            </span>
-            <div className="min-w-0">
-              <Text size={0.95} className="font-medium">
-                {item.title}
-              </Text>
-              {item.description.trim() && (
-                <Text isMuted size={0.85} className="mt-0.5">
-                  {item.description}
-                </Text>
-              )}
-            </div>
-          </li>
+          <BenefitRow key={item.id} item={item} />
         ))}
       </ul>
     </SectionContainer>
+  );
+}
+
+function BenefitRow({ item }: { item: BenefitItem }) {
+  const selectable = useSelectableItem("items", item.id, item.title);
+
+  return (
+    <li className={cn("flex gap-3", selectable.className)}>
+      <span
+        className="flex size-6 shrink-0 items-center justify-center rounded-full"
+        style={{ backgroundColor: "var(--lc-primary)", color: "var(--lc-primary-text)" }}
+      >
+        <CheckIcon className="size-3.5" />
+      </span>
+      <div className="min-w-0">
+        <Text size={0.95} className="font-medium">
+          {item.title}
+        </Text>
+        {item.description.trim() && (
+          <Text isMuted size={0.85} className="mt-0.5">
+            {item.description}
+          </Text>
+        )}
+      </div>
+      {selectable.overlay}
+    </li>
   );
 }

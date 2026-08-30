@@ -70,6 +70,8 @@ export interface ListPropertyField extends PropertyFieldBase {
   kind: "list";
   /** Campo do item usado como título na lista dobrável. */
   titleKey: string;
+  /** Nome de um item só, no singular: usado na árvore de camadas. */
+  itemLabel: string;
   addLabel: string;
   maxItems: number;
   itemFields: LeafPropertyField[];
@@ -235,6 +237,7 @@ const benefits: SectionDefinition<"benefits"> = {
       key: "items",
       label: "Benefícios",
       titleKey: "title",
+      itemLabel: "Benefício",
       addLabel: "Adicionar benefício",
       maxItems: 12,
       createItem: () => toPropsRecord(benefit("Novo benefício", "")),
@@ -293,6 +296,7 @@ const socialProof: SectionDefinition<"social-proof"> = {
       key: "items",
       label: "Depoimentos",
       titleKey: "name",
+      itemLabel: "Depoimento",
       addLabel: "Adicionar depoimento",
       maxItems: 12,
       createItem: () => toPropsRecord(testimonial("Novo cliente", "", "")),
@@ -364,6 +368,7 @@ const faqSection: SectionDefinition<"faq"> = {
       key: "items",
       label: "Perguntas",
       titleKey: "question",
+      itemLabel: "Pergunta",
       addLabel: "Adicionar pergunta",
       maxItems: 20,
       createItem: () => toPropsRecord(faq("Nova pergunta", "")),
@@ -466,6 +471,7 @@ const footer: SectionDefinition<"footer"> = {
       key: "links",
       label: "Links",
       titleKey: "label",
+      itemLabel: "Link",
       addLabel: "Adicionar link",
       maxItems: 6,
       createItem: () => toPropsRecord(footerLink("Termos de uso", "https://")),
@@ -491,6 +497,22 @@ export const SECTION_REGISTRY: { [TType in CheckoutSectionType]: SectionDefiniti
 
 /** Ordem em que as seções aparecem no catálogo "adicionar seção". */
 export const SECTION_TYPES = Object.keys(SECTION_REGISTRY) as CheckoutSectionType[];
+
+export function isListField(field: PropertyField): field is ListPropertyField {
+  return field.kind === "list";
+}
+
+/** Listas de uma seção — os "elementos" que a árvore de camadas expõe. */
+export function getListFields(type: CheckoutSectionType): ListPropertyField[] {
+  return getSectionDefinition(type).fields.filter(isListField);
+}
+
+export function findListField(
+  type: CheckoutSectionType,
+  fieldKey: string,
+): ListPropertyField | undefined {
+  return getListFields(type).find((field) => field.key === fieldKey);
+}
 
 export function getSectionDefinition(type: CheckoutSectionType): SectionDefinition {
   return SECTION_REGISTRY[type] as SectionDefinition;
