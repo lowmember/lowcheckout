@@ -55,6 +55,7 @@ import {
   makeGetPublicOrderStatusController,
   makeProcessPaymentWebhookController,
 } from "@/infra/di/factories/public-controllers.factory";
+import { makeCreateImageUploadController } from "@/infra/di/factories/upload-controllers.factory";
 import type { HttpRouteRegistry } from "@/presentation/http/protocols/http-route";
 import { httpRoutes, type RouteName } from "@/presentation/http/routes/http-routes";
 import { InMemoryHttpRouteRegistry } from "@/presentation/http/routes/in-memory-route-registry";
@@ -81,6 +82,8 @@ const controllerFactories = {
   getProduct: makeGetProductController,
   createProduct: makeCreateProductController,
   updateProduct: makeUpdateProductController,
+
+  createImageUpload: makeCreateImageUploadController,
 
   listOffers: makeListOffersController,
   createOffer: makeCreateOfferController,

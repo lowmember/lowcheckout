@@ -30,7 +30,7 @@ src/styles/    global.css (entrada do Tailwind)
 2. **Features não se enxergam por dentro**: importe outra feature só pelo barrel (`@/features/x`). Se duas features precisam da mesma coisa, promova para `shared/`.
 3. **Imports sempre por `@/`** — nada de `../../..`. O Biome ordena e separa os blocos; não organize na mão.
 4. **Env só via `@/shared/config/env`** — nunca `import.meta.env` espalhado.
-5. **HTTP só via `httpClient`** (`@/shared/api`) dentro de `features/*/api/*.api.ts`. Componentes não chamam axios.
+5. **HTTP só via `httpClient`** (`@/shared/api`) dentro de `features/*/api/*.api.ts`. Componentes não chamam axios. Exceção única: o `PUT` da imagem no S3 (`features/uploads/api`) usa `fetch` cru — `baseURL` e `Authorization` invalidariam a URL assinada.
 6. **Query keys e `queryOptions`** ficam em `features/*/api/*.queries.ts` e são reusados por hooks e loaders de rota.
 7. **Commits em Conventional Commits** (`feat(checkouts): ...`) — o hook `commit-msg` rejeita o resto.
 8. **Nada de `any`** (`noExplicitAny` é erro) e textos de UI em pt-BR.

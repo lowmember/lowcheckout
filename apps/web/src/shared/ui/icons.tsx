@@ -309,6 +309,16 @@ export function ImageIcon(props: IconProps) {
   );
 }
 
+export function UploadIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 15.75V4.5" />
+      <path d="m7.75 8.75 4.25-4.25 4.25 4.25" />
+      <path d="M4.25 15.25v2.5a2 2 0 0 0 2 2h11.5a2 2 0 0 0 2-2v-2.5" />
+    </Icon>
+  );
+}
+
 export function AlertTriangleIcon(props: IconProps) {
   return (
     <Icon {...props}>

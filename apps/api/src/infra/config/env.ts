@@ -60,6 +60,19 @@ const envSchema = z.object({
    * incondicional: sem ele, nenhum webhook é aceito.
    */
   WEBHOOK_SECRET: optionalText,
+
+  /** O Lambda já injeta; local vale para assinar URLs contra a região certa. */
+  AWS_REGION: z.string().default("us-east-1"),
+
+  /**
+   * Bucket das imagens enviadas pelo painel. Opcional de propósito: sem ele o
+   * envio responde 503 e o painel segue aceitando URL colada — nenhum ambiente
+   * deixa de subir só porque não tem bucket.
+   */
+  S3_UPLOADS_BUCKET: optionalText,
+
+  /** CDN ou domínio próprio na frente do bucket. Vazio usa o endpoint do S3. */
+  S3_UPLOADS_PUBLIC_BASE_URL: optionalText,
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -84,4 +97,7 @@ export const env = {
   paymentGateway: parsed.data.PAYMENT_GATEWAY,
   pixExpirationSeconds: parsed.data.PIX_EXPIRATION_SECONDS,
   webhookSecret: parsed.data.WEBHOOK_SECRET,
+  awsRegion: parsed.data.AWS_REGION,
+  s3UploadsBucket: parsed.data.S3_UPLOADS_BUCKET,
+  s3UploadsPublicBaseUrl: parsed.data.S3_UPLOADS_PUBLIC_BASE_URL,
 } as const;

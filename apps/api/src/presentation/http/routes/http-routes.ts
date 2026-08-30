@@ -37,6 +37,10 @@ export const httpRoutes = {
   createProduct: { name: "createProduct", method: "POST", path: "/products" },
   updateProduct: { name: "updateProduct", method: "PATCH", path: "/products/{productId}" },
 
+  // Envio de imagem de produto, oferta e seções do checkout: a API só assina a
+  // URL; o arquivo vai do navegador direto para o bucket.
+  createImageUpload: { name: "createImageUpload", method: "POST", path: "/uploads/images" },
+
   listOffers: { name: "listOffers", method: "GET", path: "/products/{productId}/offers" },
   createOffer: { name: "createOffer", method: "POST", path: "/products/{productId}/offers" },
   getOffer: { name: "getOffer", method: "GET", path: "/offers/{offerId}" },

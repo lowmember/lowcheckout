@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useState } from "react";
 
 import { useSaveProduct } from "@/features/products/hooks/use-save-product";
 import type { Product, ProductFieldErrors } from "@/features/products/types/product";
+import { ImageField } from "@/features/uploads";
 import { isAbsoluteUrl } from "@/shared/lib/is-absolute-url";
 import { Button } from "@/shared/ui/button";
 import { Dialog } from "@/shared/ui/dialog";
@@ -113,13 +114,12 @@ export function ProductFormDialog({ isOpen, onClose, product }: ProductFormDialo
           onChange={(event) => setField("description", event.target.value)}
         />
 
-        <TextField
-          label="URL da imagem"
-          placeholder="https://..."
+        <ImageField
+          label="Imagem do produto"
           value={values.imageUrl}
           error={errors.imageUrl}
-          inputMode="url"
-          onChange={(event) => setField("imageUrl", event.target.value)}
+          hint="Aparece no checkout quando a oferta não tem imagem própria."
+          onChange={(imageUrl) => setField("imageUrl", imageUrl)}
         />
 
         <TextField

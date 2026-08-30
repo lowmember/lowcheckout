@@ -21,6 +21,7 @@ import type { IdGenerator } from "@/application/shared/ports/id-generator";
 import type { Logger } from "@/application/shared/ports/logger";
 import type { Mailer } from "@/application/shared/ports/mailer";
 import type { SecretGenerator } from "@/application/shared/ports/secret-generator";
+import type { FileStorage } from "@/application/uploads/ports/file-storage";
 import type { AccountsRepository } from "@/domain/accounts/repositories/accounts.repository";
 import type { CheckoutEventsRepository } from "@/domain/analytics/repositories/checkout-events.repository";
 import type { OrderAnalyticsRepository } from "@/domain/analytics/repositories/order-analytics.repository";
@@ -79,6 +80,8 @@ import { CryptoIdGenerator } from "@/infra/providers/crypto-id-generator.adapter
 import { CryptoSecretGenerator } from "@/infra/providers/crypto-secret-generator.adapter";
 import { Sha256Hasher } from "@/infra/providers/sha256-hasher.adapter";
 import { SystemClock } from "@/infra/providers/system-clock.adapter";
+import { S3FileStorage } from "@/infra/storage/s3-file-storage.adapter";
+import { UnavailableFileStorage } from "@/infra/storage/unavailable-file-storage.adapter";
 
 export interface Container {
   logger: Logger;
@@ -251,4 +254,21 @@ export function getGoogleIdentityVerifier(): GoogleIdentityVerifier {
   }
 
   return new JoseGoogleIdentityVerifier(env.googleClientId);
+}
+
+/**
+ * Mesmo arranjo do verificador do Google, e pela mesma razão: o bucket é
+ * opcional. Sem `S3_UPLOADS_BUCKET` o envio responde 503 e o painel continua
+ * aceitando URL colada, em vez de o ambiente inteiro deixar de subir.
+ */
+export function getFileStorage(): FileStorage {
+  if (!env.s3UploadsBucket) {
+    return new UnavailableFileStorage();
+  }
+
+  return new S3FileStorage({
+    bucket: env.s3UploadsBucket,
+    region: env.awsRegion,
+    publicBaseUrl: env.s3UploadsPublicBaseUrl,
+  });
 }
