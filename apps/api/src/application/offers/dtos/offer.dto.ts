@@ -1,17 +1,7 @@
-import type { OfferStatus } from "@/domain/offers/value-objects/offer-status";
+/**
+ * Reexporta o contrato: a forma deste DTO é a mesma que `apps/web` consome, e
+ * existe uma definição só, em `@lowcheckout/contracts`. O sufixo `Dto` é a
+ * convenção de papel da API (CLAUDE.md) e por isso o alias fica aqui.
+ */
 
-/** Contrato de saída dos casos de uso — só primitivos, nunca a entidade. */
-export interface OfferDto {
-  id: string;
-  productId: string;
-  name: string;
-  priceInCents: number;
-  currency: string;
-  /** `null` = herda o entregável padrão do produto (RF-OFER-02). */
-  deliveryUrl: string | null;
-  /** Fallback já resolvido (oferta → produto), para o painel não ter que recalcular. */
-  resolvedDeliveryUrl: string | null;
-  status: OfferStatus;
-  createdAt: string;
-  updatedAt: string;
-}
+export type { Offer as OfferDto } from "@lowcheckout/contracts";

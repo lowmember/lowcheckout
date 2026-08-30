@@ -1,7 +1,7 @@
-import type { CheckoutOfferDto } from "@/application/checkouts/dtos/checkout-offer.dto";
-import type { OfferDto } from "@/application/offers/dtos/offer.dto";
+/**
+ * Reexporta o contrato: a forma deste DTO é a mesma que `apps/web` consome, e
+ * existe uma definição só, em `@lowcheckout/contracts`. O sufixo `Dto` é a
+ * convenção de papel da API (CLAUDE.md) e por isso o alias fica aqui.
+ */
 
-/** O vínculo somado à oferta que ele expõe — o que a área de ofertas mostra (RF-CHK-06). */
-export interface LinkedOfferDto extends CheckoutOfferDto {
-  offer: OfferDto;
-}
+export type { LinkedOffer as LinkedOfferDto } from "@lowcheckout/contracts";

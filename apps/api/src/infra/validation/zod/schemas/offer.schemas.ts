@@ -1,45 +1,13 @@
-import { z } from "zod";
+/**
+ * Reexporta o contrato. Os schemas moram em `@lowcheckout/contracts/schemas`
+ * para que `apps/web` valide contra a mesma definição — este arquivo preserva o
+ * ponto de importação da infra, a única camada autorizada a conhecer zod
+ * (regra 1 do CLAUDE.md).
+ */
 
-import { OFFER_STATUSES } from "@/domain/offers/value-objects/offer-status";
-import {
-  idSchema,
-  optionalUrlSchema,
-  paginationSchema,
-} from "@/infra/validation/zod/schemas/shared.schemas";
-
-const offerStatusSchema = z.enum(OFFER_STATUSES);
-const offerNameSchema = z.string().trim().min(1).max(120);
-const priceInCentsSchema = z.number().int().positive();
-const currencySchema = z.string().trim().length(3);
-
-export const listOffersSchema = paginationSchema.extend({
-  productId: idSchema,
-  status: offerStatusSchema.optional(),
-});
-
-export const getOfferSchema = z.object({
-  offerId: idSchema,
-});
-
-export const createOfferSchema = z.object({
-  productId: idSchema,
-  name: offerNameSchema,
-  priceInCents: priceInCentsSchema,
-  currency: currencySchema.default("BRL"),
-  deliveryUrl: optionalUrlSchema,
-});
-
-export const updateOfferSchema = z
-  .object({
-    offerId: idSchema,
-    name: offerNameSchema.optional(),
-    priceInCents: priceInCentsSchema.optional(),
-    currency: currencySchema.optional(),
-    deliveryUrl: optionalUrlSchema,
-    status: offerStatusSchema.optional(),
-  })
-  .refine(
-    ({ offerId: _offerId, ...changes }) =>
-      Object.values(changes).some((value) => value !== undefined),
-    { error: "Informe ao menos um campo para alterar" },
-  );
+export {
+  createOfferSchema,
+  getOfferSchema,
+  listOffersSchema,
+  updateOfferSchema,
+} from "@lowcheckout/contracts/schemas";

@@ -1,12 +1,7 @@
-/** O vínculo checkout↔oferta e a URL pública que ele gerou (RF-CHK-05). */
-export interface CheckoutOfferDto {
-  id: string;
-  checkoutId: string;
-  offerId: string;
-  productId: string;
-  publicSlug: string;
-  position: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+/**
+ * Reexporta o contrato: a forma deste DTO é a mesma que `apps/web` consome, e
+ * existe uma definição só, em `@lowcheckout/contracts`. O sufixo `Dto` é a
+ * convenção de papel da API (CLAUDE.md) e por isso o alias fica aqui.
+ */
+
+export type { CheckoutOffer as CheckoutOfferDto } from "@lowcheckout/contracts";

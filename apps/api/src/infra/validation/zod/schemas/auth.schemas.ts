@@ -1,18 +1,13 @@
-import { z } from "zod";
+/**
+ * Reexporta o contrato. Os schemas moram em `@lowcheckout/contracts/schemas`
+ * para que `apps/web` valide contra a mesma definição — este arquivo preserva o
+ * ponto de importação da infra, a única camada autorizada a conhecer zod
+ * (regra 1 do CLAUDE.md).
+ */
 
-export const authenticateWithGoogleSchema = z.object({
-  idToken: z.string().trim().min(1, "Informe o id token do Google"),
-});
-
-export const refreshSessionSchema = z.object({
-  refreshToken: z.string().trim().min(1, "Informe o refresh token"),
-});
-
-export const logoutSchema = z.object({
-  refreshToken: z.string().trim().min(1, "Informe o refresh token"),
-});
-
-/** Corpo opcional: `POST /auth/dev-session` funciona com `{}` ou sem corpo. */
-export const createDevSessionSchema = z.object({
-  completeOnboarding: z.boolean().optional(),
-});
+export {
+  authenticateWithGoogleSchema,
+  createDevSessionSchema,
+  logoutSchema,
+  refreshSessionSchema,
+} from "@lowcheckout/contracts/schemas";

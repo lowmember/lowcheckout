@@ -1,18 +1,7 @@
-import type { PixelProvider } from "@/domain/checkouts/value-objects/pixel-provider";
-
 /**
- * O `accessToken` **nunca** sai daqui: a API só informa se existe um
- * configurado. Devolver a credencial de terceiro numa resposta desfaria o
- * motivo de guardá-la cifrada.
+ * Reexporta o contrato: a forma deste DTO é a mesma que `apps/web` consome, e
+ * existe uma definição só, em `@lowcheckout/contracts`. O sufixo `Dto` é a
+ * convenção de papel da API (CLAUDE.md) e por isso o alias fica aqui.
  */
-export interface CheckoutPixelDto {
-  id: string;
-  checkoutId: string;
-  provider: PixelProvider;
-  externalId: string;
-  hasAccessToken: boolean;
-  config: Record<string, unknown>;
-  isEnabled: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+
+export type { CheckoutPixel as CheckoutPixelDto } from "@lowcheckout/contracts";

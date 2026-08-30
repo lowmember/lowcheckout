@@ -1,17 +1,7 @@
-import type { AccountDto } from "@/application/accounts/dtos/account.dto";
-import type { UserDto } from "@/application/users/dtos/user.dto";
-
 /**
- * O que o frontend recebe ao autenticar ou renovar. O `refreshToken` aparece em
- * claro **só aqui**: no banco existe apenas o SHA-256 dele.
+ * Reexporta o contrato: a forma deste DTO é a mesma que `apps/web` consome, e
+ * existe uma definição só, em `@lowcheckout/contracts`. O sufixo `Dto` é a
+ * convenção de papel da API (CLAUDE.md) e por isso o alias fica aqui.
  */
-export interface SessionDto {
-  tokenType: "Bearer";
-  accessToken: string;
-  expiresIn: number;
-  refreshToken: string;
-  user: UserDto;
-  account: AccountDto;
-  /** Atalho de RF-ONB-01 para o frontend decidir o redirecionamento. */
-  onboardingPending: boolean;
-}
+
+export type { AuthSession as SessionDto } from "@lowcheckout/contracts";

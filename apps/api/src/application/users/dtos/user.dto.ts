@@ -1,10 +1,7 @@
-/** Contrato de saída dos casos de uso — só primitivos, nunca a entidade. */
-export interface UserDto {
-  id: string;
-  /** Vem do Google e é imutável: o e-mail editável é `account.contactEmail` (S22). */
-  email: string;
-  name: string;
-  avatarUrl: string | null;
-  lastLoginAt: string | null;
-  createdAt: string;
-}
+/**
+ * Reexporta o contrato: a forma deste DTO é a mesma que `apps/web` consome, e
+ * existe uma definição só, em `@lowcheckout/contracts`. O sufixo `Dto` é a
+ * convenção de papel da API (CLAUDE.md) e por isso o alias fica aqui.
+ */
+
+export type { User as UserDto } from "@lowcheckout/contracts";
