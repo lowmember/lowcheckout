@@ -24,4 +24,6 @@ export interface OrdersRepository {
   update(order: Order): Promise<void>;
   /** Pedidos vencidos ainda em `awaiting_payment` — o job de expiração (RF-PAG-03). */
   findExpirable(now: Date, limit: number): Promise<Order[]>;
+  /** Histórico que aponta para a oferta — barra a deleção dela. */
+  countByOfferId(accountId: string, offerId: string): Promise<number>;
 }

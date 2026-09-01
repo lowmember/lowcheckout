@@ -17,6 +17,7 @@ export interface OffersRepository {
   findById(accountId: string, offerId: string): Promise<Offer | null>;
   create(offer: Offer): Promise<void>;
   update(offer: Offer): Promise<void>;
+  delete(accountId: string, offerId: string): Promise<boolean>;
   /** Carga em lote das ofertas vinculadas a um checkout, indexada por id. */
   findByIds(accountId: string, offerIds: readonly string[]): Promise<Map<string, Offer>>;
   countByProductIds(accountId: string, productIds: readonly string[]): Promise<Map<string, number>>;

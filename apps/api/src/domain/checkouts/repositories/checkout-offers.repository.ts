@@ -13,6 +13,8 @@ export interface CheckoutOffersRepository {
   ): Promise<CheckoutOffer | null>;
   existsByPublicSlug(publicSlug: string): Promise<boolean>;
   nextPosition(accountId: string, checkoutId: string): Promise<number>;
+  /** Quantos checkouts ainda expõem esta oferta — barra a deleção da oferta. */
+  countByOfferId(accountId: string, offerId: string): Promise<number>;
   create(checkoutOffer: CheckoutOffer): Promise<void>;
   delete(accountId: string, checkoutId: string, offerId: string): Promise<boolean>;
 }

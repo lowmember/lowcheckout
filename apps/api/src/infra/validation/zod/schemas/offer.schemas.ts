@@ -7,6 +7,7 @@
 
 export {
   createOfferSchema,
+  deleteOfferSchema,
   getOfferSchema,
   listOffersSchema,
   updateOfferSchema,

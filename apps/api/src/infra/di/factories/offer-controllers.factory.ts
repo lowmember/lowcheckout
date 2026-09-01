@@ -1,4 +1,5 @@
 import { DefaultCreateOfferUseCase } from "@/application/offers/use-cases/create-offer.usecase";
+import { DefaultDeleteOfferUseCase } from "@/application/offers/use-cases/delete-offer.usecase";
 import { DefaultGetOfferUseCase } from "@/application/offers/use-cases/get-offer.usecase";
 import { DefaultListOffersUseCase } from "@/application/offers/use-cases/list-offers.usecase";
 import { DefaultUpdateOfferUseCase } from "@/application/offers/use-cases/update-offer.usecase";
@@ -7,12 +8,14 @@ import { withOnboardedAccount, withPanelAccess } from "@/infra/di/factories/with
 import { withErrorHandling } from "@/infra/di/factories/with-error-handling";
 import {
   createOfferSchema,
+  deleteOfferSchema,
   getOfferSchema,
   listOffersSchema,
   updateOfferSchema,
 } from "@/infra/validation/zod/schemas/offer.schemas";
 import { ZodValidator } from "@/infra/validation/zod/zod-validator.adapter";
 import { CreateOfferController } from "@/presentation/http/controllers/offers/create-offer.controller";
+import { DeleteOfferController } from "@/presentation/http/controllers/offers/delete-offer.controller";
 import { GetOfferController } from "@/presentation/http/controllers/offers/get-offer.controller";
 import { ListOffersController } from "@/presentation/http/controllers/offers/list-offers.controller";
 import { UpdateOfferController } from "@/presentation/http/controllers/offers/update-offer.controller";
@@ -61,6 +64,19 @@ export function makeUpdateOfferController() {
         new DefaultUpdateOfferUseCase(offersRepository, productsRepository, clock),
       ),
       new ZodValidator(updateOfferSchema),
+    ),
+  );
+}
+
+export function makeDeleteOfferController() {
+  const { offersRepository, checkoutOffersRepository, ordersRepository } = getContainer();
+
+  return withErrorHandling(
+    new DeleteOfferController(
+      withOnboardedAccount(
+        new DefaultDeleteOfferUseCase(offersRepository, checkoutOffersRepository, ordersRepository),
+      ),
+      new ZodValidator(deleteOfferSchema),
     ),
   );
 }

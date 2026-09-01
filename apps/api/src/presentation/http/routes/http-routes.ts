@@ -46,6 +46,7 @@ export const httpRoutes = {
   createOffer: { name: "createOffer", method: "POST", path: "/products/{productId}/offers" },
   getOffer: { name: "getOffer", method: "GET", path: "/offers/{offerId}" },
   updateOffer: { name: "updateOffer", method: "PATCH", path: "/offers/{offerId}" },
+  deleteOffer: { name: "deleteOffer", method: "DELETE", path: "/offers/{offerId}" },
 
   listCheckouts: { name: "listCheckouts", method: "GET", path: "/checkouts" },
   getCheckout: { name: "getCheckout", method: "GET", path: "/checkouts/{checkoutId}" },

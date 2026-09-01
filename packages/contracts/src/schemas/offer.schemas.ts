@@ -26,6 +26,10 @@ export const createOfferSchema = z.object({
   deliveryUrl: optionalUrlSchema,
 });
 
+export const deleteOfferSchema = z.object({
+  offerId: idSchema,
+});
+
 export const updateOfferSchema = z
   .object({
     offerId: idSchema,

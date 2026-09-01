@@ -1,4 +1,4 @@
-import { and, eq, max } from "drizzle-orm";
+import { and, count, eq, max } from "drizzle-orm";
 
 import type { CheckoutOffer } from "@/domain/checkouts/entities/checkout-offer.entity";
 import type { CheckoutOffersRepository } from "@/domain/checkouts/repositories/checkout-offers.repository";
@@ -74,6 +74,15 @@ export class DrizzleCheckoutOffersRepository implements CheckoutOffersRepository
       );
 
     return row?.value === null || row?.value === undefined ? 0 : row.value + 1;
+  }
+
+  async countByOfferId(accountId: string, offerId: string): Promise<number> {
+    const [totals] = await this.db
+      .select({ value: count() })
+      .from(checkoutOffers)
+      .where(and(eq(checkoutOffers.accountId, accountId), eq(checkoutOffers.offerId, offerId)));
+
+    return totals?.value ?? 0;
   }
 
   async create(checkoutOffer: CheckoutOffer): Promise<void> {

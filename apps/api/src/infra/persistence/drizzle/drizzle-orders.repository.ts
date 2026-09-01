@@ -64,6 +64,15 @@ export class DrizzleOrdersRepository implements OrdersRepository {
     return rows.map(toOrder);
   }
 
+  async countByOfferId(accountId: string, offerId: string): Promise<number> {
+    const [totals] = await this.db
+      .select({ value: count() })
+      .from(orders)
+      .where(and(eq(orders.accountId, accountId), eq(orders.offerId, offerId)));
+
+    return totals?.value ?? 0;
+  }
+
   /** Todo filtro começa pela conta: pedido de outra conta não existe aqui. */
   private buildFilters(query: OrderQuery): SQL | undefined {
     const filters: SQL[] = [eq(orders.accountId, query.accountId)];

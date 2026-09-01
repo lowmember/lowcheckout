@@ -54,6 +54,15 @@ export class DrizzleOffersRepository implements OffersRepository {
       .where(and(eq(offers.accountId, row.accountId), eq(offers.id, row.id)));
   }
 
+  async delete(accountId: string, offerId: string): Promise<boolean> {
+    const deleted = await this.db
+      .delete(offers)
+      .where(and(eq(offers.accountId, accountId), eq(offers.id, offerId)))
+      .returning({ id: offers.id });
+
+    return deleted.length > 0;
+  }
+
   async findByIds(accountId: string, offerIds: readonly string[]): Promise<Map<string, Offer>> {
     if (offerIds.length === 0) {
       return new Map();

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 
+import { OfferDeleteDialog } from "@/features/offers/components/offer-delete-dialog";
 import { OfferFormDialog } from "@/features/offers/components/offer-form-dialog";
 import { useProductOffers } from "@/features/offers/hooks/use-product-offers";
 import type { Offer } from "@/features/offers/types/offer";
@@ -9,7 +10,14 @@ import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card, CardHeader } from "@/shared/ui/card";
 import { EmptyState } from "@/shared/ui/empty-state";
-import { AlertTriangleIcon, LinkIcon, PencilIcon, PlusIcon, TicketIcon } from "@/shared/ui/icons";
+import {
+  AlertTriangleIcon,
+  LinkIcon,
+  PencilIcon,
+  PlusIcon,
+  TicketIcon,
+  TrashIcon,
+} from "@/shared/ui/icons";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 interface OfferListProps {
@@ -26,6 +34,7 @@ export function OfferList({
   const { offers, isLoadingOffers, hasOffersError } = useProductOffers(productId);
   const [editingOffer, setEditingOffer] = useState<Offer>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [deletingOffer, setDeletingOffer] = useState<Offer>();
 
   /** Arquivadas descem para o fim: a lista abre pelo que ainda vende. */
   const sortedOffers = useMemo(
@@ -112,6 +121,7 @@ export function OfferList({
               productDefaultDeliveryUrl={productDefaultDeliveryUrl}
               productImageUrl={productImageUrl}
               onEdit={() => openEdit(offer)}
+              onDelete={() => setDeletingOffer(offer)}
             />
           ))}
         </ul>
@@ -124,6 +134,15 @@ export function OfferList({
         productDefaultDeliveryUrl={productDefaultDeliveryUrl}
         offer={editingOffer}
       />
+
+      {deletingOffer && (
+        <OfferDeleteDialog
+          isOpen
+          onClose={() => setDeletingOffer(undefined)}
+          productId={productId}
+          offer={deletingOffer}
+        />
+      )}
     </Card>
   );
 }
@@ -133,9 +152,16 @@ interface OfferRowProps {
   productDefaultDeliveryUrl: string | null;
   productImageUrl?: string | null;
   onEdit: () => void;
+  onDelete: () => void;
 }
 
-function OfferRow({ offer, productDefaultDeliveryUrl, productImageUrl, onEdit }: OfferRowProps) {
+function OfferRow({
+  offer,
+  productDefaultDeliveryUrl,
+  productImageUrl,
+  onEdit,
+  onDelete,
+}: OfferRowProps) {
   const isArchived = offer.status === "archived";
   const inheritsDelivery = offer.deliveryUrl === null;
   const deliveryUrl = inheritsDelivery
@@ -144,14 +170,13 @@ function OfferRow({ offer, productDefaultDeliveryUrl, productImageUrl, onEdit }:
   const imageUrl = offer.imageUrl ?? productImageUrl ?? null;
 
   return (
-    <li>
+    <li className="flex items-center pr-3 transition-colors duration-200 ease-out hover:bg-neutral-50">
       <button
         type="button"
         onClick={onEdit}
         aria-label={`Editar oferta ${offer.name}`}
         className={cn(
-          "group flex w-full items-center gap-4 px-5 py-3.5 text-left",
-          "transition-colors duration-200 ease-out hover:bg-neutral-50",
+          "group flex min-w-0 flex-1 items-center gap-4 px-5 py-3.5 text-left",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-inset",
         )}
       >
@@ -224,6 +249,20 @@ function OfferRow({ offer, productDefaultDeliveryUrl, productImageUrl, onEdit }:
         >
           <PencilIcon className="size-4" />
         </span>
+      </button>
+
+      <button
+        type="button"
+        onClick={onDelete}
+        aria-label={`Deletar oferta ${offer.name}`}
+        className={cn(
+          "flex size-8 shrink-0 items-center justify-center rounded-md text-neutral-300",
+          "transition-[color,background-color] duration-200 ease-out",
+          "hover:bg-red-50 hover:text-red-600",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900",
+        )}
+      >
+        <TrashIcon className="size-4" />
       </button>
     </li>
   );

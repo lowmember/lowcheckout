@@ -37,6 +37,7 @@ import {
 import { makeHealthController } from "@/infra/di/factories/health-controller.factory";
 import {
   makeCreateOfferController,
+  makeDeleteOfferController,
   makeGetOfferController,
   makeListOffersController,
   makeUpdateOfferController,
@@ -91,6 +92,7 @@ const controllerFactories = {
   createOffer: makeCreateOfferController,
   getOffer: makeGetOfferController,
   updateOffer: makeUpdateOfferController,
+  deleteOffer: makeDeleteOfferController,
 
   listCheckouts: makeListCheckoutsController,
   getCheckout: makeGetCheckoutController,

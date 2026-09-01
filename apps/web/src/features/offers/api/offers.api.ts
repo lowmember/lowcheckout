@@ -24,3 +24,7 @@ export async function updateOffer(offerId: string, input: UpdateOfferInput) {
   const response = await httpClient.patch<ApiResponse<Offer>>(`/offers/${offerId}`, input);
   return response.data.data;
 }
+
+export async function deleteOffer(offerId: string) {
+  await httpClient.delete(`/offers/${offerId}`);
+}
