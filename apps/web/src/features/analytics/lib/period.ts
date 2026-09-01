@@ -1,4 +1,5 @@
 import type { AnalyticsPeriod, AnalyticsRange } from "@/features/analytics/types/analytics";
+import { formatIsoDateToBr } from "@/shared/lib/date-range";
 
 export const DEFAULT_PERIOD: AnalyticsPeriod = "7d";
 
@@ -34,6 +35,5 @@ export function describeRange(range: AnalyticsRange) {
   if (range.period !== "custom") return PERIOD_LABELS[range.period];
   if (!range.from || !range.to) return "Período personalizado";
 
-  const format = (value: string) => value.split("-").reverse().join("/");
-  return `${format(range.from)} a ${format(range.to)}`;
+  return `${formatIsoDateToBr(range.from)} - ${formatIsoDateToBr(range.to)}`;
 }

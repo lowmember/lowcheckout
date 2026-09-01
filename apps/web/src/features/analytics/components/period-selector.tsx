@@ -1,12 +1,10 @@
-import { PERIOD_LABELS, PERIODS } from "@/features/analytics/lib/period";
-import type { AnalyticsPeriod, AnalyticsRange } from "@/features/analytics/types/analytics";
-import { CONTROL_CLASSNAME } from "@/shared/ui/field";
-import { SegmentedControl } from "@/shared/ui/segmented-control";
+import { useState } from "react";
 
-const PERIOD_OPTIONS = PERIODS.map((period) => ({
-  value: period,
-  label: PERIOD_LABELS[period],
-}));
+import { describeRange, PERIOD_LABELS, PERIODS } from "@/features/analytics/lib/period";
+import type { AnalyticsPeriod, AnalyticsRange } from "@/features/analytics/types/analytics";
+import { todayIsoDate } from "@/shared/lib/date-range";
+import { DateRangePicker } from "@/shared/ui/date-range-picker";
+import { SegmentedControl } from "@/shared/ui/segmented-control";
 
 interface PeriodSelectorProps {
   range: AnalyticsRange;
@@ -15,7 +13,16 @@ interface PeriodSelectorProps {
 
 /** Seletor único: controla faturamento, cards, gráfico e ranking (RF-ANL-01). */
 export function PeriodSelector({ range, onChange }: PeriodSelectorProps) {
-  const hasInvertedDates = Boolean(range.from && range.to && range.from > range.to);
+  const [pickerKey, setPickerKey] = useState(0);
+
+  /** Escolhido o intervalo, o rótulo do segmento deixa de ser "Personalizado". */
+  const options = PERIODS.map((period) => ({
+    value: period,
+    label:
+      period === "custom" && range.period === "custom" && range.from && range.to
+        ? describeRange(range)
+        : PERIOD_LABELS[period],
+  }));
 
   function handlePeriodChange(period: AnalyticsPeriod) {
     if (period !== "custom") {
@@ -23,40 +30,29 @@ export function PeriodSelector({ range, onChange }: PeriodSelectorProps) {
       return;
     }
 
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayIsoDate();
     onChange({ period, from: range.from ?? today, to: range.to ?? today });
+    // Remonta o calendário para que ele abra já no intervalo corrente.
+    setPickerKey((current) => current + 1);
   }
 
   return (
     <div className="flex flex-wrap items-center gap-2">
       <SegmentedControl
-        options={PERIOD_OPTIONS}
+        options={options}
         value={range.period}
         onChange={handlePeriodChange}
         ariaLabel="Período das métricas"
       />
 
       {range.period === "custom" && (
-        <div className="flex animate-fade-in flex-wrap items-center gap-2">
-          <input
-            type="date"
-            aria-label="Data inicial"
-            value={range.from ?? ""}
-            onChange={(event) => onChange({ ...range, from: event.target.value })}
-            className={`${CONTROL_CLASSNAME} h-8 w-auto px-2.5 text-xs`}
-          />
-          <span className="text-neutral-400 text-xs">até</span>
-          <input
-            type="date"
-            aria-label="Data final"
-            value={range.to ?? ""}
-            onChange={(event) => onChange({ ...range, to: event.target.value })}
-            className={`${CONTROL_CLASSNAME} h-8 w-auto px-2.5 text-xs`}
-          />
-          {hasInvertedDates && (
-            <span className="text-red-600 text-xs">A data final não pode ser anterior.</span>
-          )}
-        </div>
+        <DateRangePicker
+          key={pickerKey}
+          className="animate-fade-in"
+          value={{ from: range.from, to: range.to }}
+          onApply={({ from, to }) => onChange({ period: "custom", from, to })}
+          onClear={() => onChange({ period: "custom", from: undefined, to: undefined })}
+        />
       )}
     </div>
   );

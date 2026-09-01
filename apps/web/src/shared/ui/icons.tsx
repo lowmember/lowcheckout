@@ -178,6 +178,34 @@ export function BellIcon(props: IconProps) {
   );
 }
 
+export function CalendarIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3.25" y="5" width="17.5" height="15.75" rx="2.5" />
+      <path d="M3.25 9.75h17.5" />
+      <path d="M8 3.25v3.5M16 3.25v3.5" />
+    </Icon>
+  );
+}
+
+export function MailIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3.25" y="5.25" width="17.5" height="13.5" rx="2.5" />
+      <path d="m4.5 7.5 6.4 4.55a2 2 0 0 0 2.2 0L19.5 7.5" />
+    </Icon>
+  );
+}
+
+export function CheckCircleIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="8.75" />
+      <path d="m8.25 12.25 2.5 2.5 5-5.5" />
+    </Icon>
+  );
+}
+
 export function SearchIcon(props: IconProps) {
   return (
     <Icon {...props}>
