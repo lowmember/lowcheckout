@@ -7,6 +7,7 @@ export * from "./checkout-offers.table";
 export * from "./checkout-pixels.table";
 export * from "./checkouts.table";
 export * from "./gateway-connections.table";
+export * from "./notifications.table";
 export * from "./offers.table";
 export * from "./order-events.table";
 export * from "./orders.table";

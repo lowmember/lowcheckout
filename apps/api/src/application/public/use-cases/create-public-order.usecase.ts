@@ -1,3 +1,4 @@
+import type { SalesNotifier } from "@/application/notifications/services/sales-notifier";
 import type { PaymentGateway } from "@/application/payments/ports/payment-gateway";
 import type { PublicOrderDto } from "@/application/public/dtos/public-order.dto";
 import { toPublicOrderDto } from "@/application/public/mappers/public-order.mapper";
@@ -52,6 +53,7 @@ export class DefaultCreatePublicOrderUseCase implements CreatePublicOrderUseCase
   private readonly orderEventsRepository: OrderEventsRepository;
   private readonly paymentsRepository: PaymentsRepository;
   private readonly checkoutEventsRepository: CheckoutEventsRepository;
+  private readonly salesNotifier: SalesNotifier;
   private readonly paymentGateway: PaymentGateway;
   private readonly encrypter: Encrypter;
   private readonly idGenerator: IdGenerator;
@@ -67,6 +69,7 @@ export class DefaultCreatePublicOrderUseCase implements CreatePublicOrderUseCase
     orderEventsRepository: OrderEventsRepository,
     paymentsRepository: PaymentsRepository,
     checkoutEventsRepository: CheckoutEventsRepository,
+    salesNotifier: SalesNotifier,
     paymentGateway: PaymentGateway,
     encrypter: Encrypter,
     idGenerator: IdGenerator,
@@ -81,6 +84,7 @@ export class DefaultCreatePublicOrderUseCase implements CreatePublicOrderUseCase
     this.orderEventsRepository = orderEventsRepository;
     this.paymentsRepository = paymentsRepository;
     this.checkoutEventsRepository = checkoutEventsRepository;
+    this.salesNotifier = salesNotifier;
     this.paymentGateway = paymentGateway;
     this.encrypter = encrypter;
     this.idGenerator = idGenerator;
@@ -201,6 +205,7 @@ export class DefaultCreatePublicOrderUseCase implements CreatePublicOrderUseCase
     );
 
     await this.registerPixGenerated(view, order, input.visitorId, now);
+    await this.salesNotifier.notify(order, "sale_created");
 
     return toPublicOrderDto(order, payment);
   }

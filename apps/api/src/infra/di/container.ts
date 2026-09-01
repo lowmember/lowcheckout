@@ -5,6 +5,10 @@ import {
   type SessionIssuer,
 } from "@/application/auth/services/session-issuer";
 import {
+  DefaultSalesNotifier,
+  type SalesNotifier,
+} from "@/application/notifications/services/sales-notifier";
+import {
   DefaultOrderExpirer,
   type OrderExpirer,
 } from "@/application/orders/services/order-expirer";
@@ -21,6 +25,7 @@ import type { IdGenerator } from "@/application/shared/ports/id-generator";
 import type { Logger } from "@/application/shared/ports/logger";
 import type { Mailer } from "@/application/shared/ports/mailer";
 import type { SecretGenerator } from "@/application/shared/ports/secret-generator";
+import type { VerificationCodeGenerator } from "@/application/shared/ports/verification-code-generator";
 import type { FileStorage } from "@/application/uploads/ports/file-storage";
 import type { AccountsRepository } from "@/domain/accounts/repositories/accounts.repository";
 import type { CheckoutEventsRepository } from "@/domain/analytics/repositories/checkout-events.repository";
@@ -32,6 +37,7 @@ import type { CheckoutPixelsRepository } from "@/domain/checkouts/repositories/c
 import type { CheckoutsRepository } from "@/domain/checkouts/repositories/checkouts.repository";
 import type { PublicCheckoutRepository } from "@/domain/checkouts/repositories/public-checkout.repository";
 import type { GatewayConnectionsRepository } from "@/domain/gateways/repositories/gateway-connections.repository";
+import type { NotificationsRepository } from "@/domain/notifications/repositories/notifications.repository";
 import type { OffersRepository } from "@/domain/offers/repositories/offers.repository";
 import type { OrderEventsRepository } from "@/domain/orders/repositories/order-events.repository";
 import type { OrdersRepository } from "@/domain/orders/repositories/orders.repository";
@@ -61,6 +67,7 @@ import { DrizzleCheckoutOffersRepository } from "@/infra/persistence/drizzle/dri
 import { DrizzleCheckoutPixelsRepository } from "@/infra/persistence/drizzle/drizzle-checkout-pixels.repository";
 import { DrizzleCheckoutsRepository } from "@/infra/persistence/drizzle/drizzle-checkouts.repository";
 import { DrizzleGatewayConnectionsRepository } from "@/infra/persistence/drizzle/drizzle-gateway-connections.repository";
+import { DrizzleNotificationsRepository } from "@/infra/persistence/drizzle/drizzle-notifications.repository";
 import { DrizzleOffersRepository } from "@/infra/persistence/drizzle/drizzle-offers.repository";
 import { DrizzleOrderAnalyticsRepository } from "@/infra/persistence/drizzle/drizzle-order-analytics.repository";
 import {
@@ -78,6 +85,7 @@ import { DrizzleUsersRepository } from "@/infra/persistence/drizzle/drizzle-user
 import { AesGcmEncrypter } from "@/infra/providers/aes-gcm-encrypter.adapter";
 import { CryptoIdGenerator } from "@/infra/providers/crypto-id-generator.adapter";
 import { CryptoSecretGenerator } from "@/infra/providers/crypto-secret-generator.adapter";
+import { CryptoVerificationCodeGenerator } from "@/infra/providers/crypto-verification-code-generator.adapter";
 import { Sha256Hasher } from "@/infra/providers/sha256-hasher.adapter";
 import { SystemClock } from "@/infra/providers/system-clock.adapter";
 import { S3FileStorage } from "@/infra/storage/s3-file-storage.adapter";
@@ -89,6 +97,7 @@ export interface Container {
   idGenerator: IdGenerator;
   hasher: Hasher;
   secretGenerator: SecretGenerator;
+  verificationCodeGenerator: VerificationCodeGenerator;
   encrypter: Encrypter;
   database: Database;
   accessTokenIssuer: AccessTokenIssuer;
@@ -96,6 +105,7 @@ export interface Container {
   paymentGateway: PaymentGateway;
   webhookPayloadReaders: readonly WebhookPayloadReader[];
   mailer: Mailer;
+  salesNotifier: SalesNotifier;
   orderExpirer: OrderExpirer;
   orderPaymentConfirmer: OrderPaymentConfirmer;
   accountsRepository: AccountsRepository;
@@ -110,6 +120,7 @@ export interface Container {
   gatewayConnectionsRepository: GatewayConnectionsRepository;
   publicCheckoutRepository: PublicCheckoutRepository;
   buyersRepository: BuyersRepository;
+  notificationsRepository: NotificationsRepository;
   ordersRepository: OrdersRepository;
   orderEventsRepository: OrderEventsRepository;
   paymentsRepository: PaymentsRepository;
@@ -143,10 +154,18 @@ export function getContainer(): Container {
 
   const logger = new ConsoleLogger(env.logLevel);
   const mailer = new LoggerMailer(logger);
+  const notificationsRepository = new DrizzleNotificationsRepository(db);
   const ordersRepository = new DrizzleOrdersRepository(db);
   const orderEventsRepository = new DrizzleOrderEventsRepository(db);
   const paymentsRepository = new DrizzlePaymentsRepository(db);
   const checkoutEventsRepository = new DrizzleCheckoutEventsRepository(db);
+
+  const salesNotifier = new DefaultSalesNotifier(
+    notificationsRepository,
+    idGenerator,
+    clock,
+    logger,
+  );
 
   const accessTokenIssuer = new JwtAccessTokenIssuer({
     secret: env.jwtSecret,
@@ -161,6 +180,7 @@ export function getContainer(): Container {
     idGenerator,
     hasher,
     secretGenerator,
+    verificationCodeGenerator: new CryptoVerificationCodeGenerator(),
     encrypter: new AesGcmEncrypter(env.encryptionKey),
     database: db,
     accessTokenIssuer,
@@ -187,6 +207,7 @@ export function getContainer(): Container {
     gatewayConnectionsRepository: new DrizzleGatewayConnectionsRepository(db),
     publicCheckoutRepository: new DrizzlePublicCheckoutRepository(db),
     buyersRepository: new DrizzleBuyersRepository(db),
+    notificationsRepository,
     ordersRepository,
     orderEventsRepository,
     paymentsRepository,
@@ -196,11 +217,13 @@ export function getContainer(): Container {
     paymentGateway: makePaymentGateway(clock),
     webhookPayloadReaders: makeWebhookPayloadReaders(),
     mailer,
+    salesNotifier,
     orderExpirer: new DefaultOrderExpirer(
       ordersRepository,
       orderEventsRepository,
       paymentsRepository,
       checkoutEventsRepository,
+      salesNotifier,
       idGenerator,
       logger,
     ),
@@ -209,6 +232,7 @@ export function getContainer(): Container {
       orderEventsRepository,
       checkoutEventsRepository,
       mailer,
+      salesNotifier,
       idGenerator,
       clock,
       logger,

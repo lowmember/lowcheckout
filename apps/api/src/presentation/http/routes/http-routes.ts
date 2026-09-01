@@ -130,6 +130,19 @@ export const httpRoutes = {
 
   listOrders: { name: "listOrders", method: "GET", path: "/orders" },
 
+  // Sino do painel (RF-NOT-01): listar, marcar uma e marcar todas como lidas.
+  listNotifications: { name: "listNotifications", method: "GET", path: "/notifications" },
+  markNotificationAsRead: {
+    name: "markNotificationAsRead",
+    method: "POST",
+    path: "/notifications/{notificationId}/read",
+  },
+  markAllNotificationsAsRead: {
+    name: "markAllNotificationsAsRead",
+    method: "POST",
+    path: "/notifications/read",
+  },
+
   // Um seletor de período só controla a home inteira (RF-ANL-01): as três rotas
   // recebem o mesmo `from`/`to`.
   getAnalyticsOverview: {

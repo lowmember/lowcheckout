@@ -38,6 +38,11 @@ import {
 } from "@/infra/di/factories/gateway-controllers.factory";
 import { makeHealthController } from "@/infra/di/factories/health-controller.factory";
 import {
+  makeListNotificationsController,
+  makeMarkAllNotificationsAsReadController,
+  makeMarkNotificationAsReadController,
+} from "@/infra/di/factories/notification-controllers.factory";
+import {
   makeCreateOfferController,
   makeDeleteOfferController,
   makeGetOfferController,
@@ -125,6 +130,10 @@ const controllerFactories = {
   processPaymentWebhook: makeProcessPaymentWebhookController,
 
   listOrders: makeListOrdersController,
+
+  listNotifications: makeListNotificationsController,
+  markNotificationAsRead: makeMarkNotificationAsReadController,
+  markAllNotificationsAsRead: makeMarkAllNotificationsAsReadController,
 
   getAnalyticsOverview: makeGetAnalyticsOverviewController,
   getSalesSeries: makeGetSalesSeriesController,

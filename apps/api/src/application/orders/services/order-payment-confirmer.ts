@@ -1,3 +1,4 @@
+import type { SalesNotifier } from "@/application/notifications/services/sales-notifier";
 import type { Clock } from "@/application/shared/ports/clock";
 import type { IdGenerator } from "@/application/shared/ports/id-generator";
 import type { Logger } from "@/application/shared/ports/logger";
@@ -23,6 +24,7 @@ export class DefaultOrderPaymentConfirmer implements OrderPaymentConfirmer {
   private readonly orderEventsRepository: OrderEventsRepository;
   private readonly checkoutEventsRepository: CheckoutEventsRepository;
   private readonly mailer: Mailer;
+  private readonly salesNotifier: SalesNotifier;
   private readonly idGenerator: IdGenerator;
   private readonly clock: Clock;
   private readonly logger: Logger;
@@ -32,6 +34,7 @@ export class DefaultOrderPaymentConfirmer implements OrderPaymentConfirmer {
     orderEventsRepository: OrderEventsRepository,
     checkoutEventsRepository: CheckoutEventsRepository,
     mailer: Mailer,
+    salesNotifier: SalesNotifier,
     idGenerator: IdGenerator,
     clock: Clock,
     logger: Logger,
@@ -40,6 +43,7 @@ export class DefaultOrderPaymentConfirmer implements OrderPaymentConfirmer {
     this.orderEventsRepository = orderEventsRepository;
     this.checkoutEventsRepository = checkoutEventsRepository;
     this.mailer = mailer;
+    this.salesNotifier = salesNotifier;
     this.idGenerator = idGenerator;
     this.clock = clock;
     this.logger = logger;
@@ -70,6 +74,7 @@ export class DefaultOrderPaymentConfirmer implements OrderPaymentConfirmer {
     );
 
     await this.registerCheckoutEvent(order, now);
+    await this.salesNotifier.notify(order, "sale_paid");
     await this.deliver(order, now);
 
     return true;

@@ -29,6 +29,20 @@
       "when": 1788110158914,
       "tag": "0003_offer_image_url",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788110159914,
+      "tag": "0004_checkout_contact_email",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788110160914,
+      "tag": "0005_notifications",
+      "breakpoints": true
     }
   ]
 }

@@ -1,3 +1,4 @@
+import type { SalesNotifier } from "@/application/notifications/services/sales-notifier";
 import type { IdGenerator } from "@/application/shared/ports/id-generator";
 import type { Logger } from "@/application/shared/ports/logger";
 import { CheckoutEvent } from "@/domain/analytics/entities/checkout-event.entity";
@@ -23,6 +24,7 @@ export class DefaultOrderExpirer implements OrderExpirer {
   private readonly orderEventsRepository: OrderEventsRepository;
   private readonly paymentsRepository: PaymentsRepository;
   private readonly checkoutEventsRepository: CheckoutEventsRepository;
+  private readonly salesNotifier: SalesNotifier;
   private readonly idGenerator: IdGenerator;
   private readonly logger: Logger;
 
@@ -31,6 +33,7 @@ export class DefaultOrderExpirer implements OrderExpirer {
     orderEventsRepository: OrderEventsRepository,
     paymentsRepository: PaymentsRepository,
     checkoutEventsRepository: CheckoutEventsRepository,
+    salesNotifier: SalesNotifier,
     idGenerator: IdGenerator,
     logger: Logger,
   ) {
@@ -38,6 +41,7 @@ export class DefaultOrderExpirer implements OrderExpirer {
     this.orderEventsRepository = orderEventsRepository;
     this.paymentsRepository = paymentsRepository;
     this.checkoutEventsRepository = checkoutEventsRepository;
+    this.salesNotifier = salesNotifier;
     this.idGenerator = idGenerator;
     this.logger = logger;
   }
@@ -74,6 +78,7 @@ export class DefaultOrderExpirer implements OrderExpirer {
     );
 
     await this.registerCheckoutEvent(order, now);
+    await this.salesNotifier.notify(order, "sale_expired");
 
     return true;
   }

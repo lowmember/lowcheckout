@@ -14,6 +14,7 @@ export * from "./auth";
 export * from "./checkouts";
 export * from "./envelope";
 export * from "./gateways";
+export * from "./notifications";
 export * from "./offers";
 export * from "./orders";
 export * from "./products";

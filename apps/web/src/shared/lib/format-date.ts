@@ -45,3 +45,19 @@ export function formatAxisLabel(isoDate: string, granularity: "day" | "hour") {
 export function toDateInputValue(date: Date) {
   return new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE }).format(date);
 }
+
+/** "agora", "há 5 min", "há 3 h", "há 2 d" — precisão suficiente para o sino. */
+export function formatRelativeTime(isoDate: string, now: Date = new Date()) {
+  const elapsedInMinutes = Math.floor((now.getTime() - new Date(isoDate).getTime()) / 60_000);
+
+  if (elapsedInMinutes < 1) return "agora";
+  if (elapsedInMinutes < 60) return `há ${elapsedInMinutes} min`;
+
+  const elapsedInHours = Math.floor(elapsedInMinutes / 60);
+  if (elapsedInHours < 24) return `há ${elapsedInHours} h`;
+
+  const elapsedInDays = Math.floor(elapsedInHours / 24);
+  if (elapsedInDays < 7) return `há ${elapsedInDays} d`;
+
+  return formatDate(isoDate);
+}

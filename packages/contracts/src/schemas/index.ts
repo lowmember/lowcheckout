@@ -9,6 +9,7 @@ export * from "./analytics.schemas";
 export * from "./auth.schemas";
 export * from "./checkout.schemas";
 export * from "./gateway.schemas";
+export * from "./notification.schemas";
 export * from "./offer.schemas";
 export * from "./order.schemas";
 export * from "./product.schemas";

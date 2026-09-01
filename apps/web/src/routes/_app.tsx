@@ -3,6 +3,7 @@ import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-rout
 import { useEffect, useState } from "react";
 
 import { getInitials, requireCompletedOnboarding, useSession } from "@/features/auth";
+import { NotificationsMenu } from "@/features/notifications";
 import { env } from "@/shared/config/env";
 import { cn } from "@/shared/lib/cn";
 import {
@@ -15,7 +16,6 @@ import {
 } from "@/shared/ui/app-shell";
 import { CommandPalette } from "@/shared/ui/command-palette";
 import {
-  BellIcon,
   CartIcon,
   DashboardIcon,
   LogoutIcon,
@@ -134,13 +134,7 @@ function AppLayout() {
             <Logo className="h-5 lg:hidden" />
             <SearchTrigger onClick={() => setIsPaletteOpen(true)} />
 
-            <button
-              type="button"
-              aria-label="Notificações"
-              className="flex size-9 shrink-0 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
-            >
-              <BellIcon className="size-[18px]" />
-            </button>
+            <NotificationsMenu />
 
             <div className="relative shrink-0">
               <button
