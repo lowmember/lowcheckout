@@ -1,62 +1,48 @@
 import { useState } from "react";
 
-import { useAccountDangerZone } from "@/features/account/hooks/use-account-danger-zone";
 import { Button } from "@/shared/ui/button";
 import { Card, CardBody, CardHeader } from "@/shared/ui/card";
-import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
-import { CONTROL_CLASSNAME } from "@/shared/ui/field";
-import { AlertTriangleIcon } from "@/shared/ui/icons";
+import { CopyButton } from "@/shared/ui/copy-button";
+import { Dialog } from "@/shared/ui/dialog";
+import { AlertTriangleIcon, MailIcon } from "@/shared/ui/icons";
 
-const DELETE_CONFIRMATION = "DELETAR";
+/** Deleção de conta não é self-service no escopo atual: passa pelo suporte. */
+const SUPPORT_EMAIL = "produtor@lowmember.com";
+const SUPPORT_SUBJECT = "Solicitação de exclusão de conta";
 
-interface AccountDangerZoneProps {
-  onAccountClosed: () => void;
+function buildSupportBody(businessName: string) {
+  return [
+    "Olá, time LowCheckout.",
+    "",
+    `Quero solicitar a exclusão definitiva da conta${businessName ? ` de "${businessName}"` : ""}.`,
+    "Estou ciente de que produtos, ofertas, checkouts e credenciais de gateway deixam de existir",
+    "e que as URLs públicas param de responder.",
+    "",
+    "Obrigado!",
+  ].join("\n");
 }
 
-export function AccountDangerZone({ onAccountClosed }: AccountDangerZoneProps) {
-  const [openDialog, setOpenDialog] = useState<"deactivate" | "delete" | null>(null);
-  const [confirmationText, setConfirmationText] = useState("");
-  const {
-    deactivate,
-    isDeactivating,
-    deactivateErrorMessage,
-    remove,
-    isRemoving,
-    removeErrorMessage,
-  } = useAccountDangerZone({ onDone: onAccountClosed });
+interface AccountDangerZoneProps {
+  /** Nome do negócio, usado só para pré-preencher o modelo de e-mail. */
+  businessName?: string;
+}
 
-  function closeDialog() {
-    setOpenDialog(null);
-    setConfirmationText("");
-  }
+export function AccountDangerZone({ businessName = "" }: AccountDangerZoneProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const body = buildSupportBody(businessName);
+  const mailtoUrl = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
+    SUPPORT_SUBJECT,
+  )}&body=${encodeURIComponent(body)}`;
 
   return (
     <Card className="border-red-200">
       <CardHeader
         title="Danger zone"
-        description="Ações que interrompem suas vendas. Todas pedem confirmação."
+        description="Ações que interrompem suas vendas. A exclusão é feita pelo nosso time."
       />
 
-      <CardBody className="space-y-3">
-        {(deactivateErrorMessage ?? removeErrorMessage) && (
-          <p role="alert" className="animate-fade-in text-red-600 text-sm">
-            {deactivateErrorMessage ?? removeErrorMessage}
-          </p>
-        )}
-
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neutral-200 px-4 py-3.5">
-          <div className="min-w-0">
-            <p className="font-medium text-neutral-900 text-sm">Desativar conta</p>
-            <p className="mt-0.5 text-neutral-500 text-xs leading-relaxed">
-              Suas páginas públicas param de aceitar novas compras. Nenhum dado é apagado e você
-              pode voltar depois.
-            </p>
-          </div>
-          <Button variant="secondary" size="sm" onClick={() => setOpenDialog("deactivate")}>
-            Desativar
-          </Button>
-        </div>
-
+      <CardBody>
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50/50 px-4 py-3.5">
           <div className="min-w-0">
             <p className="flex items-center gap-1.5 font-medium text-red-700 text-sm">
@@ -67,58 +53,55 @@ export function AccountDangerZone({ onAccountClosed }: AccountDangerZoneProps) {
               Produtos, ofertas, checkouts e credenciais de gateway deixam de existir. Irreversível.
             </p>
           </div>
-          <Button variant="danger" size="sm" onClick={() => setOpenDialog("delete")}>
+          <Button variant="danger" size="sm" onClick={() => setIsDialogOpen(true)}>
             Deletar
           </Button>
         </div>
       </CardBody>
 
-      <ConfirmDialog
-        isOpen={openDialog === "deactivate"}
-        title="Desativar sua conta?"
-        description="Enquanto estiver desativada, nenhuma página pública sua aceitará novas compras."
-        confirmLabel="Desativar conta"
-        isConfirming={isDeactivating}
-        onConfirm={() => void deactivate().finally(closeDialog)}
-        onCancel={closeDialog}
+      <Dialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        title="Solicite a exclusão ao suporte"
+        description="A exclusão de conta é feita pelo nosso time, não pelo painel."
+        footer={
+          <>
+            <Button variant="secondary" size="sm" onClick={() => setIsDialogOpen(false)}>
+              Fechar
+            </Button>
+            <Button size="sm" onClick={() => window.open(mailtoUrl, "_self")}>
+              <MailIcon className="size-4" />
+              Abrir no e-mail
+            </Button>
+          </>
+        }
       >
-        <p className="text-neutral-600 text-sm leading-relaxed">
-          Pedidos pendentes seguem seu curso normal de confirmação ou expiração. Seus dados
-          continuam salvos.
-        </p>
-      </ConfirmDialog>
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neutral-200 px-3.5 py-3">
+            <div className="min-w-0">
+              <p className="font-medium text-neutral-700 text-xs">E-mail de suporte</p>
+              <p className="mt-0.5 break-all font-medium text-neutral-900 text-sm">
+                {SUPPORT_EMAIL}
+              </p>
+            </div>
+            <CopyButton value={SUPPORT_EMAIL} label="Copiar e-mail" />
+          </div>
 
-      <ConfirmDialog
-        isOpen={openDialog === "delete"}
-        title="Deletar sua conta definitivamente?"
-        description="Esta ação não pode ser desfeita pela interface."
-        confirmLabel="Deletar para sempre"
-        isDestructive
-        isConfirming={isRemoving}
-        isConfirmDisabled={confirmationText !== DELETE_CONFIRMATION}
-        onConfirm={() => void remove().finally(closeDialog)}
-        onCancel={closeDialog}
-      >
-        <div className="space-y-3">
-          <p className="text-neutral-600 text-sm leading-relaxed">
-            Todas as URLs públicas param de responder e as credenciais do gateway são removidas.
-            Para confirmar, digite{" "}
-            <strong className="text-neutral-900">{DELETE_CONFIRMATION}</strong> abaixo.
+          <div>
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <p className="font-medium text-neutral-700 text-xs">Modelo de envio</p>
+              <CopyButton value={`${SUPPORT_SUBJECT}\n\n${body}`} label="Copiar modelo" />
+            </div>
+            <pre className="max-h-56 overflow-auto whitespace-pre-wrap rounded-lg border border-neutral-200 bg-neutral-50 px-3.5 py-3 font-sans text-neutral-600 text-xs leading-relaxed">
+              {`Assunto: ${SUPPORT_SUBJECT}\n\n${body}`}
+            </pre>
+          </div>
+
+          <p className="text-neutral-500 text-xs leading-relaxed">
+            Respondemos confirmando a exclusão. Enquanto isso, nada é apagado.
           </p>
-          <input
-            value={confirmationText}
-            onChange={(event) => setConfirmationText(event.target.value)}
-            placeholder={DELETE_CONFIRMATION}
-            aria-label={`Digite ${DELETE_CONFIRMATION} para confirmar`}
-            className={CONTROL_CLASSNAME}
-          />
-          {confirmationText !== DELETE_CONFIRMATION && (
-            <p className="text-neutral-500 text-xs">
-              O botão de confirmação só age depois que o texto conferir.
-            </p>
-          )}
         </div>
-      </ConfirmDialog>
+      </Dialog>
     </Card>
   );
 }

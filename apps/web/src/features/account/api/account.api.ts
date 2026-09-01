@@ -22,13 +22,3 @@ export async function updateAccount(input: UpdateAccountInput) {
   const response = await httpClient.patch<ApiResponse<Account>>("/accounts/me", input);
   return response.data.data;
 }
-
-/** RF-CONF-03 — desativa sem apagar dados. */
-export async function deactivateAccount() {
-  await httpClient.post("/accounts/me/deactivate");
-}
-
-/** RF-CONF-04 — exclusão definitiva. */
-export async function deleteAccount() {
-  await httpClient.delete("/accounts/me");
-}
