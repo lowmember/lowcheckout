@@ -9,7 +9,7 @@ import {
   CheckoutOffersPanel,
   CheckoutPixelsForm,
   CheckoutPublicLinks,
-  CheckoutStatusBadge,
+  CheckoutPublishToggle,
   checkoutQueries,
   useCheckout,
 } from "@/features/checkouts";
@@ -90,7 +90,7 @@ function CheckoutDetailsPage() {
         description={`Exibido como “${checkout.displayName}” na página pública.`}
         action={
           <div className="flex items-center gap-2">
-            <CheckoutStatusBadge status={checkout.status} />
+            <CheckoutPublishToggle checkout={checkout} />
             <Button variant="secondary" size="sm" onClick={() => setIsDialogOpen(true)}>
               <PencilIcon className="size-4" />
               Editar

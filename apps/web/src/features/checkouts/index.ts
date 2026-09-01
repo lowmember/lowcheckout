@@ -9,12 +9,14 @@ export { CheckoutList } from "./components/checkout-list";
 export { CheckoutOffersPanel } from "./components/checkout-offers-panel";
 export { CheckoutPixelsForm } from "./components/checkout-pixels-form";
 export { CheckoutPublicLinks } from "./components/checkout-public-links";
+export { CheckoutPublishToggle } from "./components/checkout-publish-toggle";
 export { CheckoutStatusBadge } from "./components/checkout-status-badge";
 export { useCheckout } from "./hooks/use-checkout";
 export { useCheckoutContent } from "./hooks/use-checkout-content";
 export { useCheckoutOffers } from "./hooks/use-checkout-offers";
 export { useCheckouts } from "./hooks/use-checkouts";
 export { useDeleteCheckout } from "./hooks/use-delete-checkout";
+export { usePublishCheckout } from "./hooks/use-publish-checkout";
 export { useSaveCheckout } from "./hooks/use-save-checkout";
 export { buildPublicCheckoutUrl } from "./lib/public-url";
 export type {
