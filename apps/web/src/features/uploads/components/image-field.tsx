@@ -18,6 +18,8 @@ const SOURCE_OPTIONS = [
 
 const ACCEPTED_FILE_TYPES = UPLOAD_IMAGE_CONTENT_TYPES.join(",");
 
+const FILE_CONSTRAINTS = "PNG, JPEG, WebP ou AVIF, até 5 MB.";
+
 interface ImageFieldProps {
   label: string;
   /** URL da imagem; string vazia é "sem imagem". */
@@ -26,6 +28,8 @@ interface ImageFieldProps {
   error?: string;
   hint?: ReactNode;
   placeholder?: string;
+  /** Dimensão sugerida, ex.: `"600 × 600 px"`. Aparece junto das restrições do arquivo. */
+  recommendedSize?: string;
 }
 
 /**
@@ -40,6 +44,7 @@ export function ImageField({
   error,
   hint,
   placeholder = "https://...",
+  recommendedSize,
 }: ImageFieldProps) {
   const fileInputId = useId();
   const linkInputId = useId();
@@ -56,6 +61,9 @@ export function ImageField({
   } = useImageUpload({ onSuccess: onChange });
 
   const hasPreview = value.trim() !== "" && isAbsoluteUrl(value.trim());
+  const constraints = recommendedSize
+    ? `${FILE_CONSTRAINTS} Tamanho recomendado: ${recommendedSize}.`
+    : FILE_CONSTRAINTS;
 
   async function handleFiles(files: FileList | null) {
     const file = files?.[0];
@@ -131,7 +139,7 @@ export function ImageField({
                     ? "Imagem definida — clique para trocar"
                     : "Clique para escolher ou arraste uma imagem"}
               </p>
-              <p className="mt-0.5 text-neutral-500 text-xs">PNG, JPEG, WebP ou AVIF, até 5 MB.</p>
+              <p className="mt-0.5 text-neutral-500 text-xs">{constraints}</p>
 
               {hasPreview && !isUploadingImage && (
                 <div className="mt-2.5">
@@ -156,16 +164,23 @@ export function ImageField({
           <div className="flex items-center gap-4">
             <ImagePreview url={hasPreview ? value : null} isLoading={false} />
 
-            <input
-              id={linkInputId}
-              type="url"
-              inputMode="url"
-              placeholder={placeholder}
-              value={value}
-              aria-invalid={Boolean(error)}
-              className={cn(CONTROL_CLASSNAME, error && CONTROL_ERROR_CLASSNAME)}
-              onChange={(event) => onChange(event.target.value)}
-            />
+            <div className="min-w-0 flex-1">
+              <input
+                id={linkInputId}
+                type="url"
+                inputMode="url"
+                placeholder={placeholder}
+                value={value}
+                aria-invalid={Boolean(error)}
+                className={cn(CONTROL_CLASSNAME, error && CONTROL_ERROR_CLASSNAME)}
+                onChange={(event) => onChange(event.target.value)}
+              />
+              {recommendedSize && (
+                <p className="mt-1.5 text-neutral-500 text-xs">
+                  Tamanho recomendado: {recommendedSize}.
+                </p>
+              )}
+            </div>
           </div>
         )}
       </div>

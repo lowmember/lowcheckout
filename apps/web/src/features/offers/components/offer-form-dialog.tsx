@@ -18,6 +18,9 @@ interface FormValues {
 
 const EMPTY_VALUES: FormValues = { name: "", price: "", imageUrl: "", deliveryUrl: "" };
 
+/** Quadrada: é assim que a seção de produto do checkout recorta a imagem da oferta. */
+const OFFER_IMAGE_RECOMMENDED_SIZE = "600 × 600 px";
+
 function toFormValues(offer?: Offer): FormValues {
   if (!offer) return EMPTY_VALUES;
 
@@ -135,6 +138,7 @@ export function OfferFormDialog({
           label="Imagem da oferta"
           value={values.imageUrl}
           error={errors.imageUrl}
+          recommendedSize={OFFER_IMAGE_RECOMMENDED_SIZE}
           hint="Opcional. Sem ela, o checkout usa a imagem do produto."
           onChange={(imageUrl) => setField("imageUrl", imageUrl)}
         />
