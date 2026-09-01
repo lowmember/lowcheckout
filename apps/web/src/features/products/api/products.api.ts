@@ -29,3 +29,7 @@ export async function updateProduct(productId: string, input: UpdateProductInput
   const response = await httpClient.patch<ApiResponse<Product>>(`/products/${productId}`, input);
   return response.data.data;
 }
+
+export async function deleteProduct(productId: string) {
+  await httpClient.delete(`/products/${productId}`);
+}

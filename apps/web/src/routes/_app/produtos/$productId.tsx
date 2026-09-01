@@ -1,12 +1,17 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { OfferList } from "@/features/offers";
-import { ProductFormDialog, productQueries, useProduct } from "@/features/products";
+import {
+  ProductDeleteDialog,
+  ProductFormDialog,
+  productQueries,
+  useProduct,
+} from "@/features/products";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card, CardBody, CardHeader } from "@/shared/ui/card";
-import { ArrowLeftIcon, ImageIcon, LinkIcon, PencilIcon } from "@/shared/ui/icons";
+import { ArrowLeftIcon, ImageIcon, LinkIcon, PencilIcon, TrashIcon } from "@/shared/ui/icons";
 import { PageHeader } from "@/shared/ui/page-header";
 import { Skeleton } from "@/shared/ui/skeleton";
 
@@ -20,6 +25,8 @@ function ProductDetailsPage() {
   const { productId } = Route.useParams();
   const { product, isLoadingProduct, hasProductError } = useProduct(productId);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   if (isLoadingProduct) {
     return (
@@ -64,6 +71,10 @@ function ProductDetailsPage() {
               <PencilIcon className="size-4" />
               Editar
             </Button>
+            <Button variant="danger" size="sm" onClick={() => setIsDeleteDialogOpen(true)}>
+              <TrashIcon className="size-4" />
+              Deletar
+            </Button>
           </div>
         }
       />
@@ -104,6 +115,16 @@ function ProductDetailsPage() {
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         product={product}
+      />
+
+      <ProductDeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        product={product}
+        onDeleted={() => {
+          setIsDeleteDialogOpen(false);
+          void navigate({ to: "/produtos" });
+        }}
       />
     </div>
   );
