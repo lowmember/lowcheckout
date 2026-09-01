@@ -57,6 +57,15 @@ export class DrizzleProductsRepository implements ProductsRepository {
       .where(and(eq(products.accountId, row.accountId), eq(products.id, row.id)));
   }
 
+  async delete(accountId: string, productId: string): Promise<boolean> {
+    const deleted = await this.db
+      .delete(products)
+      .where(and(eq(products.accountId, accountId), eq(products.id, productId)))
+      .returning({ id: products.id });
+
+    return deleted.length > 0;
+  }
+
   /** Todo filtro começa pela conta: produto de outra conta não existe para quem consulta. */
   private buildFilters(query: ProductQuery): SQL | undefined {
     const filters: SQL[] = [eq(products.accountId, query.accountId)];

@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, or, type SQL } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, or, type SQL } from "drizzle-orm";
 
 import type { Checkout } from "@/domain/checkouts/entities/checkout.entity";
 import type {
@@ -64,6 +64,23 @@ export class DrizzleCheckoutsRepository implements CheckoutsRepository {
       .returning({ id: checkouts.id });
 
     return deleted.length > 0;
+  }
+
+  async countByProductIds(
+    accountId: string,
+    productIds: readonly string[],
+  ): Promise<Map<string, number>> {
+    if (productIds.length === 0) {
+      return new Map();
+    }
+
+    const rows = await this.db
+      .select({ productId: checkouts.productId, value: count() })
+      .from(checkouts)
+      .where(and(eq(checkouts.accountId, accountId), inArray(checkouts.productId, [...productIds])))
+      .groupBy(checkouts.productId);
+
+    return new Map(rows.map((row) => [row.productId, row.value]));
   }
 
   /** Todo filtro começa pela conta: checkout de outra conta não existe para quem consulta. */

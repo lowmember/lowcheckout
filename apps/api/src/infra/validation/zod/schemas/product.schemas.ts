@@ -7,6 +7,7 @@
 
 export {
   createProductSchema,
+  deleteProductSchema,
   getProductSchema,
   listProductsSchema,
   updateProductSchema,

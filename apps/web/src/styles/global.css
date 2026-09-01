@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/*
+ * O renderizador é um pacote do workspace, e o Tailwind não varre node_modules
+ * — sem esta linha o preview do builder sobe sem nenhuma classe das seções.
+ * O caminho aponta para o link do pnpm, que resolve para packages/.
+ */
+@source "../../node_modules/@lowcheckout/checkout-renderer/src";
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 

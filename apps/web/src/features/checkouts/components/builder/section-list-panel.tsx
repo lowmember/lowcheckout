@@ -1,9 +1,9 @@
+import type { CheckoutSchema, CheckoutSection } from "@lowcheckout/checkout-renderer";
+import { getListFields, getSectionDefinition } from "@lowcheckout/checkout-renderer";
 import { type ReactNode, useState } from "react";
 
 import { SECTION_ICONS } from "@/features/checkouts/components/builder/section-icons";
 import { getSectionItems } from "@/features/checkouts/lib/schema-operations";
-import { getListFields, getSectionDefinition } from "@/features/checkouts/lib/section-registry";
-import type { CheckoutSchema, CheckoutSection } from "@/features/checkouts/types/checkout-schema";
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
 import {

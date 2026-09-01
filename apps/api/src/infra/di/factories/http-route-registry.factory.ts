@@ -44,6 +44,7 @@ import {
 import { makeListOrdersController } from "@/infra/di/factories/order-controllers.factory";
 import {
   makeCreateProductController,
+  makeDeleteProductController,
   makeGetProductController,
   makeListProductsController,
   makeUpdateProductController,
@@ -82,6 +83,7 @@ const controllerFactories = {
   getProduct: makeGetProductController,
   createProduct: makeCreateProductController,
   updateProduct: makeUpdateProductController,
+  deleteProduct: makeDeleteProductController,
 
   createImageUpload: makeCreateImageUploadController,
 

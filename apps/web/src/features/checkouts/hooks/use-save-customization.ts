@@ -1,13 +1,13 @@
+import type {
+  CheckoutCustomization,
+  CheckoutSchema,
+  CustomizationSource,
+} from "@lowcheckout/checkout-renderer";
+import { CHECKOUT_CUSTOMIZATION_VERSION } from "@lowcheckout/checkout-renderer";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { saveCheckoutCustomization, updateCheckout } from "@/features/checkouts/api/checkouts.api";
 import { checkoutKeys } from "@/features/checkouts/api/checkouts.queries";
-import type { CheckoutSchema } from "@/features/checkouts/types/checkout-schema";
-import {
-  CHECKOUT_CUSTOMIZATION_VERSION,
-  type CheckoutCustomization,
-  type CustomizationSource,
-} from "@/features/checkouts/types/customization";
 import { getApiErrorMessage } from "@/shared/api/get-error-message";
 
 interface SaveInput {

@@ -1,3 +1,5 @@
+import type { CheckoutCustomization, CustomizationSource } from "@lowcheckout/checkout-renderer";
+
 import type {
   Checkout,
   CheckoutListItem,
@@ -8,10 +10,6 @@ import type {
   ListCheckoutsParams,
   UpdateCheckoutInput,
 } from "@/features/checkouts/types/checkout";
-import type {
-  CheckoutCustomization,
-  CustomizationSource,
-} from "@/features/checkouts/types/customization";
 import { httpClient } from "@/shared/api/http-client";
 import type { ApiResponse, PaginatedResponse } from "@/shared/api/types";
 

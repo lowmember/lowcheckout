@@ -14,6 +14,7 @@
     "routes:generate": "tsr generate"
   },
   "dependencies": {
+    "@lowcheckout/checkout-renderer": "workspace:*",
     "@lowcheckout/contracts": "workspace:*",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-query": "^5.102.8",

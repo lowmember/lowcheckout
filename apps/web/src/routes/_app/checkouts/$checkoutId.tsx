@@ -1,19 +1,28 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 import {
   CheckoutAnalyticsPanel,
+  CheckoutDeleteDialog,
   CheckoutDesignCard,
   CheckoutFormDialog,
   CheckoutOffersPanel,
   CheckoutPixelsForm,
+  CheckoutPublicLinks,
   CheckoutStatusBadge,
   checkoutQueries,
   useCheckout,
 } from "@/features/checkouts";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
-import { ArrowLeftIcon, CodeIcon, PencilIcon, SalesIcon, TicketIcon } from "@/shared/ui/icons";
+import {
+  ArrowLeftIcon,
+  CodeIcon,
+  PencilIcon,
+  SalesIcon,
+  TicketIcon,
+  TrashIcon,
+} from "@/shared/ui/icons";
 import { PageHeader } from "@/shared/ui/page-header";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { type TabItem, Tabs } from "@/shared/ui/tabs";
@@ -40,6 +49,8 @@ function CheckoutDetailsPage() {
   const { checkout, isLoadingCheckout, hasCheckoutError } = useCheckout(checkoutId);
   const [area, setArea] = useState<CheckoutArea>("analytics");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   if (isLoadingCheckout) {
     return (
@@ -84,9 +95,15 @@ function CheckoutDetailsPage() {
               <PencilIcon className="size-4" />
               Editar
             </Button>
+            <Button variant="danger" size="sm" onClick={() => setIsDeleteDialogOpen(true)}>
+              <TrashIcon className="size-4" />
+              Deletar
+            </Button>
           </div>
         }
       />
+
+      <CheckoutPublicLinks checkout={checkout} />
 
       <Tabs items={TABS} value={area} onChange={setArea} ariaLabel="Áreas do checkout" />
 
@@ -101,6 +118,16 @@ function CheckoutDetailsPage() {
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         checkout={checkout}
+      />
+
+      <CheckoutDeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        checkout={checkout}
+        onDeleted={() => {
+          setIsDeleteDialogOpen(false);
+          void navigate({ to: "/checkouts" });
+        }}
       />
     </div>
   );

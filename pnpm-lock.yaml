@@ -73,6 +73,55 @@ importers:
         specifier: ~7.0.2
         version: 7.0.2
 
+  apps/checkout:
+    dependencies:
+      '@lowcheckout/checkout-renderer':
+        specifier: workspace:*
+        version: link:../../packages/checkout-renderer
+      '@lowcheckout/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@tailwindcss/vite':
+        specifier: ^4.3.3
+        version: 4.3.3(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
+      '@tanstack/react-query':
+        specifier: ^5.102.8
+        version: 5.102.8(react@19.2.8)
+      axios:
+        specifier: ^1.20.0
+        version: 1.20.0
+      react:
+        specifier: ^19.2.8
+        version: 19.2.8
+      react-dom:
+        specifier: ^19.2.8
+        version: 19.2.8(react@19.2.8)
+      tailwindcss:
+        specifier: ^4.3.3
+        version: 4.3.3
+    devDependencies:
+      '@biomejs/biome':
+        specifier: ^2.5.11
+        version: 2.5.11
+      '@types/node':
+        specifier: ^24.13.3
+        version: 24.13.3
+      '@types/react':
+        specifier: ^19.2.18
+        version: 19.2.18
+      '@types/react-dom':
+        specifier: ^19.2.4
+        version: 19.2.5(@types/react@19.2.18)
+      '@vitejs/plugin-react-swc':
+        specifier: ^4.3.3
+        version: 4.3.3(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
+      typescript:
+        specifier: ~7.0.2
+        version: 7.0.2
+      vite:
+        specifier: ^8.2.2
+        version: 8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)
+
   apps/landing:
     devDependencies:
       '@biomejs/biome':
@@ -90,6 +139,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@lowcheckout/checkout-renderer':
+        specifier: workspace:*
+        version: link:../../packages/checkout-renderer
       '@lowcheckout/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
@@ -154,6 +206,31 @@ importers:
       vite:
         specifier: ^8.2.2
         version: 8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)
+
+  packages/checkout-renderer:
+    dependencies:
+      '@lowcheckout/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      react:
+        specifier: ^19.2.8
+        version: 19.2.8
+      tailwind-merge:
+        specifier: ^3.6.0
+        version: 3.6.0
+    devDependencies:
+      '@biomejs/biome':
+        specifier: ^2.5.11
+        version: 2.5.11
+      '@types/react':
+        specifier: ^19.2.18
+        version: 19.2.18
+      typescript:
+        specifier: ~7.0.2
+        version: 7.0.2
 
   packages/contracts:
     dependencies:

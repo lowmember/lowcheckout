@@ -2,8 +2,8 @@ import type { CheckoutOfferDto } from "@/application/checkouts/dtos/checkout-off
 import { toCheckoutOfferDto } from "@/application/checkouts/mappers/checkout-offer.mapper";
 import type { Clock } from "@/application/shared/ports/clock";
 import type { IdGenerator } from "@/application/shared/ports/id-generator";
+import type { SecretGenerator } from "@/application/shared/ports/secret-generator";
 import type { UseCase } from "@/application/shared/use-case";
-import type { Checkout } from "@/domain/checkouts/entities/checkout.entity";
 import { CheckoutOffer } from "@/domain/checkouts/entities/checkout-offer.entity";
 import { CheckoutNotFoundError } from "@/domain/checkouts/errors/checkout-not-found.error";
 import { OfferAlreadyLinkedError } from "@/domain/checkouts/errors/offer-already-linked.error";
@@ -35,6 +35,7 @@ export class DefaultLinkOfferToCheckoutUseCase implements LinkOfferToCheckoutUse
   private readonly checkoutsRepository: CheckoutsRepository;
   private readonly offersRepository: OffersRepository;
   private readonly idGenerator: IdGenerator;
+  private readonly secretGenerator: SecretGenerator;
   private readonly clock: Clock;
 
   constructor(
@@ -42,12 +43,14 @@ export class DefaultLinkOfferToCheckoutUseCase implements LinkOfferToCheckoutUse
     checkoutsRepository: CheckoutsRepository,
     offersRepository: OffersRepository,
     idGenerator: IdGenerator,
+    secretGenerator: SecretGenerator,
     clock: Clock,
   ) {
     this.checkoutOffersRepository = checkoutOffersRepository;
     this.checkoutsRepository = checkoutsRepository;
     this.offersRepository = offersRepository;
     this.idGenerator = idGenerator;
+    this.secretGenerator = secretGenerator;
     this.clock = clock;
   }
 
@@ -84,7 +87,7 @@ export class DefaultLinkOfferToCheckoutUseCase implements LinkOfferToCheckoutUse
       checkoutId: input.checkoutId,
       offerId: input.offerId,
       productId: checkout.soldProductId,
-      publicSlug: await this.generateUniquePublicSlug(checkout),
+      publicSlug: await this.generateUniquePublicSlug(),
       position: await this.checkoutOffersRepository.nextPosition(input.accountId, input.checkoutId),
       now: this.clock.now(),
     });
@@ -95,12 +98,9 @@ export class DefaultLinkOfferToCheckoutUseCase implements LinkOfferToCheckoutUse
   }
 
   /** O `unique(public_slug)` é a garantia final; aqui só evitamos o erro previsível. */
-  private async generateUniquePublicSlug(checkout: Checkout): Promise<string> {
+  private async generateUniquePublicSlug(): Promise<string> {
     for (let attempt = 0; attempt < MAX_SLUG_ATTEMPTS; attempt += 1) {
-      const candidate = PublicSlug.generate(
-        checkout.currentDisplayName,
-        this.idGenerator.generate(),
-      ).toString();
+      const candidate = PublicSlug.generate(this.secretGenerator.generate()).toString();
 
       if (!(await this.checkoutOffersRepository.existsByPublicSlug(candidate))) {
         return candidate;

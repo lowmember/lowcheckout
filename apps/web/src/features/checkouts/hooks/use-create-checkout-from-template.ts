@@ -1,3 +1,8 @@
+import type { CheckoutTemplateId } from "@lowcheckout/checkout-renderer";
+import {
+  CHECKOUT_CUSTOMIZATION_VERSION,
+  createTemplateSchema,
+} from "@lowcheckout/checkout-renderer";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
@@ -6,9 +11,6 @@ import {
   saveCheckoutCustomization,
 } from "@/features/checkouts/api/checkouts.api";
 import { checkoutKeys } from "@/features/checkouts/api/checkouts.queries";
-import { createTemplateSchema } from "@/features/checkouts/lib/templates";
-import type { CheckoutTemplateId } from "@/features/checkouts/types/checkout-schema";
-import { CHECKOUT_CUSTOMIZATION_VERSION } from "@/features/checkouts/types/customization";
 import { getApiErrorMessage } from "@/shared/api/get-error-message";
 
 export interface CreateFromTemplateInput {

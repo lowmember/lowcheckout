@@ -16,6 +16,10 @@ export const getProductSchema = z.object({
   productId: idSchema,
 });
 
+export const deleteProductSchema = z.object({
+  productId: idSchema,
+});
+
 export const createProductSchema = z.object({
   name: productNameSchema,
   description: productDescriptionSchema,

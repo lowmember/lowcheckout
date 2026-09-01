@@ -1,7 +1,7 @@
+import type { CheckoutSchema } from "@lowcheckout/checkout-renderer";
+import { parseSchemaJson, toSchemaJson } from "@lowcheckout/checkout-renderer";
 import { useEffect, useState } from "react";
 
-import { parseSchemaJson, toSchemaJson } from "@/features/checkouts/lib/checkout-schema";
-import type { CheckoutSchema } from "@/features/checkouts/types/checkout-schema";
 import { Button } from "@/shared/ui/button";
 import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
 import { CopyButton } from "@/shared/ui/copy-button";

@@ -18,4 +18,6 @@ export interface CheckoutsRepository {
   create(checkout: Checkout): Promise<void>;
   update(checkout: Checkout): Promise<void>;
   delete(accountId: string, checkoutId: string): Promise<boolean>;
+  /** Sustenta a regra de deleção de produto: quantos checkouts ainda o referenciam. */
+  countByProductIds(accountId: string, productIds: readonly string[]): Promise<Map<string, number>>;
 }

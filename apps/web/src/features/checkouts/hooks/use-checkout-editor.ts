@@ -1,12 +1,18 @@
-import { useEffect, useMemo, useState } from "react";
-
-import { useSaveCustomization } from "@/features/checkouts/hooks/use-save-customization";
+import type {
+  CheckoutSchema,
+  CheckoutSectionType,
+  CustomizationSource,
+} from "@lowcheckout/checkout-renderer";
 import {
+  createLocalId,
+  findListField,
   isSameSchema,
   toCustomization,
   validateSchemaForPublish,
-} from "@/features/checkouts/lib/checkout-schema";
-import { createLocalId } from "@/features/checkouts/lib/create-id";
+} from "@lowcheckout/checkout-renderer";
+import { useEffect, useMemo, useState } from "react";
+
+import { useSaveCustomization } from "@/features/checkouts/hooks/use-save-customization";
 import {
   addSection,
   addSectionItem,
@@ -25,13 +31,7 @@ import {
   updateSectionProps,
   updateTheme,
 } from "@/features/checkouts/lib/schema-operations";
-import { findListField } from "@/features/checkouts/lib/section-registry";
 import type { Checkout } from "@/features/checkouts/types/checkout";
-import type {
-  CheckoutSchema,
-  CheckoutSectionType,
-} from "@/features/checkouts/types/checkout-schema";
-import type { CustomizationSource } from "@/features/checkouts/types/customization";
 
 /** Elemento dentro de uma seção: o array em que ele vive mais o id dele. */
 export interface EditorItemSelection {

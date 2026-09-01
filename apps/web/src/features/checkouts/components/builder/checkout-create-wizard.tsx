@@ -1,10 +1,10 @@
+import type { CheckoutTemplateId } from "@lowcheckout/checkout-renderer";
+import { getCheckoutTemplate } from "@lowcheckout/checkout-renderer";
 import { useNavigate } from "@tanstack/react-router";
 import { type FormEvent, useEffect, useState } from "react";
 
 import { TemplateGallery } from "@/features/checkouts/components/builder/template-gallery";
 import { useCreateCheckoutFromTemplate } from "@/features/checkouts/hooks/use-create-checkout-from-template";
-import { getCheckoutTemplate } from "@/features/checkouts/lib/templates";
-import type { CheckoutTemplateId } from "@/features/checkouts/types/checkout-schema";
 import { useProductOffers } from "@/features/offers";
 import { useProducts } from "@/features/products";
 import { formatCurrency } from "@/shared/lib/format-currency";

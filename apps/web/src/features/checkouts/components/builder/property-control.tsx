@@ -1,4 +1,5 @@
-import type { LeafPropertyField } from "@/features/checkouts/lib/section-registry";
+import type { LeafPropertyField } from "@lowcheckout/checkout-renderer";
+
 import { ImageField } from "@/features/uploads";
 import { cn } from "@/shared/lib/cn";
 import { SelectField } from "@/shared/ui/select-field";

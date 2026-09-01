@@ -1,6 +1,7 @@
+import type { CheckoutContent } from "@lowcheckout/checkout-renderer";
+
 import { useCheckoutOffers } from "@/features/checkouts/hooks/use-checkout-offers";
 import type { Checkout } from "@/features/checkouts/types/checkout";
-import type { CheckoutContent } from "@/features/checkouts/types/checkout-content";
 import { useProduct } from "@/features/products";
 
 /**

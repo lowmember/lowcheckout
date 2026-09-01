@@ -1,15 +1,16 @@
-import { isRecord, toPropsRecord } from "@/features/checkouts/lib/schema-normalizers";
-import {
-  createSection,
-  findListField,
-  getSectionDefinition,
-} from "@/features/checkouts/lib/section-registry";
 import type {
   CheckoutSchema,
   CheckoutSection,
   CheckoutSectionType,
   CheckoutTheme,
-} from "@/features/checkouts/types/checkout-schema";
+} from "@lowcheckout/checkout-renderer";
+import {
+  createSection,
+  findListField,
+  getSectionDefinition,
+  isRecord,
+  toPropsRecord,
+} from "@lowcheckout/checkout-renderer";
 
 /**
  * Operações puras sobre o schema. O editor visual não muta nada: cada ação da

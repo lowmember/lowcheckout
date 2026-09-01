@@ -36,6 +36,7 @@ export const httpRoutes = {
   getProduct: { name: "getProduct", method: "GET", path: "/products/{productId}" },
   createProduct: { name: "createProduct", method: "POST", path: "/products" },
   updateProduct: { name: "updateProduct", method: "PATCH", path: "/products/{productId}" },
+  deleteProduct: { name: "deleteProduct", method: "DELETE", path: "/products/{productId}" },
 
   // Envio de imagem de produto, oferta e seções do checkout: a API só assina a
   // URL; o arquivo vai do navegador direto para o bucket.

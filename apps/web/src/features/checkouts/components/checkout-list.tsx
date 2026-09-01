@@ -1,14 +1,16 @@
 import { Link } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 
+import { CheckoutDeleteDialog } from "@/features/checkouts/components/checkout-delete-dialog";
 import { CheckoutStatusBadge } from "@/features/checkouts/components/checkout-status-badge";
 import { useCheckouts } from "@/features/checkouts/hooks/use-checkouts";
-import type { ListCheckoutsParams } from "@/features/checkouts/types/checkout";
+import type { CheckoutListItem, ListCheckoutsParams } from "@/features/checkouts/types/checkout";
 import { useProducts } from "@/features/products";
 import { cn } from "@/shared/lib/cn";
+import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 import { EmptyState } from "@/shared/ui/empty-state";
-import { CartIcon, ChevronRightIcon } from "@/shared/ui/icons";
+import { CartIcon, ChevronRightIcon, TrashIcon } from "@/shared/ui/icons";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 interface CheckoutListProps {
@@ -18,6 +20,7 @@ interface CheckoutListProps {
 
 export function CheckoutList({ params, emptyAction }: CheckoutListProps) {
   const { checkouts, isLoadingCheckouts, hasCheckoutsError } = useCheckouts(params);
+  const [checkoutToDelete, setCheckoutToDelete] = useState<CheckoutListItem | null>(null);
 
   // A API devolve só `productId`; o nome sai da lista de produtos, que a tela já
   // carrega. Produto fora da primeira página cai no rótulo genérico.
@@ -57,35 +60,63 @@ export function CheckoutList({ params, emptyAction }: CheckoutListProps) {
   }
 
   return (
-    <Card className="divide-y divide-neutral-200 overflow-hidden">
-      {checkouts.map((checkout) => (
-        <Link
-          key={checkout.id}
-          to="/checkouts/$checkoutId"
-          params={{ checkoutId: checkout.id }}
-          className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-neutral-50"
-        >
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-medium text-neutral-900 text-sm">
-              {checkout.internalTitle}
-            </p>
-            <p className="mt-0.5 truncate text-neutral-500 text-xs">
-              {productNameById.get(checkout.productId) ?? "Produto vinculado"} · exibido como “
-              {checkout.displayName}”
-            </p>
+    <>
+      <Card className="divide-y divide-neutral-200 overflow-hidden">
+        {checkouts.map((checkout) => (
+          // O link cobre a linha inteira (`absolute inset-0`) para o botão de
+          // deletar não virar um <button> dentro de <a>.
+          <div
+            key={checkout.id}
+            className="group relative flex items-center gap-4 px-5 py-4 transition-colors hover:bg-neutral-50"
+          >
+            <Link
+              to="/checkouts/$checkoutId"
+              params={{ checkoutId: checkout.id }}
+              aria-label={`Abrir ${checkout.internalTitle}`}
+              className="absolute inset-0 rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-inset"
+            />
+
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium text-neutral-900 text-sm">
+                {checkout.internalTitle}
+              </p>
+              <p className="mt-0.5 truncate text-neutral-500 text-xs">
+                {productNameById.get(checkout.productId) ?? "Produto vinculado"} · exibido como “
+                {checkout.displayName}”
+              </p>
+            </div>
+
+            <CheckoutStatusBadge status={checkout.status} />
+
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label={`Deletar ${checkout.internalTitle}`}
+              className="relative px-2 text-neutral-400 hover:bg-red-50 hover:text-red-600"
+              onClick={() => setCheckoutToDelete(checkout)}
+            >
+              <TrashIcon className="size-4" />
+            </Button>
+
+            <ChevronRightIcon
+              className={cn(
+                "size-4 shrink-0 text-neutral-300",
+                "transition-[color,translate] duration-200 ease-out",
+                "group-hover:translate-x-0.5 group-hover:text-neutral-500",
+              )}
+            />
           </div>
+        ))}
+      </Card>
 
-          <CheckoutStatusBadge status={checkout.status} />
-
-          <ChevronRightIcon
-            className={cn(
-              "size-4 shrink-0 text-neutral-300",
-              "transition-[color,translate] duration-200 ease-out",
-              "group-hover:translate-x-0.5 group-hover:text-neutral-500",
-            )}
-          />
-        </Link>
-      ))}
-    </Card>
+      {checkoutToDelete && (
+        <CheckoutDeleteDialog
+          isOpen
+          checkout={checkoutToDelete}
+          onClose={() => setCheckoutToDelete(null)}
+          onDeleted={() => setCheckoutToDelete(null)}
+        />
+      )}
+    </>
   );
 }

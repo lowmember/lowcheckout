@@ -16,4 +16,5 @@ export interface ProductsRepository {
   findById(accountId: string, productId: string): Promise<Product | null>;
   create(product: Product): Promise<void>;
   update(product: Product): Promise<void>;
+  delete(accountId: string, productId: string): Promise<boolean>;
 }

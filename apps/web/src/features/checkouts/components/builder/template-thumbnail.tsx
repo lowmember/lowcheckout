@@ -1,8 +1,6 @@
+import type { CheckoutTemplate } from "@lowcheckout/checkout-renderer";
+import { CheckoutRenderer, SAMPLE_CONTENT } from "@lowcheckout/checkout-renderer";
 import { useMemo } from "react";
-
-import { CheckoutRenderer } from "@/features/checkouts/components/renderer/checkout-renderer";
-import type { CheckoutTemplate } from "@/features/checkouts/lib/templates";
-import { SAMPLE_CONTENT } from "@/features/checkouts/types/checkout-content";
 
 interface TemplateThumbnailProps {
   template: CheckoutTemplate;

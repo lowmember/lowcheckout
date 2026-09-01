@@ -1,9 +1,12 @@
+import {
+  CheckoutRenderer,
+  getCheckoutTemplate,
+  isSameSchema,
+  toCustomization,
+} from "@lowcheckout/checkout-renderer";
 import { Link } from "@tanstack/react-router";
 
-import { CheckoutRenderer } from "@/features/checkouts/components/renderer/checkout-renderer";
 import { useCheckoutContent } from "@/features/checkouts/hooks/use-checkout-content";
-import { isSameSchema, toCustomization } from "@/features/checkouts/lib/checkout-schema";
-import { getCheckoutTemplate } from "@/features/checkouts/lib/templates";
 import type { Checkout } from "@/features/checkouts/types/checkout";
 import { cn } from "@/shared/lib/cn";
 import { formatDate } from "@/shared/lib/format-date";

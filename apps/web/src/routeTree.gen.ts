@@ -15,7 +15,6 @@ import { Route as BuilderRouteImport } from "./routes/_builder";
 import { Route as AppIndexRouteImport } from "./routes/_app/index";
 import { Route as AuthCadastroRouteImport } from "./routes/_auth/cadastro";
 import { Route as AuthEntrarRouteImport } from "./routes/_auth/entrar";
-import { Route as CPublicSlugRouteImport } from "./routes/c.$publicSlug";
 import { Route as AppCheckoutsIndexRouteImport } from "./routes/_app/checkouts/index";
 import { Route as AppCheckoutsCheckoutIdRouteImport } from "./routes/_app/checkouts/$checkoutId";
 import { Route as AppConfiguracoesIndexRouteImport } from "./routes/_app/configuracoes/index";
@@ -52,11 +51,6 @@ const AuthEntrarRoute = AuthEntrarRouteImport.update({
   id: "/entrar",
   path: "/entrar",
   getParentRoute: () => AuthRoute,
-} as any);
-const CPublicSlugRoute = CPublicSlugRouteImport.update({
-  id: "/c/$publicSlug",
-  path: "/c/$publicSlug",
-  getParentRoute: () => rootRouteImport,
 } as any);
 const AppCheckoutsIndexRoute = AppCheckoutsIndexRouteImport.update({
   id: "/checkouts/",
@@ -109,7 +103,6 @@ export interface FileRoutesByFullPath {
   "/": typeof AppIndexRoute;
   "/cadastro": typeof AuthCadastroRoute;
   "/entrar": typeof AuthEntrarRoute;
-  "/c/$publicSlug": typeof CPublicSlugRoute;
   "/checkouts/$checkoutId": typeof AppCheckoutsCheckoutIdRoute;
   "/produtos/$productId": typeof AppProdutosProductIdRoute;
   "/checkouts/novo": typeof BuilderCheckoutsNovoRoute;
@@ -124,7 +117,6 @@ export interface FileRoutesByTo {
   "/": typeof AppIndexRoute;
   "/cadastro": typeof AuthCadastroRoute;
   "/entrar": typeof AuthEntrarRoute;
-  "/c/$publicSlug": typeof CPublicSlugRoute;
   "/checkouts/$checkoutId": typeof AppCheckoutsCheckoutIdRoute;
   "/produtos/$productId": typeof AppProdutosProductIdRoute;
   "/checkouts/novo": typeof BuilderCheckoutsNovoRoute;
@@ -142,7 +134,6 @@ export interface FileRoutesById {
   "/_builder": typeof BuilderRouteWithChildren;
   "/_auth/cadastro": typeof AuthCadastroRoute;
   "/_auth/entrar": typeof AuthEntrarRoute;
-  "/c/$publicSlug": typeof CPublicSlugRoute;
   "/_app/": typeof AppIndexRoute;
   "/_app/checkouts/$checkoutId": typeof AppCheckoutsCheckoutIdRoute;
   "/_app/produtos/$productId": typeof AppProdutosProductIdRoute;
@@ -160,7 +151,6 @@ export interface FileRouteTypes {
     | "/"
     | "/cadastro"
     | "/entrar"
-    | "/c/$publicSlug"
     | "/checkouts/$checkoutId"
     | "/produtos/$productId"
     | "/checkouts/novo"
@@ -175,7 +165,6 @@ export interface FileRouteTypes {
     | "/"
     | "/cadastro"
     | "/entrar"
-    | "/c/$publicSlug"
     | "/checkouts/$checkoutId"
     | "/produtos/$productId"
     | "/checkouts/novo"
@@ -192,7 +181,6 @@ export interface FileRouteTypes {
     | "/_builder"
     | "/_auth/cadastro"
     | "/_auth/entrar"
-    | "/c/$publicSlug"
     | "/_app/"
     | "/_app/checkouts/$checkoutId"
     | "/_app/produtos/$productId"
@@ -209,7 +197,6 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren;
   AuthRoute: typeof AuthRouteWithChildren;
   BuilderRoute: typeof BuilderRouteWithChildren;
-  CPublicSlugRoute: typeof CPublicSlugRoute;
 }
 
 declare module "@tanstack/react-router" {
@@ -255,13 +242,6 @@ declare module "@tanstack/react-router" {
       fullPath: "/entrar";
       preLoaderRoute: typeof AuthEntrarRouteImport;
       parentRoute: typeof AuthRoute;
-    };
-    "/c/$publicSlug": {
-      id: "/c/$publicSlug";
-      path: "/c/$publicSlug";
-      fullPath: "/c/$publicSlug";
-      preLoaderRoute: typeof CPublicSlugRouteImport;
-      parentRoute: typeof rootRouteImport;
     };
     "/_app/checkouts/": {
       id: "/_app/checkouts/";
@@ -382,7 +362,6 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
   BuilderRoute: BuilderRouteWithChildren,
-  CPublicSlugRoute: CPublicSlugRoute,
 };
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

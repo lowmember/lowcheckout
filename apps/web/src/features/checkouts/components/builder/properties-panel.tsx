@@ -1,9 +1,9 @@
+import type { CheckoutSection } from "@lowcheckout/checkout-renderer";
+import { getSectionDefinition, toPropsRecord } from "@lowcheckout/checkout-renderer";
+
 import { PropertyControl } from "@/features/checkouts/components/builder/property-control";
 import { PropertyListControl } from "@/features/checkouts/components/builder/property-list-control";
 import { SECTION_ICONS } from "@/features/checkouts/components/builder/section-icons";
-import { toPropsRecord } from "@/features/checkouts/lib/schema-normalizers";
-import { getSectionDefinition } from "@/features/checkouts/lib/section-registry";
-import type { CheckoutSection } from "@/features/checkouts/types/checkout-schema";
 import { Badge } from "@/shared/ui/badge";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { LayersIcon } from "@/shared/ui/icons";

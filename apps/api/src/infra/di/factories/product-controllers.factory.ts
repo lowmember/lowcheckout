@@ -1,4 +1,5 @@
 import { DefaultCreateProductUseCase } from "@/application/products/use-cases/create-product.usecase";
+import { DefaultDeleteProductUseCase } from "@/application/products/use-cases/delete-product.usecase";
 import { DefaultGetProductUseCase } from "@/application/products/use-cases/get-product.usecase";
 import { DefaultListProductsUseCase } from "@/application/products/use-cases/list-products.usecase";
 import { DefaultUpdateProductUseCase } from "@/application/products/use-cases/update-product.usecase";
@@ -7,12 +8,14 @@ import { withOnboardedAccount, withPanelAccess } from "@/infra/di/factories/with
 import { withErrorHandling } from "@/infra/di/factories/with-error-handling";
 import {
   createProductSchema,
+  deleteProductSchema,
   getProductSchema,
   listProductsSchema,
   updateProductSchema,
 } from "@/infra/validation/zod/schemas/product.schemas";
 import { ZodValidator } from "@/infra/validation/zod/zod-validator.adapter";
 import { CreateProductController } from "@/presentation/http/controllers/products/create-product.controller";
+import { DeleteProductController } from "@/presentation/http/controllers/products/delete-product.controller";
 import { GetProductController } from "@/presentation/http/controllers/products/get-product.controller";
 import { ListProductsController } from "@/presentation/http/controllers/products/list-products.controller";
 import { UpdateProductController } from "@/presentation/http/controllers/products/update-product.controller";
@@ -59,6 +62,19 @@ export function makeUpdateProductController() {
         new DefaultUpdateProductUseCase(productsRepository, offersRepository, clock),
       ),
       new ZodValidator(updateProductSchema),
+    ),
+  );
+}
+
+export function makeDeleteProductController() {
+  const { productsRepository, offersRepository, checkoutsRepository } = getContainer();
+
+  return withErrorHandling(
+    new DeleteProductController(
+      withOnboardedAccount(
+        new DefaultDeleteProductUseCase(productsRepository, offersRepository, checkoutsRepository),
+      ),
+      new ZodValidator(deleteProductSchema),
     ),
   );
 }

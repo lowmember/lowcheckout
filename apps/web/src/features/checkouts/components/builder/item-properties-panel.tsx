@@ -1,9 +1,8 @@
+import type { CheckoutSection, ListPropertyField } from "@lowcheckout/checkout-renderer";
+import { getSectionDefinition } from "@lowcheckout/checkout-renderer";
 import type { ReactNode } from "react";
 
 import { PropertyControl } from "@/features/checkouts/components/builder/property-control";
-import type { ListPropertyField } from "@/features/checkouts/lib/section-registry";
-import { getSectionDefinition } from "@/features/checkouts/lib/section-registry";
-import type { CheckoutSection } from "@/features/checkouts/types/checkout-schema";
 import { cn } from "@/shared/lib/cn";
 import { ArrowDownIcon, ArrowLeftIcon, ArrowUpIcon, CopyIcon, TrashIcon } from "@/shared/ui/icons";
 

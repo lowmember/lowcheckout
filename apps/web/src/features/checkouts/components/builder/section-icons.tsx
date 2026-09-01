@@ -1,6 +1,6 @@
+import type { CheckoutSectionType } from "@lowcheckout/checkout-renderer";
 import type { ReactNode } from "react";
 
-import type { CheckoutSectionType } from "@/features/checkouts/types/checkout-schema";
 import {
   CartIcon,
   HelpCircleIcon,

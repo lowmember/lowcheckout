@@ -1,6 +1,7 @@
+import type { CheckoutTemplateId } from "@lowcheckout/checkout-renderer";
+import { BLANK_TEMPLATE, CHECKOUT_TEMPLATES } from "@lowcheckout/checkout-renderer";
+
 import { TemplateThumbnail } from "@/features/checkouts/components/builder/template-thumbnail";
-import { BLANK_TEMPLATE, CHECKOUT_TEMPLATES } from "@/features/checkouts/lib/templates";
-import type { CheckoutTemplateId } from "@/features/checkouts/types/checkout-schema";
 import { cn } from "@/shared/lib/cn";
 import { Badge } from "@/shared/ui/badge";
 import { LayersIcon, SparklesIcon } from "@/shared/ui/icons";

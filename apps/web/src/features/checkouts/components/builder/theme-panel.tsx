@@ -1,12 +1,3 @@
-import {
-  FONT_FAMILY_IDS,
-  FONT_FAMILY_LABELS,
-  SPACING_LABELS,
-  SPACING_PRESETS,
-  TYPE_SCALE_LABELS,
-  TYPE_SCALES,
-} from "@/features/checkouts/lib/checkout-theme";
-import type { ThemePatch } from "@/features/checkouts/lib/schema-operations";
 import type {
   CheckoutTheme,
   CheckoutThemeColors,
@@ -14,7 +5,17 @@ import type {
   FontFamilyId,
   SpacingPreset,
   TypeScale,
-} from "@/features/checkouts/types/checkout-schema";
+} from "@lowcheckout/checkout-renderer";
+import {
+  FONT_FAMILY_IDS,
+  FONT_FAMILY_LABELS,
+  SPACING_LABELS,
+  SPACING_PRESETS,
+  TYPE_SCALE_LABELS,
+  TYPE_SCALES,
+} from "@lowcheckout/checkout-renderer";
+
+import type { ThemePatch } from "@/features/checkouts/lib/schema-operations";
 import { ColorField } from "@/shared/ui/color-field";
 import { SegmentedControl } from "@/shared/ui/segmented-control";
 import { SelectField } from "@/shared/ui/select-field";

@@ -1,10 +1,8 @@
+import type { CheckoutSchema, CheckoutSectionType } from "@lowcheckout/checkout-renderer";
+import { getSectionDefinition, SECTION_TYPES } from "@lowcheckout/checkout-renderer";
+
 import { SECTION_ICONS } from "@/features/checkouts/components/builder/section-icons";
 import { canAddSection } from "@/features/checkouts/lib/schema-operations";
-import { getSectionDefinition, SECTION_TYPES } from "@/features/checkouts/lib/section-registry";
-import type {
-  CheckoutSchema,
-  CheckoutSectionType,
-} from "@/features/checkouts/types/checkout-schema";
 import { cn } from "@/shared/lib/cn";
 import { Dialog } from "@/shared/ui/dialog";
 import { CheckIcon, PlusIcon } from "@/shared/ui/icons";

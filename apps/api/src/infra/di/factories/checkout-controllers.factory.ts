@@ -101,8 +101,14 @@ export function makeDeleteCheckoutController() {
 }
 
 export function makeLinkOfferToCheckoutController() {
-  const { checkoutOffersRepository, checkoutsRepository, offersRepository, idGenerator, clock } =
-    getContainer();
+  const {
+    checkoutOffersRepository,
+    checkoutsRepository,
+    offersRepository,
+    idGenerator,
+    secretGenerator,
+    clock,
+  } = getContainer();
 
   return withErrorHandling(
     new LinkOfferToCheckoutController(
@@ -112,6 +118,7 @@ export function makeLinkOfferToCheckoutController() {
           checkoutsRepository,
           offersRepository,
           idGenerator,
+          secretGenerator,
           clock,
         ),
       ),

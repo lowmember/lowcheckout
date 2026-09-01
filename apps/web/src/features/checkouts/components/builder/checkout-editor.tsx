@@ -1,3 +1,4 @@
+import type { CheckoutViewport } from "@lowcheckout/checkout-renderer";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 
@@ -8,7 +9,6 @@ import { PreviewFrame } from "@/features/checkouts/components/builder/preview-fr
 import { PropertiesPanel } from "@/features/checkouts/components/builder/properties-panel";
 import { SectionListPanel } from "@/features/checkouts/components/builder/section-list-panel";
 import { ThemePanel } from "@/features/checkouts/components/builder/theme-panel";
-import type { CheckoutViewport } from "@/features/checkouts/components/renderer/renderer-context";
 import { useCheckoutContent } from "@/features/checkouts/hooks/use-checkout-content";
 import { useCheckoutEditor } from "@/features/checkouts/hooks/use-checkout-editor";
 import type { Checkout } from "@/features/checkouts/types/checkout";

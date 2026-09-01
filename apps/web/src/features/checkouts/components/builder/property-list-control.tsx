@@ -1,8 +1,8 @@
+import type { ListPropertyField } from "@lowcheckout/checkout-renderer";
+import { isRecord } from "@lowcheckout/checkout-renderer";
 import { useState } from "react";
 
 import { PropertyControl } from "@/features/checkouts/components/builder/property-control";
-import { isRecord } from "@/features/checkouts/lib/schema-normalizers";
-import type { ListPropertyField } from "@/features/checkouts/lib/section-registry";
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
 import {

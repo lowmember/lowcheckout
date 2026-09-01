@@ -1,12 +1,12 @@
+import type {
+  CheckoutContent,
+  CheckoutRendererSelection,
+  CheckoutSchema,
+  CheckoutViewport,
+} from "@lowcheckout/checkout-renderer";
+import { CheckoutRenderer } from "@lowcheckout/checkout-renderer";
 import { useEffect, useRef } from "react";
 
-import { CheckoutRenderer } from "@/features/checkouts/components/renderer/checkout-renderer";
-import type {
-  CheckoutRendererSelection,
-  CheckoutViewport,
-} from "@/features/checkouts/components/renderer/renderer-context";
-import type { CheckoutContent } from "@/features/checkouts/types/checkout-content";
-import type { CheckoutSchema } from "@/features/checkouts/types/checkout-schema";
 import { cn } from "@/shared/lib/cn";
 
 interface PreviewFrameProps {
