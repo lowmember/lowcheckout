@@ -1,45 +1,39 @@
 import { type FormEvent, useEffect, useState } from "react";
 
 import { useGateway } from "@/features/gateway/hooks/use-gateway";
-import type { GatewayEnvironment, GatewayFieldErrors } from "@/features/gateway/types/gateway";
-import { formatDateTime } from "@/shared/lib/format-date";
-import { Badge } from "@/shared/ui/badge";
+import type { GatewayCatalogEntry } from "@/features/gateway/lib/gateway-catalog";
+import type { GatewayFieldErrors } from "@/features/gateway/types/gateway";
 import { Button } from "@/shared/ui/button";
-import { Card, CardBody, CardHeader } from "@/shared/ui/card";
 import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
-import { AlertTriangleIcon, InfoIcon, PlugIcon } from "@/shared/ui/icons";
-import { SelectField } from "@/shared/ui/select-field";
-import { Skeleton } from "@/shared/ui/skeleton";
+import { Dialog } from "@/shared/ui/dialog";
+import { AlertTriangleIcon, PlugIcon } from "@/shared/ui/icons";
 import { TextField } from "@/shared/ui/text-field";
 
-const ENVIRONMENT_OPTIONS = [
-  { value: "sandbox", label: "Sandbox (homologação)" },
-  { value: "production", label: "Produção" },
-];
-
 interface FormValues {
-  environment: GatewayEnvironment;
   clientId: string;
   clientSecret: string;
   pixKey: string;
 }
 
-const EMPTY_VALUES: FormValues = {
-  environment: "sandbox",
-  clientId: "",
-  clientSecret: "",
-  pixKey: "",
-};
+const EMPTY_VALUES: FormValues = { clientId: "", clientSecret: "", pixKey: "" };
 
-export function GatewayPanel() {
+interface GatewayConnectionDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  gateway: GatewayCatalogEntry;
+}
+
+/** Configuração do gateway: credenciais e chave PIX, sem escolha de ambiente. */
+export function GatewayConnectionDialog({
+  isOpen,
+  onClose,
+  gateway,
+}: GatewayConnectionDialogProps) {
   const {
-    gateway,
+    gateway: connection,
     isConnected,
-    isLoadingGateway,
-    hasGatewayError,
     saveGateway,
     isSavingGateway,
-    didSaveGateway,
     saveGatewayErrorMessage,
     disconnectGateway,
     isDisconnectingGateway,
@@ -51,12 +45,11 @@ export function GatewayPanel() {
   const [isDisconnectOpen, setIsDisconnectOpen] = useState(false);
 
   useEffect(() => {
-    setValues((current) => ({
-      ...current,
-      environment: gateway?.environment ?? "sandbox",
-      pixKey: gateway?.pixKey ?? "",
-    }));
-  }, [gateway]);
+    if (!isOpen) return;
+
+    setValues({ ...EMPTY_VALUES, pixKey: connection?.pixKey ?? "" });
+    setErrors({});
+  }, [isOpen, connection]);
 
   function setField(field: keyof FormValues, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
@@ -75,62 +68,53 @@ export function GatewayPanel() {
     if (Object.keys(validationErrors).length > 0) return;
 
     await saveGateway({
-      provider: "efibank",
-      environment: values.environment,
+      provider: gateway.provider,
+      // Toda conta opera em produção: homologação é ambiente nosso, não do produtor.
+      environment: "production",
       clientId: values.clientId.trim(),
       clientSecret: values.clientSecret.trim(),
       pixKey: values.pixKey.trim(),
-    }).catch(() => undefined);
-
-    setValues((current) => ({ ...current, clientId: "", clientSecret: "" }));
+    })
+      .then(onClose)
+      .catch(() => undefined);
   }
 
   return (
-    <Card>
-      <CardHeader
-        title="EfiBank · PIX"
+    <>
+      <Dialog
+        isOpen={isOpen}
+        onClose={onClose}
+        title={`Configurar ${gateway.name}`}
         description="Conecte uma vez: todos os checkouts da conta herdam este gateway."
-        action={
-          isLoadingGateway ? (
-            <Skeleton className="h-6 w-24" />
-          ) : (
-            <Badge tone={isConnected ? "success" : "neutral"}>
-              {isConnected ? "Conectado" : "Não conectado"}
-            </Badge>
-          )
+        footer={
+          <>
+            {isConnected && (
+              <Button
+                variant="secondary"
+                size="sm"
+                className="mr-auto"
+                onClick={() => setIsDisconnectOpen(true)}
+              >
+                Desconectar
+              </Button>
+            )}
+            <Button variant="secondary" size="sm" onClick={onClose}>
+              Cancelar
+            </Button>
+            <Button type="submit" form="gateway-form" size="sm" isLoading={isSavingGateway}>
+              <PlugIcon className="size-4" />
+              {isConnected ? "Substituir credenciais" : "Conectar"}
+            </Button>
+          </>
         }
-      />
-
-      <CardBody className="space-y-5">
-        {hasGatewayError && (
-          <p className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-amber-800 text-xs leading-relaxed">
-            <InfoIcon className="mt-px size-4 shrink-0" />
-            Não foi possível consultar o estado do gateway. O formulário abaixo continua disponível
-            para conectar.
-          </p>
-        )}
-
-        {gateway?.status === "error" && gateway.lastError && (
-          <p className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-red-700 text-xs leading-relaxed">
-            <AlertTriangleIcon className="mt-px size-4 shrink-0" />
-            {gateway.lastError}
-          </p>
-        )}
-
-        {isConnected && gateway?.connectedAt && (
-          <p className="text-neutral-500 text-xs">
-            Conectado em {formatDateTime(gateway.connectedAt)} · ambiente{" "}
-            {gateway.environment === "production" ? "produção" : "sandbox"}.
-          </p>
-        )}
-
-        <form onSubmit={handleSubmit} noValidate className="space-y-5">
-          <SelectField
-            label="Ambiente"
-            options={ENVIRONMENT_OPTIONS}
-            value={values.environment}
-            onChange={(event) => setField("environment", event.target.value)}
-          />
+      >
+        <form id="gateway-form" onSubmit={handleSubmit} noValidate className="space-y-5">
+          {connection?.status === "error" && connection.lastError && (
+            <p className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-red-700 text-xs leading-relaxed">
+              <AlertTriangleIcon className="mt-px size-4 shrink-0" />
+              {connection.lastError}
+            </p>
+          )}
 
           <TextField
             label="Client ID"
@@ -166,25 +150,8 @@ export function GatewayPanel() {
               {saveGatewayErrorMessage ?? disconnectGatewayErrorMessage}
             </p>
           )}
-
-          <div className="flex flex-wrap items-center gap-3">
-            <Button type="submit" size="sm" isLoading={isSavingGateway}>
-              <PlugIcon className="size-4" />
-              {isConnected ? "Substituir credenciais" : "Conectar gateway"}
-            </Button>
-
-            {isConnected && (
-              <Button variant="secondary" size="sm" onClick={() => setIsDisconnectOpen(true)}>
-                Desconectar
-              </Button>
-            )}
-
-            {didSaveGateway && !saveGatewayErrorMessage && (
-              <span className="animate-fade-in text-emerald-600 text-xs">Credenciais salvas.</span>
-            )}
-          </div>
         </form>
-      </CardBody>
+      </Dialog>
 
       <ConfirmDialog
         isOpen={isDisconnectOpen}
@@ -197,7 +164,10 @@ export function GatewayPanel() {
         onConfirm={() =>
           void disconnectGateway()
             .catch(() => undefined)
-            .finally(() => setIsDisconnectOpen(false))
+            .finally(() => {
+              setIsDisconnectOpen(false);
+              onClose();
+            })
         }
       >
         <p className="text-neutral-600 text-sm leading-relaxed">
@@ -205,6 +175,6 @@ export function GatewayPanel() {
           expiração normalmente, e nada do histórico é apagado.
         </p>
       </ConfirmDialog>
-    </Card>
+    </>
   );
 }

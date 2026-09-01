@@ -68,7 +68,7 @@ export function SearchTrigger({ onClick, className }: SearchTriggerProps) {
       <kbd className="hidden shrink-0 rounded-md border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-medium font-sans text-[11px] text-neutral-500 sm:block">
         ⌘ + K
       </kbd>
-      <span className="truncate">Busque checkouts, produtos ou integrações...</span>
+      <span className="truncate">Busque checkouts, produtos ou gateways...</span>
     </button>
   );
 }

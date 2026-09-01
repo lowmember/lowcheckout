@@ -38,7 +38,7 @@ const NAV_ITEMS = [
   { to: "/produtos", label: "Produtos", Icon: PackageIcon, isExact: false },
   { to: "/checkouts", label: "Checkouts", Icon: CartIcon, isExact: false },
   { to: "/vendas", label: "Vendas", Icon: SalesIcon, isExact: false },
-  { to: "/integracoes", label: "Integrações", Icon: PlugIcon, isExact: false },
+  { to: "/gateways", label: "Gateways", Icon: PlugIcon, isExact: false },
 ] as const;
 
 const FOOTER_ITEM = {

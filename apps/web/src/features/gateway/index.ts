@@ -1,6 +1,8 @@
 export { gatewayKeys, gatewayQueries } from "./api/gateway.queries";
-export { GatewayPanel } from "./components/gateway-panel";
+export { GatewayConnectionDialog } from "./components/gateway-connection-dialog";
+export { GatewayList } from "./components/gateway-list";
 export { useGateway } from "./hooks/use-gateway";
+export { GATEWAY_CATALOG, type GatewayCatalogEntry } from "./lib/gateway-catalog";
 export type {
   GatewayConnection,
   GatewayEnvironment,

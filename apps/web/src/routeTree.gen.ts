@@ -18,7 +18,7 @@ import { Route as AuthEntrarRouteImport } from "./routes/_auth/entrar";
 import { Route as AppCheckoutsIndexRouteImport } from "./routes/_app/checkouts/index";
 import { Route as AppCheckoutsCheckoutIdRouteImport } from "./routes/_app/checkouts/$checkoutId";
 import { Route as AppConfiguracoesIndexRouteImport } from "./routes/_app/configuracoes/index";
-import { Route as AppIntegracoesIndexRouteImport } from "./routes/_app/integracoes/index";
+import { Route as AppGatewaysIndexRouteImport } from "./routes/_app/gateways/index";
 import { Route as AppProdutosIndexRouteImport } from "./routes/_app/produtos/index";
 import { Route as AppProdutosProductIdRouteImport } from "./routes/_app/produtos/$productId";
 import { Route as AppVendasIndexRouteImport } from "./routes/_app/vendas/index";
@@ -67,9 +67,9 @@ const AppConfiguracoesIndexRoute = AppConfiguracoesIndexRouteImport.update({
   path: "/configuracoes/",
   getParentRoute: () => AppRoute,
 } as any);
-const AppIntegracoesIndexRoute = AppIntegracoesIndexRouteImport.update({
-  id: "/integracoes/",
-  path: "/integracoes/",
+const AppGatewaysIndexRoute = AppGatewaysIndexRouteImport.update({
+  id: "/gateways/",
+  path: "/gateways/",
   getParentRoute: () => AppRoute,
 } as any);
 const AppProdutosIndexRoute = AppProdutosIndexRouteImport.update({
@@ -108,7 +108,7 @@ export interface FileRoutesByFullPath {
   "/checkouts/novo": typeof BuilderCheckoutsNovoRoute;
   "/checkouts/": typeof AppCheckoutsIndexRoute;
   "/configuracoes/": typeof AppConfiguracoesIndexRoute;
-  "/integracoes/": typeof AppIntegracoesIndexRoute;
+  "/gateways/": typeof AppGatewaysIndexRoute;
   "/produtos/": typeof AppProdutosIndexRoute;
   "/vendas/": typeof AppVendasIndexRoute;
   "/checkouts/$checkoutId/editor": typeof BuilderCheckoutsCheckoutIdEditorRoute;
@@ -122,7 +122,7 @@ export interface FileRoutesByTo {
   "/checkouts/novo": typeof BuilderCheckoutsNovoRoute;
   "/checkouts": typeof AppCheckoutsIndexRoute;
   "/configuracoes": typeof AppConfiguracoesIndexRoute;
-  "/integracoes": typeof AppIntegracoesIndexRoute;
+  "/gateways": typeof AppGatewaysIndexRoute;
   "/produtos": typeof AppProdutosIndexRoute;
   "/vendas": typeof AppVendasIndexRoute;
   "/checkouts/$checkoutId/editor": typeof BuilderCheckoutsCheckoutIdEditorRoute;
@@ -140,7 +140,7 @@ export interface FileRoutesById {
   "/_builder/checkouts/novo": typeof BuilderCheckoutsNovoRoute;
   "/_app/checkouts/": typeof AppCheckoutsIndexRoute;
   "/_app/configuracoes/": typeof AppConfiguracoesIndexRoute;
-  "/_app/integracoes/": typeof AppIntegracoesIndexRoute;
+  "/_app/gateways/": typeof AppGatewaysIndexRoute;
   "/_app/produtos/": typeof AppProdutosIndexRoute;
   "/_app/vendas/": typeof AppVendasIndexRoute;
   "/_builder/checkouts/$checkoutId/editor": typeof BuilderCheckoutsCheckoutIdEditorRoute;
@@ -156,7 +156,7 @@ export interface FileRouteTypes {
     | "/checkouts/novo"
     | "/checkouts/"
     | "/configuracoes/"
-    | "/integracoes/"
+    | "/gateways/"
     | "/produtos/"
     | "/vendas/"
     | "/checkouts/$checkoutId/editor";
@@ -170,7 +170,7 @@ export interface FileRouteTypes {
     | "/checkouts/novo"
     | "/checkouts"
     | "/configuracoes"
-    | "/integracoes"
+    | "/gateways"
     | "/produtos"
     | "/vendas"
     | "/checkouts/$checkoutId/editor";
@@ -187,7 +187,7 @@ export interface FileRouteTypes {
     | "/_builder/checkouts/novo"
     | "/_app/checkouts/"
     | "/_app/configuracoes/"
-    | "/_app/integracoes/"
+    | "/_app/gateways/"
     | "/_app/produtos/"
     | "/_app/vendas/"
     | "/_builder/checkouts/$checkoutId/editor";
@@ -264,11 +264,11 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AppConfiguracoesIndexRouteImport;
       parentRoute: typeof AppRoute;
     };
-    "/_app/integracoes/": {
-      id: "/_app/integracoes/";
-      path: "/integracoes";
-      fullPath: "/integracoes/";
-      preLoaderRoute: typeof AppIntegracoesIndexRouteImport;
+    "/_app/gateways/": {
+      id: "/_app/gateways/";
+      path: "/gateways";
+      fullPath: "/gateways/";
+      preLoaderRoute: typeof AppGatewaysIndexRouteImport;
       parentRoute: typeof AppRoute;
     };
     "/_app/produtos/": {
@@ -315,7 +315,7 @@ interface AppRouteChildren {
   AppProdutosProductIdRoute: typeof AppProdutosProductIdRoute;
   AppCheckoutsIndexRoute: typeof AppCheckoutsIndexRoute;
   AppConfiguracoesIndexRoute: typeof AppConfiguracoesIndexRoute;
-  AppIntegracoesIndexRoute: typeof AppIntegracoesIndexRoute;
+  AppGatewaysIndexRoute: typeof AppGatewaysIndexRoute;
   AppProdutosIndexRoute: typeof AppProdutosIndexRoute;
   AppVendasIndexRoute: typeof AppVendasIndexRoute;
 }
@@ -326,7 +326,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProdutosProductIdRoute: AppProdutosProductIdRoute,
   AppCheckoutsIndexRoute: AppCheckoutsIndexRoute,
   AppConfiguracoesIndexRoute: AppConfiguracoesIndexRoute,
-  AppIntegracoesIndexRoute: AppIntegracoesIndexRoute,
+  AppGatewaysIndexRoute: AppGatewaysIndexRoute,
   AppProdutosIndexRoute: AppProdutosIndexRoute,
   AppVendasIndexRoute: AppVendasIndexRoute,
 };
