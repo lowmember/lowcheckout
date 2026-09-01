@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import {
   CheckoutAnalyticsPanel,
+  CheckoutContactEmailCard,
   CheckoutDeleteDialog,
   CheckoutDesignCard,
   CheckoutFormDialog,
@@ -18,6 +19,7 @@ import { Card } from "@/shared/ui/card";
 import {
   ArrowLeftIcon,
   CodeIcon,
+  MailIcon,
   PencilIcon,
   SalesIcon,
   TicketIcon,
@@ -27,12 +29,13 @@ import { PageHeader } from "@/shared/ui/page-header";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { type TabItem, Tabs } from "@/shared/ui/tabs";
 
-type CheckoutArea = "analytics" | "offers" | "tracking" | "design";
+type CheckoutArea = "analytics" | "offers" | "tracking" | "contact" | "design";
 
 const TABS: TabItem<CheckoutArea>[] = [
   { value: "analytics", label: "Analytics", icon: <SalesIcon className="size-4" /> },
   { value: "offers", label: "Ofertas", icon: <TicketIcon className="size-4" /> },
   { value: "tracking", label: "Tracking", icon: <CodeIcon className="size-4" /> },
+  { value: "contact", label: "Contato", icon: <MailIcon className="size-4" /> },
   { value: "design", label: "Design", icon: <PencilIcon className="size-4" /> },
 ];
 
@@ -112,6 +115,7 @@ function CheckoutDetailsPage() {
         <CheckoutOffersPanel checkoutId={checkout.id} productId={checkout.productId} />
       )}
       {area === "tracking" && <CheckoutPixelsForm checkoutId={checkout.id} />}
+      {area === "contact" && <CheckoutContactEmailCard checkout={checkout} />}
       {area === "design" && <CheckoutDesignCard checkout={checkout} />}
 
       <CheckoutFormDialog

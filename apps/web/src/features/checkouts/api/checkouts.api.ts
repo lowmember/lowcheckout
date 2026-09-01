@@ -39,6 +39,27 @@ export async function deleteCheckout(checkoutId: string) {
   await httpClient.delete(`/checkouts/${checkoutId}`);
 }
 
+/* — E-mail de contato do checkout (RF-CHK-11) — */
+
+export async function requestCheckoutContactEmailVerification(
+  checkoutId: string,
+  contactEmail: string,
+) {
+  const response = await httpClient.post<ApiResponse<Checkout>>(
+    `/checkouts/${checkoutId}/contact-email/verification`,
+    { contactEmail },
+  );
+  return response.data.data;
+}
+
+export async function confirmCheckoutContactEmail(checkoutId: string, code: string) {
+  const response = await httpClient.post<ApiResponse<Checkout>>(
+    `/checkouts/${checkoutId}/contact-email/confirmation`,
+    { code },
+  );
+  return response.data.data;
+}
+
 /* — Ofertas vinculadas (RF-CHK-05) — */
 
 export async function listCheckoutOffers(checkoutId: string) {

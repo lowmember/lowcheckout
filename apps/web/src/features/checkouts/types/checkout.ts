@@ -11,6 +11,11 @@ export interface Checkout {
   bannerMobileUrl: string | null;
   customization: Record<string, unknown>;
   status: CheckoutStatus;
+  /** E-mail de contato já confirmado por código; `null` enquanto não houver um. */
+  contactEmail: string | null;
+  contactEmailVerifiedAt: string | null;
+  /** Endereço aguardando confirmação — o comprador ainda não o vê. */
+  pendingContactEmail: string | null;
   createdAt: string;
   updatedAt: string;
 }

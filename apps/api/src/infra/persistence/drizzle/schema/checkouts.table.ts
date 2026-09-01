@@ -47,6 +47,23 @@ export const checkouts = pgTable(
       .notNull()
       .default(sql`'{}'::jsonb`),
     status: checkoutStatus("status").notNull().default("draft"),
+    /**
+     * E-mail de contato exibido ao comprador — mora no checkout, não na conta,
+     * porque cada checkout costuma ser uma campanha com um responsável.
+     * Só sai da coluna `contact_email` depois de confirmado por código; enquanto
+     * isso o endereço fica nas colunas `pending_*` junto do hash do código.
+     */
+    contactEmail: varchar("contact_email", { length: 255 }),
+    contactEmailVerifiedAt: timestamp("contact_email_verified_at", {
+      withTimezone: true,
+      mode: "date",
+    }),
+    pendingContactEmail: varchar("pending_contact_email", { length: 255 }),
+    pendingContactEmailCodeHash: varchar("pending_contact_email_code_hash", { length: 64 }),
+    pendingContactEmailExpiresAt: timestamp("pending_contact_email_expires_at", {
+      withTimezone: true,
+      mode: "date",
+    }),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).notNull(),
   },

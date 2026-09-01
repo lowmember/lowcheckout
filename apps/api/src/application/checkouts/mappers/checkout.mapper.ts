@@ -13,6 +13,9 @@ export function toCheckoutDto(checkout: Checkout): CheckoutDto {
     bannerMobileUrl: snapshot.bannerMobileUrl,
     customization: snapshot.customization,
     status: snapshot.status,
+    contactEmail: snapshot.contactEmail,
+    contactEmailVerifiedAt: snapshot.contactEmailVerifiedAt?.toISOString() ?? null,
+    pendingContactEmail: snapshot.pendingContactEmail,
     createdAt: snapshot.createdAt.toISOString(),
     updatedAt: snapshot.updatedAt.toISOString(),
   };

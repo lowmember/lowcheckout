@@ -76,6 +76,18 @@ export const httpRoutes = {
     path: "/checkouts/{checkoutId}/customization",
   },
 
+  // E-mail de contato do checkout: pedir o código e confirmá-lo (RF-CHK-11).
+  requestCheckoutContactEmailVerification: {
+    name: "requestCheckoutContactEmailVerification",
+    method: "POST",
+    path: "/checkouts/{checkoutId}/contact-email/verification",
+  },
+  confirmCheckoutContactEmail: {
+    name: "confirmCheckoutContactEmail",
+    method: "POST",
+    path: "/checkouts/{checkoutId}/contact-email/confirmation",
+  },
+
   listCheckoutPixels: {
     name: "listCheckoutPixels",
     method: "GET",

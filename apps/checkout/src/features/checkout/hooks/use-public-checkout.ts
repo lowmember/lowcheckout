@@ -49,6 +49,7 @@ export function usePublicCheckout(publicSlug: string) {
         currency: data.offer.currency,
         bannerDesktopUrl: data.bannerDesktopUrl,
         bannerMobileUrl: data.bannerMobileUrl,
+        contactEmail: data.contactEmail,
       }
     : null;
 

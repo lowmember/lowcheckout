@@ -12,14 +12,12 @@ import { TextField } from "@/shared/ui/text-field";
 interface FormValues {
   userName: string;
   businessName: string;
-  contactEmail: string;
   phone: string;
 }
 
 const EMPTY_VALUES: FormValues = {
   userName: "",
   businessName: "",
-  contactEmail: "",
   phone: "",
 };
 
@@ -45,16 +43,17 @@ export function AccountSettingsForm({
   } = useUpdateAccount();
 
   const [values, setValues] = useState<FormValues>(EMPTY_VALUES);
-  const [emailError, setEmailError] = useState<string>();
+
+  /** Vem do Google e não é editável aqui — login por e-mail e senha ainda não existe. */
+  const loginEmail = accountUser?.email ?? fallbackEmail;
 
   useEffect(() => {
     setValues({
       userName: accountUser?.name ?? fallbackName,
       businessName: account?.businessName ?? "",
-      contactEmail: account?.contactEmail ?? accountUser?.email ?? fallbackEmail,
       phone: account?.phone ? maskPhone(account.phone) : "",
     });
-  }, [account, accountUser, fallbackName, fallbackEmail]);
+  }, [account, accountUser, fallbackName]);
 
   function setField(field: keyof FormValues, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
@@ -63,19 +62,9 @@ export function AccountSettingsForm({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const email = values.contactEmail.trim();
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setEmailError("E-mail inválido.");
-      return;
-    }
-
-    setEmailError(undefined);
-
     await updateAccount({
       userName: values.userName.trim(),
       businessName: values.businessName.trim(),
-      contactEmail: email,
       phone: onlyDigits(values.phone),
     }).catch(() => undefined);
 
@@ -86,7 +75,7 @@ export function AccountSettingsForm({
     <Card>
       <CardHeader
         title="Dados da conta"
-        description="Nome e e-mail de contato são editáveis. O documento não."
+        description="Nome, negócio e telefone são editáveis. E-mail e documento não."
       />
 
       <CardBody>
@@ -121,15 +110,20 @@ export function AccountSettingsForm({
               onChange={(event) => setField("businessName", event.target.value)}
             />
 
-            <TextField
-              label="E-mail de contato"
-              type="email"
-              value={values.contactEmail}
-              error={emailError}
-              autoComplete="email"
-              hint="Não é o e-mail de login: o acesso continua pelo Google."
-              onChange={(event) => setField("contactEmail", event.target.value)}
-            />
+            <Field
+              id="account-email"
+              label="E-mail"
+              hint="Bloqueado: o acesso é pelo Google. O e-mail de contato do comprador é definido em cada checkout."
+            >
+              <input
+                id="account-email"
+                type="email"
+                readOnly
+                disabled
+                value={loginEmail || "—"}
+                className={CONTROL_CLASSNAME}
+              />
+            </Field>
 
             <TextField
               label="Telefone"

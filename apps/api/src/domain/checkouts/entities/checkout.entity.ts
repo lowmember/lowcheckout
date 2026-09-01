@@ -1,3 +1,5 @@
+import { ContactEmailVerificationNotFoundError } from "@/domain/checkouts/errors/contact-email-verification-not-found.error";
+import { InvalidContactEmailCodeError } from "@/domain/checkouts/errors/invalid-contact-email-code.error";
 import {
   CheckoutCustomization,
   type CheckoutCustomizationProps,
@@ -7,6 +9,8 @@ import {
   toCheckoutStatus,
 } from "@/domain/checkouts/value-objects/checkout-status";
 import { CheckoutTitle } from "@/domain/checkouts/value-objects/checkout-title";
+import { ContactEmailVerification } from "@/domain/checkouts/value-objects/contact-email-verification";
+import { Email } from "@/domain/shared/value-objects/email";
 import { Url } from "@/domain/shared/value-objects/url";
 
 /** Representação primitiva da entidade — é o que atravessa a fronteira do domínio. */
@@ -20,6 +24,12 @@ export interface CheckoutSnapshot {
   bannerMobileUrl: string | null;
   customization: CheckoutCustomizationProps;
   status: CheckoutStatus;
+  /** E-mail de contato exibido ao comprador — só existe depois de confirmado. */
+  contactEmail: string | null;
+  contactEmailVerifiedAt: Date | null;
+  pendingContactEmail: string | null;
+  pendingContactEmailCodeHash: string | null;
+  pendingContactEmailExpiresAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,6 +56,9 @@ export class Checkout {
   private bannerMobileUrl: Url | null;
   private customization: CheckoutCustomization;
   private status: CheckoutStatus;
+  private contactEmail: Email | null;
+  private contactEmailVerifiedAt: Date | null;
+  private pendingContactEmailVerification: ContactEmailVerification | null;
   private readonly createdAt: Date;
   private updatedAt: Date;
 
@@ -59,6 +72,9 @@ export class Checkout {
     bannerMobileUrl: Url | null;
     customization: CheckoutCustomization;
     status: CheckoutStatus;
+    contactEmail: Email | null;
+    contactEmailVerifiedAt: Date | null;
+    pendingContactEmailVerification: ContactEmailVerification | null;
     createdAt: Date;
     updatedAt: Date;
   }) {
@@ -71,6 +87,9 @@ export class Checkout {
     this.bannerMobileUrl = props.bannerMobileUrl;
     this.customization = props.customization;
     this.status = props.status;
+    this.contactEmail = props.contactEmail;
+    this.contactEmailVerifiedAt = props.contactEmailVerifiedAt;
+    this.pendingContactEmailVerification = props.pendingContactEmailVerification;
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
   }
@@ -90,6 +109,9 @@ export class Checkout {
       bannerMobileUrl: Url.createOptional(props.bannerMobileUrl),
       customization: CheckoutCustomization.default(),
       status: "draft",
+      contactEmail: null,
+      contactEmailVerifiedAt: null,
+      pendingContactEmailVerification: null,
       createdAt: props.now,
       updatedAt: props.now,
     });
@@ -109,13 +131,40 @@ export class Checkout {
         snapshot.bannerMobileUrl === null ? null : Url.create(snapshot.bannerMobileUrl),
       customization: CheckoutCustomization.restore(snapshot.customization),
       status: toCheckoutStatus(snapshot.status),
+      contactEmail: Email.createOptional(snapshot.contactEmail),
+      contactEmailVerifiedAt: snapshot.contactEmailVerifiedAt,
+      pendingContactEmailVerification: Checkout.restorePendingVerification(snapshot),
       createdAt: snapshot.createdAt,
       updatedAt: snapshot.updatedAt,
     });
   }
 
+  /** As três colunas do pedido em aberto só fazem sentido juntas. */
+  private static restorePendingVerification(
+    snapshot: CheckoutSnapshot,
+  ): ContactEmailVerification | null {
+    if (
+      !snapshot.pendingContactEmail ||
+      !snapshot.pendingContactEmailCodeHash ||
+      !snapshot.pendingContactEmailExpiresAt
+    ) {
+      return null;
+    }
+
+    return ContactEmailVerification.create(
+      snapshot.pendingContactEmail,
+      snapshot.pendingContactEmailCodeHash,
+      snapshot.pendingContactEmailExpiresAt,
+    );
+  }
+
   get checkoutId(): string {
     return this.id;
+  }
+
+  /** Só o e-mail já confirmado — o pendente não vale para o comprador. */
+  get verifiedContactEmail(): string | null {
+    return this.contactEmail?.toString() ?? null;
   }
 
   get ownerAccountId(): string {
@@ -197,6 +246,53 @@ export class Checkout {
     this.touch(now);
   }
 
+  /**
+   * Abre (ou substitui) o pedido de confirmação. Trocar o e-mail derruba o que
+   * estava confirmado: o comprador não pode ver um endereço não verificado.
+   */
+  startContactEmailVerification(
+    contactEmail: string,
+    codeHash: string,
+    expiresAt: Date,
+    now: Date,
+  ): void {
+    this.pendingContactEmailVerification = ContactEmailVerification.create(
+      contactEmail,
+      codeHash,
+      expiresAt,
+    );
+    this.touch(now);
+  }
+
+  confirmContactEmail(codeHash: string, now: Date): void {
+    const verification = this.pendingContactEmailVerification;
+
+    if (!verification) {
+      throw new ContactEmailVerificationNotFoundError();
+    }
+
+    if (verification.isExpired(now) || !verification.matches(codeHash)) {
+      throw new InvalidContactEmailCodeError();
+    }
+
+    this.contactEmail = Email.create(verification.pendingEmail);
+    this.contactEmailVerifiedAt = now;
+    this.pendingContactEmailVerification = null;
+    this.touch(now);
+  }
+
+  /** Remove o e-mail de contato e qualquer pedido em aberto. */
+  clearContactEmail(now: Date): void {
+    if (!this.contactEmail && !this.pendingContactEmailVerification) {
+      return;
+    }
+
+    this.contactEmail = null;
+    this.contactEmailVerifiedAt = null;
+    this.pendingContactEmailVerification = null;
+    this.touch(now);
+  }
+
   toSnapshot(): CheckoutSnapshot {
     return {
       id: this.id,
@@ -208,6 +304,11 @@ export class Checkout {
       bannerMobileUrl: this.bannerMobileUrl?.toString() ?? null,
       customization: this.customization.toProps(),
       status: this.status,
+      contactEmail: this.contactEmail?.toString() ?? null,
+      contactEmailVerifiedAt: this.contactEmailVerifiedAt,
+      pendingContactEmail: this.pendingContactEmailVerification?.pendingEmail ?? null,
+      pendingContactEmailCodeHash: this.pendingContactEmailVerification?.hashedCode ?? null,
+      pendingContactEmailExpiresAt: this.pendingContactEmailVerification?.expiration ?? null,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };

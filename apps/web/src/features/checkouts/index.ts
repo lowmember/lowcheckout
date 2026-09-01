@@ -3,6 +3,7 @@ export { CheckoutCreateWizard } from "./components/builder/checkout-create-wizar
 export { CheckoutDesignCard } from "./components/builder/checkout-design-card";
 export { CheckoutEditor } from "./components/builder/checkout-editor";
 export { CheckoutAnalyticsPanel } from "./components/checkout-analytics-panel";
+export { CheckoutContactEmailCard } from "./components/checkout-contact-email-card";
 export { CheckoutDeleteDialog } from "./components/checkout-delete-dialog";
 export { CheckoutFormDialog } from "./components/checkout-form-dialog";
 export { CheckoutList } from "./components/checkout-list";
@@ -12,6 +13,7 @@ export { CheckoutPublicLinks } from "./components/checkout-public-links";
 export { CheckoutPublishToggle } from "./components/checkout-publish-toggle";
 export { CheckoutStatusBadge } from "./components/checkout-status-badge";
 export { useCheckout } from "./hooks/use-checkout";
+export { useCheckoutContactEmail } from "./hooks/use-checkout-contact-email";
 export { useCheckoutContent } from "./hooks/use-checkout-content";
 export { useCheckoutOffers } from "./hooks/use-checkout-offers";
 export { useCheckouts } from "./hooks/use-checkouts";

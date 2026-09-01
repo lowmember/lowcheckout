@@ -15,6 +15,8 @@ export interface CheckoutContent {
   currency: string;
   bannerDesktopUrl: string | null;
   bannerMobileUrl: string | null;
+  /** Suporte ao comprador, definido e confirmado no checkout. */
+  contactEmail: string | null;
 }
 
 /** Conteúdo de exemplo para as miniaturas de template, onde não há oferta ainda. */
@@ -28,4 +30,5 @@ export const SAMPLE_CONTENT: CheckoutContent = {
   currency: "BRL",
   bannerDesktopUrl: null,
   bannerMobileUrl: null,
+  contactEmail: "contato@suamarca.com",
 };

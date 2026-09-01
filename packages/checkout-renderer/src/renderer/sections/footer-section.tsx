@@ -32,6 +32,16 @@ export function FooterSection({ props }: FooterSectionProps) {
 
         <p style={{ color: "var(--lc-muted)", fontSize: bodySize(0.8) }}>{text}</p>
 
+        {content.contactEmail && (
+          <a
+            href={`mailto:${content.contactEmail}`}
+            className="underline underline-offset-2 transition-opacity hover:opacity-70"
+            style={{ color: "var(--lc-muted)", fontSize: bodySize(0.78) }}
+          >
+            {content.contactEmail}
+          </a>
+        )}
+
         {props.links.length > 0 && (
           <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
             {props.links.map((link) => (

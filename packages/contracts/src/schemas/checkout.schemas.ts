@@ -56,6 +56,21 @@ export const deleteCheckoutSchema = z.object({
   checkoutId: idSchema,
 });
 
+/* — E-mail de contato do checkout (RF-CHK-11) — */
+
+export const requestCheckoutContactEmailVerificationSchema = z.object({
+  checkoutId: idSchema,
+  contactEmail: z.email().max(255),
+});
+
+export const confirmCheckoutContactEmailSchema = z.object({
+  checkoutId: idSchema,
+  code: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/, { error: "O código tem 6 dígitos" }),
+});
+
 export const linkOfferToCheckoutSchema = z.object({
   checkoutId: idSchema,
   offerId: idSchema,
@@ -273,6 +288,11 @@ export const replaceCheckoutPixelsSchema = z.object({
     )
     .max(PIXEL_PROVIDERS.length),
 });
+
+export type RequestCheckoutContactEmailVerificationInput = z.input<
+  typeof requestCheckoutContactEmailVerificationSchema
+>;
+export type ConfirmCheckoutContactEmailInput = z.input<typeof confirmCheckoutContactEmailSchema>;
 
 export type ListCheckoutsParams = z.input<typeof listCheckoutsSchema>;
 export type CreateCheckoutInput = z.input<typeof createCheckoutSchema>;

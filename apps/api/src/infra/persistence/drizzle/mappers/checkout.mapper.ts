@@ -13,6 +13,11 @@ export function toCheckout(row: CheckoutRow): Checkout {
     bannerMobileUrl: row.bannerMobileUrl,
     customization: row.customization,
     status: toCheckoutStatus(row.status),
+    contactEmail: row.contactEmail,
+    contactEmailVerifiedAt: row.contactEmailVerifiedAt,
+    pendingContactEmail: row.pendingContactEmail,
+    pendingContactEmailCodeHash: row.pendingContactEmailCodeHash,
+    pendingContactEmailExpiresAt: row.pendingContactEmailExpiresAt,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   });
@@ -31,6 +36,11 @@ export function toCheckoutRow(checkout: Checkout): NewCheckoutRow {
     bannerMobileUrl: snapshot.bannerMobileUrl,
     customization: snapshot.customization,
     status: snapshot.status,
+    contactEmail: snapshot.contactEmail,
+    contactEmailVerifiedAt: snapshot.contactEmailVerifiedAt,
+    pendingContactEmail: snapshot.pendingContactEmail,
+    pendingContactEmailCodeHash: snapshot.pendingContactEmailCodeHash,
+    pendingContactEmailExpiresAt: snapshot.pendingContactEmailExpiresAt,
     createdAt: snapshot.createdAt,
     updatedAt: snapshot.updatedAt,
   };

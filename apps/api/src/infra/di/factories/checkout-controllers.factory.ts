@@ -1,3 +1,4 @@
+import { DefaultConfirmCheckoutContactEmailUseCase } from "@/application/checkouts/use-cases/confirm-checkout-contact-email.usecase";
 import { DefaultCreateCheckoutUseCase } from "@/application/checkouts/use-cases/create-checkout.usecase";
 import { DefaultDeleteCheckoutUseCase } from "@/application/checkouts/use-cases/delete-checkout.usecase";
 import { DefaultGetCheckoutUseCase } from "@/application/checkouts/use-cases/get-checkout.usecase";
@@ -6,6 +7,7 @@ import { DefaultListCheckoutOffersUseCase } from "@/application/checkouts/use-ca
 import { DefaultListCheckoutPixelsUseCase } from "@/application/checkouts/use-cases/list-checkout-pixels.usecase";
 import { DefaultListCheckoutsUseCase } from "@/application/checkouts/use-cases/list-checkouts.usecase";
 import { DefaultReplaceCheckoutPixelsUseCase } from "@/application/checkouts/use-cases/replace-checkout-pixels.usecase";
+import { DefaultRequestCheckoutContactEmailVerificationUseCase } from "@/application/checkouts/use-cases/request-checkout-contact-email-verification.usecase";
 import { DefaultUnlinkOfferFromCheckoutUseCase } from "@/application/checkouts/use-cases/unlink-offer-from-checkout.usecase";
 import { DefaultUpdateCheckoutUseCase } from "@/application/checkouts/use-cases/update-checkout.usecase";
 import { DefaultUpdateCheckoutCustomizationUseCase } from "@/application/checkouts/use-cases/update-checkout-customization.usecase";
@@ -13,6 +15,7 @@ import { getContainer } from "@/infra/di/container";
 import { withOnboardedAccount, withPanelAccess } from "@/infra/di/factories/with-account-guard";
 import { withErrorHandling } from "@/infra/di/factories/with-error-handling";
 import {
+  confirmCheckoutContactEmailSchema,
   createCheckoutSchema,
   deleteCheckoutSchema,
   getCheckoutSchema,
@@ -21,11 +24,13 @@ import {
   listCheckoutPixelsSchema,
   listCheckoutsSchema,
   replaceCheckoutPixelsSchema,
+  requestCheckoutContactEmailVerificationSchema,
   unlinkOfferFromCheckoutSchema,
   updateCheckoutCustomizationSchema,
   updateCheckoutSchema,
 } from "@/infra/validation/zod/schemas/checkout.schemas";
 import { ZodValidator } from "@/infra/validation/zod/zod-validator.adapter";
+import { ConfirmCheckoutContactEmailController } from "@/presentation/http/controllers/checkouts/confirm-checkout-contact-email.controller";
 import { CreateCheckoutController } from "@/presentation/http/controllers/checkouts/create-checkout.controller";
 import { DeleteCheckoutController } from "@/presentation/http/controllers/checkouts/delete-checkout.controller";
 import { GetCheckoutController } from "@/presentation/http/controllers/checkouts/get-checkout.controller";
@@ -34,6 +39,7 @@ import { ListCheckoutOffersController } from "@/presentation/http/controllers/ch
 import { ListCheckoutPixelsController } from "@/presentation/http/controllers/checkouts/list-checkout-pixels.controller";
 import { ListCheckoutsController } from "@/presentation/http/controllers/checkouts/list-checkouts.controller";
 import { ReplaceCheckoutPixelsController } from "@/presentation/http/controllers/checkouts/replace-checkout-pixels.controller";
+import { RequestCheckoutContactEmailVerificationController } from "@/presentation/http/controllers/checkouts/request-checkout-contact-email-verification.controller";
 import { UnlinkOfferFromCheckoutController } from "@/presentation/http/controllers/checkouts/unlink-offer-from-checkout.controller";
 import { UpdateCheckoutController } from "@/presentation/http/controllers/checkouts/update-checkout.controller";
 import { UpdateCheckoutCustomizationController } from "@/presentation/http/controllers/checkouts/update-checkout-customization.controller";
@@ -207,6 +213,38 @@ export function makeReplaceCheckoutPixelsController() {
         ),
       ),
       new ZodValidator(replaceCheckoutPixelsSchema),
+    ),
+  );
+}
+
+export function makeRequestCheckoutContactEmailVerificationController() {
+  const { checkoutsRepository, verificationCodeGenerator, hasher, mailer, clock } = getContainer();
+
+  return withErrorHandling(
+    new RequestCheckoutContactEmailVerificationController(
+      withOnboardedAccount(
+        new DefaultRequestCheckoutContactEmailVerificationUseCase(
+          checkoutsRepository,
+          verificationCodeGenerator,
+          hasher,
+          mailer,
+          clock,
+        ),
+      ),
+      new ZodValidator(requestCheckoutContactEmailVerificationSchema),
+    ),
+  );
+}
+
+export function makeConfirmCheckoutContactEmailController() {
+  const { checkoutsRepository, hasher, clock } = getContainer();
+
+  return withErrorHandling(
+    new ConfirmCheckoutContactEmailController(
+      withOnboardedAccount(
+        new DefaultConfirmCheckoutContactEmailUseCase(checkoutsRepository, hasher, clock),
+      ),
+      new ZodValidator(confirmCheckoutContactEmailSchema),
     ),
   );
 }

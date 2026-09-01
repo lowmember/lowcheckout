@@ -6,6 +6,7 @@
  */
 
 export {
+  confirmCheckoutContactEmailSchema,
   createCheckoutSchema,
   deleteCheckoutSchema,
   getCheckoutSchema,
@@ -14,6 +15,7 @@ export {
   listCheckoutPixelsSchema,
   listCheckoutsSchema,
   replaceCheckoutPixelsSchema,
+  requestCheckoutContactEmailVerificationSchema,
   unlinkOfferFromCheckoutSchema,
   updateCheckoutCustomizationSchema,
   updateCheckoutSchema,

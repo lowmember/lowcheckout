@@ -71,6 +71,7 @@ export class DefaultGetPublicCheckoutUseCase implements GetPublicCheckoutUseCase
     return {
       publicSlug,
       displayName: checkout.displayName,
+      contactEmail: view.checkout.verifiedContactEmail,
       bannerDesktopUrl: checkout.bannerDesktopUrl,
       bannerMobileUrl: checkout.bannerMobileUrl,
       customization: checkout.customization,

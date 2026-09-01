@@ -3,11 +3,14 @@ import type { OrderStatus } from "./orders";
 
 /**
  * O que a página pública recebe. Contém **apenas** o necessário para comprar:
- * nada de nome do negócio, documento ou e-mail de contato da conta.
+ * nada de nome do negócio, documento ou e-mail de contato da conta. O
+ * `contactEmail` daqui é o do **checkout**, e só quando confirmado.
  */
 export interface PublicCheckout {
   publicSlug: string;
   displayName: string;
+  /** Suporte ao comprador, definido e confirmado no checkout. */
+  contactEmail: string | null;
   bannerDesktopUrl: string | null;
   bannerMobileUrl: string | null;
   customization: CheckoutCustomization;

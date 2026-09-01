@@ -26,6 +26,7 @@ export function useCheckoutContent(checkout: Checkout) {
     currency: firstOffer?.currency ?? "BRL",
     bannerDesktopUrl: checkout.bannerDesktopUrl,
     bannerMobileUrl: checkout.bannerMobileUrl,
+    contactEmail: checkout.contactEmail,
   };
 
   return {

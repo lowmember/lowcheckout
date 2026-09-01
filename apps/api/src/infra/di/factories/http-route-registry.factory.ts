@@ -17,6 +17,7 @@ import {
   makeRefreshSessionController,
 } from "@/infra/di/factories/auth-controllers.factory";
 import {
+  makeConfirmCheckoutContactEmailController,
   makeCreateCheckoutController,
   makeDeleteCheckoutController,
   makeGetCheckoutController,
@@ -25,6 +26,7 @@ import {
   makeListCheckoutPixelsController,
   makeListCheckoutsController,
   makeReplaceCheckoutPixelsController,
+  makeRequestCheckoutContactEmailVerificationController,
   makeUnlinkOfferFromCheckoutController,
   makeUpdateCheckoutController,
   makeUpdateCheckoutCustomizationController,
@@ -105,6 +107,9 @@ const controllerFactories = {
   listCheckoutOffers: makeListCheckoutOffersController,
 
   updateCheckoutCustomization: makeUpdateCheckoutCustomizationController,
+
+  requestCheckoutContactEmailVerification: makeRequestCheckoutContactEmailVerificationController,
+  confirmCheckoutContactEmail: makeConfirmCheckoutContactEmailController,
 
   listCheckoutPixels: makeListCheckoutPixelsController,
   replaceCheckoutPixels: makeReplaceCheckoutPixelsController,
