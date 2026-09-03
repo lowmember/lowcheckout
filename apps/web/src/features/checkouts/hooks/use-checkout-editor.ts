@@ -22,7 +22,9 @@ import {
   findSectionItemIndex,
   getSectionItems,
   moveSection,
+  moveSectionByDirection,
   moveSectionItem,
+  moveSectionItemByDirection,
   removeSection,
   removeSectionItem,
   type ThemePatch,
@@ -190,6 +192,15 @@ export function useCheckoutEditor({ checkout, hasLinkedOffer }: UseCheckoutEdito
     ) => replaceSchema(updateSectionItem(schema, sectionId, fieldKey, itemId, patch)),
     toggleSection: (sectionId: string) => replaceSchema(toggleSection(schema, sectionId)),
     moveSection: (from: number, to: number) => replaceSchema(moveSection(schema, from, to)),
+    /** Mover pelo toolbar preso ao contorno no preview: só enxerga seções visíveis. */
+    moveSectionByDirection: (sectionId: string, direction: "up" | "down") =>
+      replaceSchema(moveSectionByDirection(schema, sectionId, direction)),
+    moveSectionItemByDirection: (
+      sectionId: string,
+      fieldKey: string,
+      itemId: string,
+      direction: "up" | "down",
+    ) => replaceSchema(moveSectionItemByDirection(schema, sectionId, fieldKey, itemId, direction)),
     updateSectionProps: (sectionId: string, patch: Record<string, unknown>) =>
       replaceSchema(updateSectionProps(schema, sectionId, patch)),
     updateTheme: (patch: ThemePatch) => replaceSchema(updateTheme(schema, patch)),

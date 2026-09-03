@@ -115,6 +115,43 @@ function footerLink(label: string, url: string): FooterLinkItem {
   return { id: createLocalId("link"), label, url };
 }
 
+const countdown: SectionDefinition<"countdown"> = {
+  type: "countdown",
+  label: "Contagem regressiva",
+  description: "Barra de urgência no topo, com o tempo restante da oferta.",
+  isRequired: false,
+  allowMultiple: false,
+  createProps: () => ({
+    message: "Você ainda tem tempo! Garanta sua oferta exclusiva agora e aproveite as condições.",
+    expiredMessage: "O tempo acabou, mas a oferta ainda está aqui. Finalize sua compra.",
+    minutes: 15,
+  }),
+  normalizeProps: (raw) => ({
+    message: readString(raw, "message", ""),
+    expiredMessage: readString(raw, "expiredMessage", ""),
+    minutes: readInteger(raw, "minutes", 15, 1, 1440),
+  }),
+  fields: [
+    { kind: "textarea", key: "message", label: "Mensagem", maxLength: 160 },
+    {
+      kind: "textarea",
+      key: "expiredMessage",
+      label: "Mensagem ao zerar",
+      maxLength: 160,
+      hint: "Vazio esconde a barra quando o tempo acaba.",
+    },
+    {
+      kind: "number",
+      key: "minutes",
+      label: "Duração",
+      min: 1,
+      max: 1440,
+      suffix: "min",
+      hint: "A contagem reinicia a cada visita ao checkout.",
+    },
+  ],
+};
+
 const hero: SectionDefinition<"hero"> = {
   type: "hero",
   label: "Hero",
@@ -426,7 +463,13 @@ const paymentCta: SectionDefinition<"payment-cta"> = {
   }),
   fields: [
     { kind: "text", key: "label", label: "Texto do botão", maxLength: 40 },
-    { kind: "text", key: "helperText", label: "Texto de apoio", maxLength: 120 },
+    {
+      kind: "textarea",
+      key: "helperText",
+      label: "Texto de apoio",
+      maxLength: 400,
+      hint: "Onde costuma ficar o aviso legal exibido abaixo do botão.",
+    },
     { kind: "switch", key: "showSecurityNote", label: "Exibir selo de ambiente seguro" },
   ],
 };
@@ -484,6 +527,7 @@ const footer: SectionDefinition<"footer"> = {
 };
 
 export const SECTION_REGISTRY: { [TType in CheckoutSectionType]: SectionDefinition<TType> } = {
+  countdown,
   hero,
   product,
   benefits,

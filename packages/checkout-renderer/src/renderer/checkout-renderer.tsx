@@ -1,4 +1,5 @@
 import { cn } from "../internal/cn";
+import { ArrowDownIcon, ArrowUpIcon, TrashIcon } from "../internal/icons";
 import { getSectionDefinition } from "../lib/section-registry";
 import type { CheckoutFormController } from "../types/checkout-buyer";
 import type { CheckoutContent } from "../types/checkout-content";
@@ -10,6 +11,7 @@ import {
   RendererProvider,
 } from "./renderer-context";
 import { SectionRenderer } from "./section-renderer";
+import { SelectionToolbar } from "./selection-toolbar";
 
 export type { CheckoutRendererSelection };
 
@@ -40,17 +42,20 @@ export function CheckoutRenderer({
   className,
 }: CheckoutRendererProps) {
   const enabledSections = schema.sections.filter((section) => section.enabled);
+  const lastIndex = enabledSections.length - 1;
 
   return (
     <RendererProvider content={content} viewport={viewport} form={form} selection={selection}>
       <CheckoutThemeShell theme={schema.theme} className={className}>
-        {enabledSections.map((section) =>
+        {enabledSections.map((section, index) =>
           selection ? (
             <SelectableSection
               key={section.id}
               section={section}
               isSelected={section.id === selection.selectedSectionId}
-              onSelect={selection.onSelectSection}
+              canMoveUp={index > 0}
+              canMoveDown={index < lastIndex}
+              selection={selection}
             />
           ) : (
             <SectionRenderer key={section.id} section={section} />
@@ -64,15 +69,24 @@ export function CheckoutRenderer({
 interface SelectableSectionProps {
   section: CheckoutSection;
   isSelected: boolean;
-  onSelect: (sectionId: string) => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  selection: CheckoutRendererSelection;
 }
 
 /**
- * Liga o preview à lista de seções: a seção selecionada ganha contorno e
- * etiqueta, e clicar em qualquer ponto dela seleciona. O overlay cobre a
- * seção inteira de propósito — no editor os campos já são inertes.
+ * Liga o preview à lista de seções: a seção selecionada ganha contorno,
+ * etiqueta e um toolbar de mover/excluir — e clicar em qualquer ponto dela
+ * seleciona. O overlay cobre a seção inteira de propósito — no editor os
+ * campos já são inertes.
  */
-function SelectableSection({ section, isSelected, onSelect }: SelectableSectionProps) {
+function SelectableSection({
+  section,
+  isSelected,
+  canMoveUp,
+  canMoveDown,
+  selection,
+}: SelectableSectionProps) {
   const definition = getSectionDefinition(section.type);
 
   return (
@@ -83,7 +97,7 @@ function SelectableSection({ section, isSelected, onSelect }: SelectableSectionP
         type="button"
         aria-pressed={isSelected}
         aria-label={`Selecionar seção ${definition.label}`}
-        onClick={() => onSelect(section.id)}
+        onClick={() => selection.onSelectSection(section.id)}
         className={cn(
           "absolute inset-0 z-0 cursor-pointer transition-colors duration-200",
           "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500",
@@ -105,6 +119,36 @@ function SelectableSection({ section, isSelected, onSelect }: SelectableSectionP
       >
         {definition.label}
       </span>
+
+      {isSelected && (
+        <SelectionToolbar
+          className="top-0 right-0 rounded-none rounded-bl-md"
+          actions={[
+            {
+              label: "Mover seção para cima",
+              icon: <ArrowUpIcon className="size-3.5" />,
+              isDisabled: !canMoveUp,
+              onClick: () => selection.onMoveSection(section.id, "up"),
+            },
+            {
+              label: "Mover seção para baixo",
+              icon: <ArrowDownIcon className="size-3.5" />,
+              isDisabled: !canMoveDown,
+              onClick: () => selection.onMoveSection(section.id, "down"),
+            },
+            ...(definition.isRequired
+              ? []
+              : [
+                  {
+                    label: "Remover seção",
+                    icon: <TrashIcon className="size-3.5" />,
+                    isDestructive: true,
+                    onClick: () => selection.onRemoveSection(section.id),
+                  },
+                ]),
+          ]}
+        />
+      )}
     </div>
   );
 }

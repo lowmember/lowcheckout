@@ -25,6 +25,7 @@ export type {
   CheckoutThemeColors,
   CheckoutThemeRadii,
   CheckoutThemeTypography,
+  CountdownProps,
   FaqItem,
   FaqProps,
   FontFamilyId,

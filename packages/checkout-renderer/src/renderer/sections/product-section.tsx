@@ -1,15 +1,19 @@
 import { formatCurrency } from "../../internal/format-currency";
 import { PackageIcon } from "../../internal/icons";
-import { bodySize, headingSize } from "../../lib/checkout-theme";
+import { bodySize } from "../../lib/checkout-theme";
 import type { ProductProps } from "../../types/checkout-schema";
 import { useRendererContext } from "../renderer-context";
-import { Heading, SectionContainer, Surface, Text } from "../renderer-primitives";
+import { SectionContainer, Surface, Text } from "../renderer-primitives";
 
 interface ProductSectionProps {
   props: ProductProps;
 }
 
-/** Nome, descrição e preço vêm de Offer/Product — o schema só sobrescreve se quiser. */
+/**
+ * Nome, descrição e preço vêm de Offer/Product — o schema só sobrescreve se
+ * quiser. É uma linha compacta, não um bloco de venda: quem chegou no checkout
+ * já decidiu, e só precisa confirmar o que está comprando.
+ */
 export function ProductSection({ props }: ProductSectionProps) {
   const { content } = useRendererContext();
 
@@ -19,11 +23,11 @@ export function ProductSection({ props }: ProductSectionProps) {
 
   return (
     <SectionContainer>
-      <Surface className="flex flex-col gap-5 p-5 @xl:flex-row @xl:items-center @xl:p-6">
+      <Surface className="flex items-start gap-3.5 p-4">
         <div
-          className="flex size-20 shrink-0 items-center justify-center overflow-hidden @xl:size-24"
+          className="flex size-14 shrink-0 items-center justify-center overflow-hidden"
           style={{
-            borderRadius: "calc(var(--lc-radius) * 0.75)",
+            borderRadius: "calc(var(--lc-radius) * 0.6)",
             backgroundColor: "var(--lc-background)",
             color: "var(--lc-muted)",
           }}
@@ -31,51 +35,48 @@ export function ProductSection({ props }: ProductSectionProps) {
           {imageUrl ? (
             <img src={imageUrl} alt="" className="size-full object-cover" />
           ) : (
-            <PackageIcon className="size-7" />
+            <PackageIcon className="size-6" />
           )}
         </div>
 
         <div className="min-w-0 flex-1">
           {props.badgeLabel.trim() && (
             <span
-              className="mb-2 inline-flex items-center rounded-full px-2.5 py-1 font-medium"
+              className="mb-1.5 inline-flex items-center rounded-full px-2 py-0.5 font-medium"
               style={{
                 backgroundColor: "var(--lc-primary)",
                 color: "var(--lc-primary-text)",
-                fontSize: bodySize(0.7),
+                fontSize: bodySize(0.66),
               }}
             >
               {props.badgeLabel}
             </span>
           )}
 
-          <Heading size={1.15}>{title}</Heading>
+          <p
+            className="font-semibold leading-snug"
+            style={{ color: "var(--lc-text)", fontSize: bodySize(0.92) }}
+          >
+            {title}
+          </p>
 
-          {description && (
-            <Text isMuted size={0.9} className="mt-1.5">
-              {description}
-            </Text>
-          )}
-        </div>
-
-        {props.showPrice && (
-          <div className="shrink-0 @xl:text-right">
+          {props.showPrice && (
             <p
-              className="font-medium uppercase tracking-wide"
-              style={{ color: "var(--lc-muted)", fontSize: bodySize(0.68) }}
-            >
-              Total
-            </p>
-            <p
-              className="font-semibold tracking-tight"
-              style={{ color: "var(--lc-text)", fontSize: headingSize(1.6) }}
+              className="mt-0.5 font-bold tracking-tight"
+              style={{ color: "var(--lc-primary)", fontSize: bodySize(1.05) }}
             >
               {content.priceInCents === null
                 ? "R$ —"
                 : formatCurrency(content.priceInCents, content.currency)}
             </p>
-          </div>
-        )}
+          )}
+
+          {description && (
+            <Text isMuted size={0.8} className="mt-1 line-clamp-2">
+              {description}
+            </Text>
+          )}
+        </div>
       </Surface>
     </SectionContainer>
   );

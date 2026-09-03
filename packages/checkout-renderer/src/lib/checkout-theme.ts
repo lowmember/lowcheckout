@@ -44,13 +44,13 @@ const SPACING_SCALE: Record<SpacingPreset, number> = { compact: 0.72, default: 1
 
 export const DEFAULT_THEME: CheckoutTheme = {
   colors: {
-    primary: "#171717",
+    primary: "#2f39d4",
     primaryText: "#ffffff",
-    background: "#fafafa",
+    background: "#ededed",
     surface: "#ffffff",
-    text: "#111111",
-    mutedText: "#737373",
-    border: "#e5e5e5",
+    text: "#1f2024",
+    mutedText: "#71717a",
+    border: "#e4e4e7",
   },
   typography: {
     fontFamily: "sans",
@@ -58,9 +58,9 @@ export const DEFAULT_THEME: CheckoutTheme = {
     bodyScale: "md",
   },
   radii: {
-    base: 12,
-    button: 10,
-    input: 10,
+    base: 10,
+    button: 8,
+    input: 8,
   },
   spacing: "default",
 };

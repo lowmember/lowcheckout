@@ -8,6 +8,8 @@ export type CheckoutViewport = "desktop" | "mobile";
 /** Id do `<form>`: o botão de pagamento é outra seção e submete via `form=`. */
 export const CHECKOUT_FORM_ID = "lc-checkout-form";
 
+export type SelectionDirection = "up" | "down";
+
 /**
  * Só o editor passa isto. Na página pública `selection` é `undefined` e nenhum
  * overlay de seleção chega ao DOM — o comprador recebe as seções puras.
@@ -17,6 +19,16 @@ export interface CheckoutRendererSelection {
   selectedItemId: string | null;
   onSelectSection: (sectionId: string) => void;
   onSelectItem: (sectionId: string, fieldKey: string, itemId: string) => void;
+  /** Ações do toolbar preso ao contorno azul — mover e remover sem passar pela lista de camadas. */
+  onMoveSection: (sectionId: string, direction: SelectionDirection) => void;
+  onRemoveSection: (sectionId: string) => void;
+  onMoveItem: (
+    sectionId: string,
+    fieldKey: string,
+    itemId: string,
+    direction: SelectionDirection,
+  ) => void;
+  onRemoveItem: (sectionId: string, fieldKey: string, itemId: string) => void;
 }
 
 interface RendererContextValue {

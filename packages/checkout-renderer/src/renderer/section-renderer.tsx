@@ -2,6 +2,7 @@ import type { CheckoutSection } from "../types/checkout-schema";
 import { SectionScopeProvider } from "./renderer-context";
 import { BenefitsSection } from "./sections/benefits-section";
 import { CheckoutFormSection } from "./sections/checkout-form-section";
+import { CountdownSection } from "./sections/countdown-section";
 import { FaqSection } from "./sections/faq-section";
 import { FooterSection } from "./sections/footer-section";
 import { GuaranteeSection } from "./sections/guarantee-section";
@@ -26,6 +27,8 @@ export function SectionRenderer({ section }: SectionRendererProps) {
 
 function renderSection(section: CheckoutSection) {
   switch (section.type) {
+    case "countdown":
+      return <CountdownSection props={section.props} />;
     case "hero":
       return <HeroSection props={section.props} />;
     case "product":

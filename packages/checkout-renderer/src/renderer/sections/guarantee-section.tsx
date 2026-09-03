@@ -10,17 +10,17 @@ interface GuaranteeSectionProps {
 export function GuaranteeSection({ props }: GuaranteeSectionProps) {
   return (
     <SectionContainer>
-      <Surface className="flex flex-col gap-4 p-5 @xl:flex-row @xl:items-center @xl:p-6">
+      <Surface className="flex flex-col gap-3 p-4 @xl:flex-row @xl:items-center">
         <span
-          className="flex size-12 shrink-0 items-center justify-center rounded-full"
+          className="flex size-10 shrink-0 items-center justify-center rounded-full"
           style={{ backgroundColor: "var(--lc-primary)", color: "var(--lc-primary-text)" }}
         >
-          <ShieldCheckIcon className="size-6" />
+          <ShieldCheckIcon className="size-5" />
         </span>
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <Heading size={1.1}>{props.title}</Heading>
+            <Heading size={1.05}>{props.title}</Heading>
             {props.days > 0 && (
               <span
                 className="rounded-full px-2.5 py-0.5 font-medium"

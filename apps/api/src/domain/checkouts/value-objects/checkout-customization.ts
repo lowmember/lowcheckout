@@ -10,17 +10,12 @@ import { InvariantViolationError } from "@/domain/shared/errors/domain.error";
  * impede que as duas definições divirjam.
  */
 
-export const CHECKOUT_TEMPLATE_IDS = [
-  "blank",
-  "clean",
-  "high-conversion",
-  "infoproduto",
-  "dark",
-  "minimal",
-] as const;
+/** Um template só: o layout do checkout é decisão do produto, não do lojista. */
+export const CHECKOUT_TEMPLATE_IDS = ["default"] as const;
 export type CheckoutTemplateId = (typeof CHECKOUT_TEMPLATE_IDS)[number];
 
 export const CHECKOUT_SECTION_TYPES = [
+  "countdown",
   "hero",
   "product",
   "benefits",
@@ -100,6 +95,12 @@ export interface FooterLinkItem extends ListItem {
   url: string;
 }
 
+export interface CountdownProps {
+  message: string;
+  expiredMessage: string;
+  minutes: number;
+}
+
 export interface HeroProps {
   eyebrow: string;
   title: string;
@@ -159,6 +160,7 @@ export interface FooterProps {
 }
 
 export interface CheckoutSectionPropsMap {
+  countdown: CountdownProps;
   hero: HeroProps;
   product: ProductProps;
   benefits: BenefitsProps;
@@ -206,13 +208,13 @@ export const CHECKOUT_SCHEMA_VERSION = 1;
 
 const DEFAULT_THEME: CheckoutTheme = {
   colors: {
-    primary: "#171717",
+    primary: "#2f39d4",
     primaryText: "#ffffff",
-    background: "#fafafa",
+    background: "#ededed",
     surface: "#ffffff",
-    text: "#111111",
-    mutedText: "#737373",
-    border: "#e5e5e5",
+    text: "#1f2024",
+    mutedText: "#71717a",
+    border: "#e4e4e7",
   },
   typography: {
     fontFamily: "sans",
@@ -220,19 +222,19 @@ const DEFAULT_THEME: CheckoutTheme = {
     bodyScale: "md",
   },
   radii: {
-    base: 12,
-    button: 10,
-    input: 10,
+    base: 10,
+    button: 8,
+    input: 8,
   },
   spacing: "default",
 };
 
 /**
- * Rascunho inicial de um checkout recém-criado: o template "blank".
+ * Rascunho inicial de um checkout recém-criado.
  *
  * São as seções sem as quais a página pública não existe — formulário e botão
  * de pagamento —, mais produto e rodapé. A criação guiada sobrescreve isto com
- * o template escolhido logo em seguida; este é o estado de quem não escolheu.
+ * o template completo logo em seguida; este é o estado intermediário.
  */
 function createDefaultSections(): CheckoutSection[] {
   return [
@@ -270,7 +272,7 @@ function createDefaultSections(): CheckoutSection[] {
 function createDefaultSchema(): CheckoutSchema {
   return {
     version: CHECKOUT_SCHEMA_VERSION,
-    template: "blank",
+    template: "default",
     theme: structuredClone(DEFAULT_THEME),
     sections: createDefaultSections(),
   };
@@ -383,11 +385,16 @@ function readVersion(value: unknown, supported: number): number {
 
 function toSchema(value: unknown, path: string): CheckoutSchema {
   const schema = asRecord(value, path);
-  const template = schema.template;
 
-  if (!isOneOf(template, CHECKOUT_TEMPLATE_IDS)) {
-    throw new InvariantViolationError(`"${path}.template" está fora do catálogo de templates`);
-  }
+  /**
+   * Um id fora do catálogo vira o template único em vez de derrubar o
+   * documento: o catálogo já teve mais de um template, e um checkout gravado
+   * naquela época precisa continuar abrindo com o tema e as seções dele. A
+   * recusa de um id inválido é da borda HTTP, onde o usuário vê o erro.
+   */
+  const template: CheckoutTemplateId = isOneOf(schema.template, CHECKOUT_TEMPLATE_IDS)
+    ? schema.template
+    : "default";
 
   if (!Array.isArray(schema.sections)) {
     throw new InvariantViolationError(`"${path}.sections" deve ser uma lista`);

@@ -1,5 +1,5 @@
 import type { CheckoutTemplateId } from "@lowcheckout/checkout-renderer";
-import { getCheckoutTemplate } from "@lowcheckout/checkout-renderer";
+import { DEFAULT_TEMPLATE, getCheckoutTemplate } from "@lowcheckout/checkout-renderer";
 import { useNavigate } from "@tanstack/react-router";
 import { type FormEvent, useEffect, useState } from "react";
 
@@ -30,7 +30,8 @@ export function CheckoutCreateWizard() {
   const navigate = useNavigate();
 
   const [step, setStep] = useState<WizardStep>("template");
-  const [templateId, setTemplateId] = useState<CheckoutTemplateId | null>(null);
+  /** Só existe um template: ele já vem escolhido, e a etapa serve de prévia. */
+  const [templateId, setTemplateId] = useState<CheckoutTemplateId | null>(DEFAULT_TEMPLATE.id);
   const [productId, setProductId] = useState("");
   const [offerId, setOfferId] = useState("");
   const [internalTitle, setInternalTitle] = useState("");
@@ -89,7 +90,9 @@ export function CheckoutCreateWizard() {
 
         <footer className="sticky bottom-0 flex items-center justify-between gap-4 border-neutral-200 border-t bg-white/90 py-4 backdrop-blur">
           <p className="text-neutral-500 text-sm">
-            {template ? `Template selecionado: ${template.name}` : "Escolha como quer começar."}
+            {template
+              ? `Template selecionado: ${template.name}`
+              : "Escolha o template para seguir."}
           </p>
           <Button disabled={!templateId} onClick={() => setStep("details")}>
             Continuar
@@ -127,7 +130,7 @@ export function CheckoutCreateWizard() {
         className="inline-flex items-center gap-1.5 text-neutral-500 text-sm transition-colors hover:text-neutral-900"
       >
         <ArrowLeftIcon className="size-4" />
-        Trocar template
+        Voltar para o template
       </button>
 
       {template && (

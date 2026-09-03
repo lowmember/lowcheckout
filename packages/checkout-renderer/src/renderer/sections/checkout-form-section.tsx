@@ -3,7 +3,7 @@ import { useId } from "react";
 
 import { formatCurrency } from "../../internal/format-currency";
 import { maskCpf } from "../../internal/masks";
-import { bodySize, headingSize } from "../../lib/checkout-theme";
+import { bodySize } from "../../lib/checkout-theme";
 import type { BuyerFormValues } from "../../types/checkout-buyer";
 import type { CheckoutFormProps } from "../../types/checkout-schema";
 import { CHECKOUT_FORM_ID, useRendererContext } from "../renderer-context";
@@ -13,38 +13,39 @@ interface CheckoutFormSectionProps {
   props: CheckoutFormProps;
 }
 
+/** `className` fica no invólucro, não no input: é o que faz um campo ocupar as duas colunas. */
 interface BuyerFieldProps extends Omit<ComponentProps<"input">, "id" | "style"> {
   label: string;
   error?: string;
 }
 
-function BuyerField({ label, error, ...props }: BuyerFieldProps) {
+function BuyerField({ label, error, className, ...props }: BuyerFieldProps) {
   const id = useId();
 
   return (
-    <div>
+    <div className={className}>
       <label
         htmlFor={id}
-        className="mb-1.5 block font-medium"
-        style={{ color: "var(--lc-text)", fontSize: bodySize(0.82) }}
+        className="mb-1 block font-medium"
+        style={{ color: "var(--lc-text)", fontSize: bodySize(0.78) }}
       >
         {label}
       </label>
       <input
         id={id}
         aria-invalid={Boolean(error)}
-        className="h-11 w-full border px-3.5 outline-none transition-[border-color] duration-200"
+        className="h-10 w-full border px-3 outline-none transition-[border-color] duration-200"
         style={{
-          backgroundColor: "var(--lc-background)",
+          backgroundColor: "var(--lc-surface)",
           borderColor: error ? "#dc2626" : "var(--lc-border)",
           borderRadius: "var(--lc-radius-input)",
           color: "var(--lc-text)",
-          fontSize: bodySize(0.92),
+          fontSize: bodySize(0.88),
         }}
         {...props}
       />
       {error && (
-        <p className="mt-1.5" style={{ color: "#dc2626", fontSize: bodySize(0.78) }}>
+        <p className="mt-1" style={{ color: "#dc2626", fontSize: bodySize(0.74) }}>
           {error}
         </p>
       )}
@@ -54,106 +55,96 @@ function BuyerField({ label, error, ...props }: BuyerFieldProps) {
 
 /**
  * Nome, e-mail e CPF são obrigatórios no MVP: o schema controla títulos e
- * resumo, nunca quais campos existem.
+ * resumo, nunca quais campos existem. O resumo do pedido fecha o cartão porque
+ * é a última coisa que o comprador lê antes do botão da seção seguinte.
  */
 export function CheckoutFormSection({ props }: CheckoutFormSectionProps) {
   const { content, form } = useRendererContext();
 
   const values: BuyerFormValues = form?.values ?? { name: "", email: "", document: "" };
   const errors = form?.errors ?? {};
+  const hasHeader = props.title.trim().length > 0 || props.description.trim().length > 0;
 
   return (
     <SectionContainer>
-      <div className="grid gap-5 @3xl:grid-cols-[1.35fr_1fr] @3xl:items-start">
-        <Surface className="p-5 @xl:p-6">
-          <Heading size={1.15}>{props.title}</Heading>
-          {props.description.trim() && (
-            <Text isMuted size={0.88} className="mt-1">
-              {props.description}
-            </Text>
-          )}
+      <Surface className="p-4">
+        {hasHeader && (
+          <div className="mb-4">
+            {props.title.trim() && <Heading size={1}>{props.title}</Heading>}
+            {props.description.trim() && (
+              <Text isMuted size={0.82} className="mt-0.5">
+                {props.description}
+              </Text>
+            )}
+          </div>
+        )}
 
-          <form
-            id={CHECKOUT_FORM_ID}
-            noValidate
-            className="mt-5 space-y-4"
-            onSubmit={(event) => {
-              event.preventDefault();
-              form?.onSubmit();
-            }}
-          >
-            <BuyerField
-              label="Nome completo"
-              autoComplete="name"
-              placeholder="Como no documento"
-              value={values.name}
-              error={errors.name}
-              readOnly={!form}
-              onChange={(event) => form?.setField("name", event.target.value)}
-            />
+        <form
+          id={CHECKOUT_FORM_ID}
+          noValidate
+          className="grid gap-3.5 @xl:grid-cols-2"
+          onSubmit={(event) => {
+            event.preventDefault();
+            form?.onSubmit();
+          }}
+        >
+          <BuyerField
+            label="Seu e-mail"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            placeholder="Insira seu e-mail"
+            value={values.email}
+            error={errors.email}
+            readOnly={!form}
+            onChange={(event) => form?.setField("email", event.target.value)}
+          />
 
-            <BuyerField
-              label="E-mail"
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              placeholder="voce@email.com"
-              value={values.email}
-              error={errors.email}
-              readOnly={!form}
-              onChange={(event) => form?.setField("email", event.target.value)}
-            />
+          <BuyerField
+            label="CPF"
+            inputMode="numeric"
+            autoComplete="off"
+            placeholder="Insira seu CPF"
+            value={values.document}
+            error={errors.document}
+            readOnly={!form}
+            onChange={(event) => form?.setField("document", maskCpf(event.target.value))}
+          />
 
-            <BuyerField
-              label="CPF"
-              inputMode="numeric"
-              autoComplete="off"
-              placeholder="000.000.000-00"
-              value={values.document}
-              error={errors.document}
-              readOnly={!form}
-              onChange={(event) => form?.setField("document", maskCpf(event.target.value))}
-            />
-          </form>
-        </Surface>
+          <BuyerField
+            label="Nome completo"
+            className="@xl:col-span-2"
+            autoComplete="name"
+            placeholder="Insira seu nome completo"
+            value={values.name}
+            error={errors.name}
+            readOnly={!form}
+            onChange={(event) => form?.setField("name", event.target.value)}
+          />
+        </form>
 
         {props.showOrderSummary && (
-          <Surface className="p-5 @xl:p-6">
+          <div
+            className="mt-4 flex items-center justify-between gap-3 border-t pt-3.5"
+            style={{ borderColor: "var(--lc-border)" }}
+          >
             <p
-              className="font-medium uppercase tracking-wide"
-              style={{ color: "var(--lc-muted)", fontSize: bodySize(0.68) }}
+              className="min-w-0 truncate font-medium uppercase tracking-wide"
+              style={{ color: "var(--lc-muted)", fontSize: bodySize(0.72) }}
             >
-              Resumo do pedido
+              {content.offerName ?? content.productName}
             </p>
-
-            <div className="mt-3 flex items-baseline justify-between gap-3">
-              <Text size={0.88} isMuted>
-                {content.offerName ?? content.productName}
-              </Text>
-              <span
-                className="font-semibold tracking-tight"
-                style={{ color: "var(--lc-text)", fontSize: headingSize(1.35) }}
-              >
-                {content.priceInCents === null
-                  ? "R$ —"
-                  : formatCurrency(content.priceInCents, content.currency)}
-              </span>
-            </div>
-
-            <div
-              className="mt-4 border-t pt-4"
-              style={{ borderColor: "var(--lc-border)" }}
-              aria-hidden="true"
-            />
-
-            <Text isMuted size={0.82}>
+            <span
+              className="shrink-0 font-bold tracking-tight"
+              style={{ color: "var(--lc-text)", fontSize: bodySize(1) }}
+            >
               {content.priceInCents === null
-                ? "Vincule uma oferta para exibir o valor real."
-                : "Pagamento via PIX, com confirmação na hora."}
-            </Text>
-          </Surface>
+                ? "R$ —"
+                : formatCurrency(content.priceInCents, content.currency)}
+            </span>
+          </div>
         )}
-      </div>
+      </Surface>
     </SectionContainer>
   );
 }

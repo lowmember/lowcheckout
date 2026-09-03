@@ -91,6 +91,9 @@ export function CheckoutEditor({ checkout }: CheckoutEditorProps) {
   const selectedItemField = editor.selectedItemField;
   const selectedItemValue = editor.selectedItemValue;
   const selectedSection = editor.selectedSection;
+  const selectedSectionIndex = editor.schema.sections.findIndex(
+    (section) => section.id === editor.selectedSectionId,
+  );
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-white">
@@ -194,6 +197,10 @@ export function CheckoutEditor({ checkout }: CheckoutEditorProps) {
               selectedItemId: editor.selectedItemId,
               onSelectSection: handleSelectSection,
               onSelectItem: handleSelectItem,
+              onMoveSection: editor.moveSectionByDirection,
+              onRemoveSection: editor.removeSection,
+              onMoveItem: editor.moveSectionItemByDirection,
+              onRemoveItem: editor.removeSectionItem,
             }}
           />
         </main>
@@ -248,9 +255,25 @@ export function CheckoutEditor({ checkout }: CheckoutEditorProps) {
           ) : (
             <PropertiesPanel
               section={selectedSection}
+              index={selectedSectionIndex}
+              total={editor.schema.sections.length}
               onChange={(patch) => {
                 if (!editor.selectedSectionId) return;
                 editor.updateSectionProps(editor.selectedSectionId, patch);
+              }}
+              onMove={(direction) => {
+                if (!editor.selectedSectionId) return;
+                const toIndex =
+                  direction === "up" ? selectedSectionIndex - 1 : selectedSectionIndex + 1;
+                editor.moveSection(selectedSectionIndex, toIndex);
+              }}
+              onToggle={() => {
+                if (!editor.selectedSectionId) return;
+                editor.toggleSection(editor.selectedSectionId);
+              }}
+              onRemove={() => {
+                if (!editor.selectedSectionId) return;
+                editor.removeSection(editor.selectedSectionId);
               }}
             />
           )}

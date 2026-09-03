@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import {
   CartIcon,
+  ClockIcon,
   HelpCircleIcon,
   ImageIcon,
   LayersIcon,
@@ -18,6 +19,7 @@ import {
  * catálogo de seções livre de JSX — ele precisa ser serializável.
  */
 export const SECTION_ICONS: Record<CheckoutSectionType, ReactNode> = {
+  countdown: <ClockIcon className="size-4" />,
   hero: <ImageIcon className="size-4" />,
   product: <PackageIcon className="size-4" />,
   benefits: <ListDetailsIcon className="size-4" />,

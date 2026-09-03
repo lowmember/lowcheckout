@@ -52,6 +52,29 @@ export function moveSection(
   return { ...schema, sections };
 }
 
+/**
+ * Move uma seção um passo na direção indicada, mas só entre seções
+ * habilitadas — o preview esconde as desativadas, então "para cima/baixo" ali
+ * precisa pular por cima delas em vez de trocar com o vizinho de índice bruto.
+ */
+export function moveSectionByDirection(
+  schema: CheckoutSchema,
+  sectionId: string,
+  direction: "up" | "down",
+): CheckoutSchema {
+  const visibleIds = schema.sections.filter((section) => section.enabled).map((s) => s.id);
+  const position = visibleIds.indexOf(sectionId);
+  if (position === -1) return schema;
+
+  const neighborId = visibleIds[direction === "up" ? position - 1 : position + 1];
+  if (!neighborId) return schema;
+
+  const fromIndex = schema.sections.findIndex((section) => section.id === sectionId);
+  const toIndex = schema.sections.findIndex((section) => section.id === neighborId);
+
+  return moveSection(schema, fromIndex, toIndex);
+}
+
 export function updateSectionProps(
   schema: CheckoutSchema,
   sectionId: string,
@@ -176,6 +199,30 @@ export function moveSectionItem(
 
     return next;
   });
+}
+
+/** Mesma ideia de `moveSectionByDirection`, mas para um elemento dentro de uma lista da seção. */
+export function moveSectionItemByDirection(
+  schema: CheckoutSchema,
+  sectionId: string,
+  fieldKey: string,
+  itemId: string,
+  direction: "up" | "down",
+): CheckoutSchema {
+  const section = findSection(schema, sectionId);
+  if (!section) return schema;
+
+  const items = getSectionItems(section, fieldKey);
+  const index = items.findIndex((item) => item.id === itemId);
+  if (index === -1) return schema;
+
+  return moveSectionItem(
+    schema,
+    sectionId,
+    fieldKey,
+    index,
+    direction === "up" ? index - 1 : index + 1,
+  );
 }
 
 export function duplicateSectionItem(

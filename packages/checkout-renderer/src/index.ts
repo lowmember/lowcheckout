@@ -32,6 +32,7 @@ export {
   CHECKOUT_FORM_ID,
   type CheckoutRendererSelection,
   type CheckoutViewport,
+  type SelectionDirection,
 } from "./renderer/renderer-context";
 export * from "./renderer/renderer-primitives";
 /* — Telas pós-formulário: mesmo tema, mesmo pacote (RF-PUB-04 e RF-PUB-06) — */
@@ -53,6 +54,7 @@ export type {
   CheckoutThemeColors,
   CheckoutThemeRadii,
   CheckoutThemeTypography,
+  CountdownProps,
   FaqItem,
   FaqProps,
   FontFamilyId,

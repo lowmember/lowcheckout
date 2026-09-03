@@ -133,6 +133,12 @@ const checkoutThemeSchema = z.object({
   spacing: z.enum(SPACING_PRESETS),
 });
 
+const countdownPropsSchema = z.object({
+  message: contentTextSchema,
+  expiredMessage: contentTextSchema,
+  minutes: z.number().int().min(1).max(1440),
+});
+
 const heroPropsSchema = z.object({
   eyebrow: contentTextSchema,
   title: contentTextSchema,
@@ -239,6 +245,7 @@ function sectionSchema<TType extends CheckoutSectionType, TProps extends z.ZodTy
 
 /** `type` é o discriminante: o zod aponta o erro dentro do props certo. */
 const checkoutSectionSchema = z.discriminatedUnion("type", [
+  sectionSchema("countdown", countdownPropsSchema),
   sectionSchema("hero", heroPropsSchema),
   sectionSchema("product", productPropsSchema),
   sectionSchema("benefits", benefitsPropsSchema),

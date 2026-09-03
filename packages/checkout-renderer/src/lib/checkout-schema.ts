@@ -12,14 +12,7 @@ import { isRecord } from "./schema-normalizers";
 import { getSectionDefinition, SECTION_REGISTRY } from "./section-registry";
 import { createLegacySchema, createTemplateSchema } from "./templates";
 
-const TEMPLATE_IDS: CheckoutTemplateId[] = [
-  "blank",
-  "clean",
-  "high-conversion",
-  "infoproduto",
-  "dark",
-  "minimal",
-];
+const TEMPLATE_IDS: CheckoutTemplateId[] = ["default"];
 
 const SCHEMA_KEYS = ["version", "template", "theme", "sections"];
 const SECTION_KEYS = ["id", "type", "enabled", "props"];
@@ -46,11 +39,11 @@ function normalizeSection(raw: Record<string, unknown>): CheckoutSection | null 
 }
 
 export function normalizeSchema(raw: unknown): CheckoutSchema {
-  if (!isRecord(raw)) return createTemplateSchema("blank");
+  if (!isRecord(raw)) return createTemplateSchema("default");
 
   const template = TEMPLATE_IDS.includes(raw.template as CheckoutTemplateId)
     ? (raw.template as CheckoutTemplateId)
-    : "blank";
+    : "default";
 
   const sections = Array.isArray(raw.sections)
     ? raw.sections
@@ -79,7 +72,7 @@ export function normalizeSchema(raw: unknown): CheckoutSchema {
 export function toCustomization(raw: unknown): CheckoutCustomization {
   const empty: CheckoutCustomization = {
     version: CHECKOUT_CUSTOMIZATION_VERSION,
-    draft: createTemplateSchema("blank"),
+    draft: createTemplateSchema("default"),
     published: null,
     publishedAt: null,
   };

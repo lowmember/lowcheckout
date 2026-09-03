@@ -19,6 +19,12 @@ export function HeroSection({ props }: HeroSectionProps) {
   const bannerUrl = props.imageUrl.trim() || checkoutBanner;
   const isCentered = props.alignment === "center";
 
+  /** Sem texto, o hero é só o banner — a oferta começa no cartão logo abaixo. */
+  const hasText =
+    props.eyebrow.trim().length > 0 ||
+    props.title.trim().length > 0 ||
+    props.subtitle.trim().length > 0;
+
   return (
     <SectionContainer isBleed style={{ paddingBlock: 0 }}>
       {props.showBanner &&
@@ -38,24 +44,28 @@ export function HeroSection({ props }: HeroSectionProps) {
           </div>
         ))}
 
-      <div
-        className="mx-auto w-full max-w-[46rem] px-5 @2xl:px-8"
-        style={{ paddingBlock: spaceSize(2.25) }}
-      >
-        <div className={cn("flex flex-col gap-3", isCentered && "items-center text-center")}>
-          {props.eyebrow.trim() && <Eyebrow>{props.eyebrow}</Eyebrow>}
+      {hasText && (
+        <div
+          className="mx-auto w-full max-w-[38rem] px-3 @2xl:px-4"
+          style={{ paddingBlock: spaceSize(1.25) }}
+        >
+          <div className={cn("flex flex-col gap-2", isCentered && "items-center text-center")}>
+            {props.eyebrow.trim() && <Eyebrow>{props.eyebrow}</Eyebrow>}
 
-          <Heading as="h1" size={2}>
-            {props.title}
-          </Heading>
+            {props.title.trim() && (
+              <Heading as="h1" size={1.5}>
+                {props.title}
+              </Heading>
+            )}
 
-          {props.subtitle.trim() && (
-            <Text isMuted size={1.05} className={cn("max-w-[36rem]", isCentered && "mx-auto")}>
-              {props.subtitle}
-            </Text>
-          )}
+            {props.subtitle.trim() && (
+              <Text isMuted size={0.95} className={cn("max-w-[32rem]", isCentered && "mx-auto")}>
+                {props.subtitle}
+              </Text>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </SectionContainer>
   );
 }

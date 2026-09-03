@@ -12,9 +12,12 @@ import { createLocalId } from "./create-id";
 import { createSection } from "./section-registry";
 
 /**
- * Templates são instâncias do mesmo schema declarativo — não HTML estático.
- * Escolher um template é só clonar um objeto; nada no renderer conhece o id de
- * um template específico.
+ * O template é uma instância do mesmo schema declarativo — não HTML estático.
+ * Aplicá-lo é só clonar um objeto; nada no renderer conhece o id dele.
+ *
+ * Existe um só de propósito: o layout do checkout é decisão de produto, e uma
+ * página de pagamento boa é a mesma página em qualquer nicho. O que varia fica
+ * no tema e nas seções, que o lojista edita.
  */
 
 function section<TType extends CheckoutSectionType>(
@@ -57,233 +60,43 @@ export interface CheckoutTemplate {
   createSchema: () => CheckoutSchema;
 }
 
-const blank: CheckoutTemplate = {
-  id: "blank",
-  name: "Começar do zero",
-  description: "Só o essencial: formulário do comprador e botão de PIX. Você monta o resto.",
-  tags: ["Essencial"],
+/**
+ * Uma coluna só, de cima a baixo: urgência, banner, produto, dados, pagamento.
+ * O comprador nunca precisa rolar para trás para entender o que está comprando
+ * — e o que ele lê logo acima do botão é o resumo do pedido.
+ */
+const defaultTemplate: CheckoutTemplate = {
+  id: "default",
+  name: "Checkout LowCheckout",
+  description:
+    "Coluna única com barra de urgência, banner, resumo da oferta, dados do comprador e pagamento — na ordem em que a decisão de compra acontece.",
+  tags: ["Conversão", "Coluna única"],
   createSchema: () =>
-    schema("blank", theme({}), [
+    schema("default", theme({}), [
+      section("countdown"),
+      section("hero", { title: "", subtitle: "", eyebrow: "" }),
       section("product"),
-      section("checkout-form"),
-      section("payment-cta"),
-      section("footer"),
+      section("checkout-form", { title: "", description: "" }),
+      section("payment-cta", {
+        label: "Comprar agora",
+        helperText:
+          'Ao clicar em "Comprar agora", você declara que leu e concorda com os termos de compra e a política de privacidade. O pagamento é processado via PIX, com confirmação imediata.',
+      }),
+      section("social-proof", { title: "", subtitle: "" }),
+      section("footer", { showSecureBadge: false }),
     ]),
 };
 
-const clean: CheckoutTemplate = {
-  id: "clean",
-  name: "Clean",
-  description: "Minimalista, muito espaço em branco e foco total no produto.",
-  tags: ["Minimalista", "Produto físico"],
-  createSchema: () =>
-    schema(
-      "clean",
-      theme({
-        colors: {
-          primary: "#111111",
-          primaryText: "#ffffff",
-          background: "#ffffff",
-          surface: "#ffffff",
-          text: "#111111",
-          mutedText: "#8a8a8a",
-          border: "#ededed",
-        },
-        radii: { base: 16, button: 12, input: 12 },
-        spacing: "spacious",
-      }),
-      [
-        section("hero", {
-          title: "Finalize sua compra",
-          subtitle: "Leva menos de um minuto. Pagamento por PIX com confirmação imediata.",
-          alignment: "left",
-          showBanner: false,
-        }),
-        section("product", { badgeLabel: "" }),
-        section("checkout-form", { title: "Seus dados", description: "" }),
-        section("payment-cta", { label: "Pagar com PIX" }),
-        section("footer"),
-      ],
-    ),
-};
+export const CHECKOUT_TEMPLATES: CheckoutTemplate[] = [defaultTemplate];
 
-const highConversion: CheckoutTemplate = {
-  id: "high-conversion",
-  name: "High Conversion",
-  description: "Estrutura completa de venda: prova social, garantia e FAQ antes do pagamento.",
-  tags: ["Conversão", "Página longa"],
-  createSchema: () =>
-    schema(
-      "high-conversion",
-      theme({
-        colors: {
-          primary: "#6c4bf4",
-          primaryText: "#ffffff",
-          background: "#f6f4ff",
-          surface: "#ffffff",
-          text: "#14121f",
-          mutedText: "#6b6880",
-          border: "#e6e1fb",
-        },
-        typography: { fontFamily: "grotesk", headingScale: "lg" },
-        radii: { base: 14, button: 999, input: 10 },
-      }),
-      [
-        section("hero", {
-          eyebrow: "Vagas limitadas",
-          title: "Comece hoje e veja resultado na primeira semana",
-          subtitle: "Mais de 3.000 alunos já passaram por este método. Acesso imediato via PIX.",
-          alignment: "center",
-        }),
-        section("product", { badgeLabel: "Mais vendido" }),
-        section("benefits", { title: "Tudo que está incluso" }),
-        section("social-proof", { title: "O que dizem os alunos" }),
-        section("guarantee", { days: 7 }),
-        section("faq"),
-        section("checkout-form", {
-          title: "Falta pouco",
-          description: "Preencha seus dados e gere o PIX.",
-        }),
-        section("payment-cta", {
-          label: "Quero garantir minha vaga",
-          helperText: "Acesso liberado automaticamente após a confirmação.",
-        }),
-        section("footer"),
-      ],
-    ),
-};
-
-const infoproduto: CheckoutTemplate = {
-  id: "infoproduto",
-  name: "Infoproduto",
-  description: "Pensado para cursos, ebooks e produtos digitais, com entrega e benefícios claros.",
-  tags: ["Curso", "Ebook"],
-  createSchema: () =>
-    schema(
-      "infoproduto",
-      theme({
-        colors: {
-          primary: "#ea580c",
-          primaryText: "#ffffff",
-          background: "#fdf8f3",
-          surface: "#ffffff",
-          text: "#1c1917",
-          mutedText: "#7c7268",
-          border: "#eee0d3",
-        },
-        typography: { fontFamily: "serif", headingScale: "lg" },
-        radii: { base: 18, button: 14, input: 12 },
-        spacing: "spacious",
-      }),
-      [
-        section("hero", {
-          eyebrow: "Curso online",
-          title: "Do zero ao primeiro resultado, no seu ritmo",
-          subtitle: "Aulas gravadas, material de apoio e comunidade — com acesso vitalício.",
-          alignment: "center",
-        }),
-        section("product", { badgeLabel: "Acesso vitalício" }),
-        section("benefits", {
-          title: "O que você recebe ao entrar",
-          subtitle: "Tudo liberado no mesmo instante em que o PIX é confirmado.",
-        }),
-        section("checkout-form", { title: "Seus dados de acesso" }),
-        section("payment-cta", {
-          label: "Quero começar agora",
-          helperText: "Você recebe o acesso no e-mail informado acima.",
-        }),
-        section("social-proof", { title: "Histórias de quem já fez" }),
-        section("faq"),
-        section("footer"),
-      ],
-    ),
-};
-
-const dark: CheckoutTemplate = {
-  id: "dark",
-  name: "Dark",
-  description: "Estética escura e moderna, com contraste alto e leitura confortável.",
-  tags: ["Moderno", "Tech"],
-  createSchema: () =>
-    schema(
-      "dark",
-      theme({
-        colors: {
-          primary: "#a3e635",
-          primaryText: "#0a0a0a",
-          background: "#0a0a0a",
-          surface: "#151515",
-          text: "#fafafa",
-          mutedText: "#a1a1aa",
-          border: "#262626",
-        },
-        typography: { fontFamily: "grotesk", headingScale: "lg" },
-        radii: { base: 10, button: 8, input: 8 },
-      }),
-      [
-        section("hero", {
-          eyebrow: "Edição 2026",
-          title: "Assine e destrave o acesso completo",
-          subtitle: "Sem mensalidade. Um pagamento, acesso permanente.",
-          alignment: "left",
-        }),
-        section("product", { badgeLabel: "Novo" }),
-        section("benefits", { title: "Incluído no acesso" }),
-        section("social-proof", { title: "Quem já está dentro" }),
-        section("checkout-form", { title: "Dados do comprador", description: "" }),
-        section("payment-cta", { label: "Gerar PIX", helperText: "" }),
-        section("footer"),
-      ],
-    ),
-};
-
-const minimal: CheckoutTemplate = {
-  id: "minimal",
-  name: "Minimal",
-  description: "Direto ao ponto: produto, dados e pagamento em uma dobra só.",
-  tags: ["Rápido", "Uma dobra"],
-  createSchema: () =>
-    schema(
-      "minimal",
-      theme({
-        colors: {
-          primary: "#111111",
-          primaryText: "#ffffff",
-          background: "#f4f4f5",
-          surface: "#ffffff",
-          text: "#18181b",
-          mutedText: "#71717a",
-          border: "#e4e4e7",
-        },
-        typography: { headingScale: "sm", bodyScale: "sm" },
-        radii: { base: 4, button: 4, input: 4 },
-        spacing: "compact",
-      }),
-      [
-        section("product", { badgeLabel: "" }),
-        section("checkout-form", { title: "Dados", description: "", showOrderSummary: false }),
-        section("payment-cta", { label: "Gerar PIX", showSecurityNote: false }),
-        section("footer", { showSecureBadge: false }),
-      ],
-    ),
-};
-
-export const CHECKOUT_TEMPLATES: CheckoutTemplate[] = [
-  clean,
-  highConversion,
-  infoproduto,
-  dark,
-  minimal,
-];
-
-export const BLANK_TEMPLATE = blank;
+export const DEFAULT_TEMPLATE = defaultTemplate;
 
 export function getCheckoutTemplate(id: CheckoutTemplateId) {
-  return [blank, ...CHECKOUT_TEMPLATES].find((template) => template.id === id);
+  return CHECKOUT_TEMPLATES.find((template) => template.id === id);
 }
 
 export function createTemplateSchema(id: CheckoutTemplateId): CheckoutSchema {
-  return (getCheckoutTemplate(id) ?? blank).createSchema();
+  return (getCheckoutTemplate(id) ?? defaultTemplate).createSchema();
 }
 
 /**
@@ -292,7 +105,7 @@ export function createTemplateSchema(id: CheckoutTemplateId): CheckoutSchema {
  * nem texto.
  */
 export function createLegacySchema(raw: Record<string, unknown>): CheckoutSchema {
-  const base = clean.createSchema();
+  const base = defaultTemplate.createSchema();
 
   function color(key: string, fallback: string) {
     const value = raw[key];
@@ -323,7 +136,6 @@ export function createLegacySchema(raw: Record<string, unknown>): CheckoutSchema
 
   return {
     ...base,
-    template: "clean",
     theme: legacyTheme,
     sections: base.sections.map((current) => {
       if (current.type === "hero") {

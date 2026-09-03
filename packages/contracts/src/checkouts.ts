@@ -20,17 +20,16 @@ export type PixelProvider = (typeof PIXEL_PROVIDERS)[number];
  */
 export const CHECKOUT_SCHEMA_VERSION = 1;
 
-export const CHECKOUT_TEMPLATE_IDS = [
-  "blank",
-  "clean",
-  "high-conversion",
-  "infoproduto",
-  "dark",
-  "minimal",
-] as const;
+/**
+ * Um template só: o layout do checkout é decisão do produto, não do lojista.
+ * O enum continua existindo para que o documento diga a qual layout ele
+ * pertence — e para que um template novo entre sem quebrar o que está gravado.
+ */
+export const CHECKOUT_TEMPLATE_IDS = ["default"] as const;
 export type CheckoutTemplateId = (typeof CHECKOUT_TEMPLATE_IDS)[number];
 
 export const CHECKOUT_SECTION_TYPES = [
+  "countdown",
   "hero",
   "product",
   "benefits",
@@ -114,6 +113,13 @@ export interface FooterLinkItem extends ListItem {
   url: string;
 }
 
+export interface CountdownProps {
+  message: string;
+  expiredMessage: string;
+  /** Duração da contagem, reiniciada a cada visita. */
+  minutes: number;
+}
+
 export interface HeroProps {
   eyebrow: string;
   title: string;
@@ -173,6 +179,7 @@ export interface FooterProps {
 }
 
 export interface CheckoutSectionPropsMap {
+  countdown: CountdownProps;
   hero: HeroProps;
   product: ProductProps;
   benefits: BenefitsProps;

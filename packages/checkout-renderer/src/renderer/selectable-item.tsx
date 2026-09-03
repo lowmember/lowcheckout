@@ -1,16 +1,32 @@
 import type { ReactNode } from "react";
 
 import { cn } from "../internal/cn";
+import { ArrowDownIcon, ArrowUpIcon, TrashIcon } from "../internal/icons";
 import { useRendererContext, useSectionId } from "./renderer-context";
+import { SelectionToolbar } from "./selection-toolbar";
 
 interface SelectableItemState {
   /** Vai no elemento-raiz do item; `undefined` na página pública. */
   className: string | undefined;
   /** Overlay de clique e contorno; `null` na página pública. */
   overlay: ReactNode;
+  /** Toolbar de mover/excluir, preso ao contorno; só existe quando o item está selecionado. */
+  toolbar: ReactNode;
 }
 
-const NOT_SELECTABLE: SelectableItemState = { className: undefined, overlay: null };
+const NOT_SELECTABLE: SelectableItemState = { className: undefined, overlay: null, toolbar: null };
+
+interface UseSelectableItemOptions {
+  /** Posição do item na lista — decide se "mover para cima/baixo" fica disponível. */
+  index: number;
+  total: number;
+  /**
+   * Sobrescreve onde o toolbar gruda no item. Por padrão fica no canto
+   * superior direito, junto do contorno — layouts mais apertados (como o
+   * acordeão do FAQ) passam a própria posição para não cobrir outro controle.
+   */
+  toolbarClassName?: string;
+}
 
 /**
  * Torna um elemento interno da seção (benefício, depoimento, pergunta, link)
@@ -24,6 +40,7 @@ export function useSelectableItem(
   fieldKey: string,
   itemId: string,
   label: string,
+  { index, total, toolbarClassName }: UseSelectableItemOptions,
 ): SelectableItemState {
   const { selection } = useRendererContext();
   const sectionId = useSectionId();
@@ -50,5 +67,30 @@ export function useSelectableItem(
         )}
       />
     ),
+    toolbar: isSelected ? (
+      <SelectionToolbar
+        className={toolbarClassName ?? "top-1 right-1"}
+        actions={[
+          {
+            label: "Mover para cima",
+            icon: <ArrowUpIcon className="size-3.5" />,
+            isDisabled: index === 0,
+            onClick: () => selection.onMoveItem(sectionId, fieldKey, itemId, "up"),
+          },
+          {
+            label: "Mover para baixo",
+            icon: <ArrowDownIcon className="size-3.5" />,
+            isDisabled: index === total - 1,
+            onClick: () => selection.onMoveItem(sectionId, fieldKey, itemId, "down"),
+          },
+          {
+            label: "Excluir elemento",
+            icon: <TrashIcon className="size-3.5" />,
+            isDestructive: true,
+            onClick: () => selection.onRemoveItem(sectionId, fieldKey, itemId),
+          },
+        ]}
+      />
+    ) : null,
   };
 }

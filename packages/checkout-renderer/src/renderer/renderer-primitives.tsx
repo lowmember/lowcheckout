@@ -17,13 +17,18 @@ interface SectionContainerProps {
   isBleed?: boolean;
 }
 
+/**
+ * A coluna é estreita e as seções quase se encostam de propósito: empilhadas,
+ * as superfícies brancas leem como um cartão só sobre o fundo da página — que é
+ * o que faz um checkout parecer um formulário curto, e não uma landing page.
+ */
 export function SectionContainer({ children, className, style, isBleed }: SectionContainerProps) {
   return (
     <section
-      className={cn("w-full", isBleed ? "px-0" : "px-5 @2xl:px-8", className)}
-      style={{ paddingBlock: spaceSize(2), ...style }}
+      className={cn("w-full", isBleed ? "px-0" : "px-3 @2xl:px-4", className)}
+      style={{ paddingBlock: spaceSize(0.4), ...style }}
     >
-      {isBleed ? children : <div className="mx-auto w-full max-w-[46rem]">{children}</div>}
+      {isBleed ? children : <div className="mx-auto w-full max-w-[38rem]">{children}</div>}
     </section>
   );
 }

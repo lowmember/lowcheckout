@@ -189,7 +189,7 @@ export function SectionListPanel({
 
                 {/* Sobrepõe o rótulo em vez de disputar largura com ele: com 264px
                     de painel, reservar espaço fixo truncava todos os nomes. */}
-                <RowActions>
+                <RowActions isVisible={isSelected}>
                   <IconAction
                     label="Mover para cima"
                     isDisabled={index === 0}
@@ -343,7 +343,7 @@ function ItemGroup({
                 </span>
               </button>
 
-              <RowActions>
+              <RowActions isVisible={isSelected}>
                 <IconAction
                   label="Mover para cima"
                   isDisabled={index === 0}
@@ -387,10 +387,20 @@ function ItemGroup({
   );
 }
 
-/** Ações que aparecem no hover sobre a linha, por cima do rótulo. */
-function RowActions({ children }: { children: ReactNode }) {
+/**
+ * Ações que aparecem no hover sobre a linha, por cima do rótulo. A linha
+ * selecionada mantém as ações visíveis sem precisar do mouse em cima — é a
+ * mesma ideia do toolbar preso ao contorno azul no preview: o que está em
+ * foco não devia esconder o que dá para fazer com ele.
+ */
+function RowActions({ children, isVisible }: { children: ReactNode; isVisible?: boolean }) {
   return (
-    <div className="absolute inset-y-0.5 right-0.5 flex items-center rounded-md bg-inherit pl-3 opacity-0 transition-opacity duration-200 focus-within:opacity-100 group-hover:opacity-100">
+    <div
+      className={cn(
+        "absolute inset-y-0.5 right-0.5 flex items-center rounded-md bg-inherit pl-3 opacity-0 transition-opacity duration-200 focus-within:opacity-100 group-hover:opacity-100",
+        isVisible && "opacity-100",
+      )}
+    >
       {children}
     </div>
   );
