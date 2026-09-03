@@ -5,7 +5,7 @@ import type {
   CheckoutViewport,
 } from "@lowcheckout/checkout-renderer";
 import { CheckoutRenderer } from "@lowcheckout/checkout-renderer";
-import { useEffect, useRef } from "react";
+import { type CSSProperties, useEffect, useRef } from "react";
 
 import { cn } from "@/shared/lib/cn";
 
@@ -72,6 +72,15 @@ export function PreviewFrame({ schema, content, viewport, selection }: PreviewFr
             ? "max-w-[390px] rounded-3xl shadow-lg shadow-neutral-900/10"
             : "max-w-[1080px] rounded-xl shadow-neutral-900/5 shadow-sm",
         )}
+        // Publica o raio da moldura como custom property: é `overflow-hidden`
+        // arredondado, então o contorno azul da seção selecionada precisa
+        // saber esse valor pra curvar junto nos cantos de cima/baixo em vez
+        // de ser cortado reto pelo clip. Herda por cascata — ninguém repassa.
+        style={
+          {
+            "--lc-frame-radius": viewport === "mobile" ? "1.5rem" : "0.75rem",
+          } as CSSProperties
+        }
       >
         <CheckoutRenderer
           schema={schema}

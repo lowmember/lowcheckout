@@ -139,6 +139,11 @@ function SelectableSection({
   onDragEnd,
 }: SelectableSectionProps) {
   const definition = getSectionDefinition(section.type);
+  // A primeira/última seção encosta no canto arredondado da moldura do
+  // preview (que é `overflow-hidden`) — sem acompanhar esse raio, o contorno
+  // reto era cortado pelo clip em vez de curvar junto.
+  const isFirst = !canMoveUp;
+  const isLast = !canMoveDown;
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: só recebe drop de uma seção já arrastada pela alça do toolbar — não é a origem da interação.
@@ -166,6 +171,8 @@ function SelectableSection({
             ? "bg-blue-500/[0.04] outline-2 -outline-offset-2 outline-blue-500"
             : "outline-0 hover:bg-blue-500/[0.03] hover:outline-2 hover:-outline-offset-2 hover:outline-blue-400/60",
           isDragOver && "outline-dashed",
+          isFirst && "rounded-t-[var(--lc-frame-radius,0px)]",
+          isLast && "rounded-b-[var(--lc-frame-radius,0px)]",
         )}
       />
 
@@ -177,6 +184,7 @@ function SelectableSection({
           isSelected
             ? "bg-blue-500 opacity-100"
             : "bg-blue-400 opacity-0 group-hover/section:opacity-100",
+          isFirst && "rounded-tl-[var(--lc-frame-radius,0px)]",
         )}
       >
         {definition.label}
@@ -184,7 +192,10 @@ function SelectableSection({
 
       {isSelected && (
         <SelectionToolbar
-          className="top-0 right-0 rounded-none rounded-bl-md"
+          className={cn(
+            "top-0 right-0 rounded-none rounded-bl-md",
+            isFirst && "rounded-tr-[var(--lc-frame-radius,0px)]",
+          )}
           actions={[
             {
               label: "Arrastar para reordenar",
