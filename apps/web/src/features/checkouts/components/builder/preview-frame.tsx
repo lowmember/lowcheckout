@@ -58,7 +58,7 @@ export function PreviewFrame({ schema, content, viewport, selection }: PreviewFr
   return (
     <div
       ref={canvasRef}
-      className="flex min-h-full justify-center overflow-y-auto bg-neutral-100 p-4 @2xl:p-8"
+      className="flex h-full justify-center overflow-y-auto bg-neutral-100 p-4 @2xl:p-8"
       style={{
         backgroundImage: "radial-gradient(circle at 1px 1px, rgb(0 0 0 / 0.06) 1px, transparent 0)",
         backgroundSize: "16px 16px",
