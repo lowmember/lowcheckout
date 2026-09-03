@@ -57,6 +57,7 @@ function FaqRow({
   return (
     <details
       className={cn("group", selectable.className)}
+      {...selectable.dragProps}
       style={{
         borderTopWidth: isFirst ? 0 : 1,
         borderTopStyle: "solid",

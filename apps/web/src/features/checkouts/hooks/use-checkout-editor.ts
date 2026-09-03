@@ -27,6 +27,8 @@ import {
   moveSectionItemByDirection,
   removeSection,
   removeSectionItem,
+  reorderSection,
+  reorderSectionItem,
   type ThemePatch,
   toggleSection,
   updateSectionItem,
@@ -201,6 +203,15 @@ export function useCheckoutEditor({ checkout, hasLinkedOffer }: UseCheckoutEdito
       itemId: string,
       direction: "up" | "down",
     ) => replaceSchema(moveSectionItemByDirection(schema, sectionId, fieldKey, itemId, direction)),
+    /** Arrastar-e-soltar pela alça do toolbar preso ao contorno no preview. */
+    reorderSection: (sectionId: string, targetSectionId: string) =>
+      replaceSchema(reorderSection(schema, sectionId, targetSectionId)),
+    reorderSectionItem: (
+      sectionId: string,
+      fieldKey: string,
+      itemId: string,
+      targetItemId: string,
+    ) => replaceSchema(reorderSectionItem(schema, sectionId, fieldKey, itemId, targetItemId)),
     updateSectionProps: (sectionId: string, patch: Record<string, unknown>) =>
       replaceSchema(updateSectionProps(schema, sectionId, patch)),
     updateTheme: (patch: ThemePatch) => replaceSchema(updateTheme(schema, patch)),

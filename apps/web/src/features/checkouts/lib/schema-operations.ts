@@ -75,6 +75,21 @@ export function moveSectionByDirection(
   return moveSection(schema, fromIndex, toIndex);
 }
 
+/** Arrastar-e-soltar no preview: solta `sectionId` no lugar de `targetSectionId`. */
+export function reorderSection(
+  schema: CheckoutSchema,
+  sectionId: string,
+  targetSectionId: string,
+): CheckoutSchema {
+  if (sectionId === targetSectionId) return schema;
+
+  const fromIndex = schema.sections.findIndex((section) => section.id === sectionId);
+  const toIndex = schema.sections.findIndex((section) => section.id === targetSectionId);
+  if (fromIndex === -1 || toIndex === -1) return schema;
+
+  return moveSection(schema, fromIndex, toIndex);
+}
+
 export function updateSectionProps(
   schema: CheckoutSchema,
   sectionId: string,
@@ -223,6 +238,27 @@ export function moveSectionItemByDirection(
     index,
     direction === "up" ? index - 1 : index + 1,
   );
+}
+
+/** Arrastar-e-soltar no preview: solta `itemId` no lugar de `targetItemId`, na mesma lista. */
+export function reorderSectionItem(
+  schema: CheckoutSchema,
+  sectionId: string,
+  fieldKey: string,
+  itemId: string,
+  targetItemId: string,
+): CheckoutSchema {
+  if (itemId === targetItemId) return schema;
+
+  const section = findSection(schema, sectionId);
+  if (!section) return schema;
+
+  const items = getSectionItems(section, fieldKey);
+  const fromIndex = items.findIndex((item) => item.id === itemId);
+  const toIndex = items.findIndex((item) => item.id === targetItemId);
+  if (fromIndex === -1 || toIndex === -1) return schema;
+
+  return moveSectionItem(schema, sectionId, fieldKey, fromIndex, toIndex);
 }
 
 export function duplicateSectionItem(

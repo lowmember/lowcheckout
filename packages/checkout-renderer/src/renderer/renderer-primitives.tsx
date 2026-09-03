@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, DragEventHandler, ReactNode } from "react";
 
 import { cn } from "../internal/cn";
 import { StarIcon } from "../internal/icons";
@@ -37,10 +37,14 @@ interface SurfaceProps {
   children: ReactNode;
   className?: string;
   style?: CSSProperties;
+  /** Só usados pelo card de um elemento selecionável — recebe o drop de quem está sendo arrastado. */
+  onDragOver?: DragEventHandler<HTMLDivElement>;
+  onDrop?: DragEventHandler<HTMLDivElement>;
 }
 
-export function Surface({ children, className, style }: SurfaceProps) {
+export function Surface({ children, className, style, onDragOver, onDrop }: SurfaceProps) {
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: só recebe drop de um item já arrastado por uma alça acessível — não é a origem da interação.
     <div
       className={cn("border", className)}
       style={{
@@ -49,6 +53,8 @@ export function Surface({ children, className, style }: SurfaceProps) {
         borderRadius: "var(--lc-radius)",
         ...style,
       }}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
     >
       {children}
     </div>

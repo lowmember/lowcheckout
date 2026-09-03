@@ -1,5 +1,7 @@
+import { useState } from "react";
+
 import { cn } from "../internal/cn";
-import { ArrowDownIcon, ArrowUpIcon, TrashIcon } from "../internal/icons";
+import { ArrowDownIcon, ArrowUpIcon, GripIcon, TrashIcon } from "../internal/icons";
 import { getSectionDefinition } from "../lib/section-registry";
 import type { CheckoutFormController } from "../types/checkout-buyer";
 import type { CheckoutContent } from "../types/checkout-content";
@@ -8,6 +10,7 @@ import { CheckoutThemeShell } from "./checkout-theme-shell";
 import {
   type CheckoutRendererSelection,
   type CheckoutViewport,
+  ItemDragProvider,
   RendererProvider,
 } from "./renderer-context";
 import { SectionRenderer } from "./section-renderer";
@@ -44,24 +47,59 @@ export function CheckoutRenderer({
   const enabledSections = schema.sections.filter((section) => section.enabled);
   const lastIndex = enabledSections.length - 1;
 
+  // Arrastar seção é um gesto do preview, não do schema — mora aqui, efêmero,
+  // e vira uma chamada de reordenação só no drop.
+  const [draggedSectionId, setDraggedSectionId] = useState<string | null>(null);
+  const [dragOverSectionId, setDragOverSectionId] = useState<string | null>(null);
+
   return (
     <RendererProvider content={content} viewport={viewport} form={form} selection={selection}>
-      <CheckoutThemeShell theme={schema.theme} className={className}>
-        {enabledSections.map((section, index) =>
-          selection ? (
-            <SelectableSection
-              key={section.id}
-              section={section}
-              isSelected={section.id === selection.selectedSectionId}
-              canMoveUp={index > 0}
-              canMoveDown={index < lastIndex}
-              selection={selection}
-            />
-          ) : (
-            <SectionRenderer key={section.id} section={section} />
-          ),
-        )}
-      </CheckoutThemeShell>
+      <ItemDragProvider>
+        <CheckoutThemeShell theme={schema.theme} className={className}>
+          {enabledSections.map((section, index) =>
+            selection ? (
+              <SelectableSection
+                key={section.id}
+                section={section}
+                isSelected={section.id === selection.selectedSectionId}
+                canMoveUp={index > 0}
+                canMoveDown={index < lastIndex}
+                selection={selection}
+                isDragging={draggedSectionId === section.id}
+                isDragOver={
+                  dragOverSectionId === section.id &&
+                  draggedSectionId !== null &&
+                  draggedSectionId !== section.id
+                }
+                onDragStart={() => setDraggedSectionId(section.id)}
+                onDragOverSection={() => {
+                  // Devolve se aceita o drop: só quando a alça do toolbar
+                  // começou o arrasto — um arquivo solto do sistema, por
+                  // exemplo, não deve ganhar `preventDefault` daqui.
+                  if (draggedSectionId === null) return false;
+                  setDragOverSectionId(section.id);
+                  return true;
+                }}
+                onDrop={() => {
+                  if (draggedSectionId === null) return false;
+                  if (draggedSectionId !== section.id) {
+                    selection.onReorderSection(draggedSectionId, section.id);
+                  }
+                  setDraggedSectionId(null);
+                  setDragOverSectionId(null);
+                  return true;
+                }}
+                onDragEnd={() => {
+                  setDraggedSectionId(null);
+                  setDragOverSectionId(null);
+                }}
+              />
+            ) : (
+              <SectionRenderer key={section.id} section={section} />
+            ),
+          )}
+        </CheckoutThemeShell>
+      </ItemDragProvider>
     </RendererProvider>
   );
 }
@@ -72,13 +110,20 @@ interface SelectableSectionProps {
   canMoveUp: boolean;
   canMoveDown: boolean;
   selection: CheckoutRendererSelection;
+  isDragging: boolean;
+  isDragOver: boolean;
+  onDragStart: () => void;
+  /** Devolve `true` quando o drop deve ser aceito — só então o handler chama `preventDefault`. */
+  onDragOverSection: () => boolean;
+  onDrop: () => boolean;
+  onDragEnd: () => void;
 }
 
 /**
  * Liga o preview à lista de seções: a seção selecionada ganha contorno,
- * etiqueta e um toolbar de mover/excluir — e clicar em qualquer ponto dela
- * seleciona. O overlay cobre a seção inteira de propósito — no editor os
- * campos já são inertes.
+ * etiqueta e um toolbar de mover/arrastar/excluir — e clicar em qualquer
+ * ponto dela seleciona. O overlay cobre a seção inteira de propósito — no
+ * editor os campos já são inertes.
  */
 function SelectableSection({
   section,
@@ -86,11 +131,27 @@ function SelectableSection({
   canMoveUp,
   canMoveDown,
   selection,
+  isDragging,
+  isDragOver,
+  onDragStart,
+  onDragOverSection,
+  onDrop,
+  onDragEnd,
 }: SelectableSectionProps) {
   const definition = getSectionDefinition(section.type);
 
   return (
-    <div data-section-id={section.id} className="group/section relative">
+    // biome-ignore lint/a11y/noStaticElementInteractions: só recebe drop de uma seção já arrastada pela alça do toolbar — não é a origem da interação.
+    <div
+      data-section-id={section.id}
+      className={cn("group/section relative transition-opacity", isDragging && "opacity-40")}
+      onDragOver={(event) => {
+        if (onDragOverSection()) event.preventDefault();
+      }}
+      onDrop={(event) => {
+        if (onDrop()) event.preventDefault();
+      }}
+    >
       <SectionRenderer section={section} />
 
       <button
@@ -101,9 +162,10 @@ function SelectableSection({
         className={cn(
           "absolute inset-0 z-0 cursor-pointer transition-colors duration-200",
           "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500",
-          isSelected
+          isSelected || isDragOver
             ? "bg-blue-500/[0.04] outline-2 -outline-offset-2 outline-blue-500"
             : "outline-0 hover:bg-blue-500/[0.03] hover:outline-2 hover:-outline-offset-2 hover:outline-blue-400/60",
+          isDragOver && "outline-dashed",
         )}
       />
 
@@ -124,6 +186,11 @@ function SelectableSection({
         <SelectionToolbar
           className="top-0 right-0 rounded-none rounded-bl-md"
           actions={[
+            {
+              label: "Arrastar para reordenar",
+              icon: <GripIcon className="size-3.5" />,
+              drag: { onDragStart, onDragEnd },
+            },
             {
               label: "Mover seção para cima",
               icon: <ArrowUpIcon className="size-3.5" />,

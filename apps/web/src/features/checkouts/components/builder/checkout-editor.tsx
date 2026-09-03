@@ -201,6 +201,8 @@ export function CheckoutEditor({ checkout }: CheckoutEditorProps) {
               onRemoveSection: editor.removeSection,
               onMoveItem: editor.moveSectionItemByDirection,
               onRemoveItem: editor.removeSectionItem,
+              onReorderSection: editor.reorderSection,
+              onReorderItem: editor.reorderSectionItem,
             }}
           />
         </main>

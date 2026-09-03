@@ -46,7 +46,10 @@ function TestimonialCard({
   const selectable = useSelectableItem("items", item.id, item.name, { index, total });
 
   return (
-    <Surface className={cn("flex flex-col gap-2.5 p-4", selectable.className)}>
+    <Surface
+      className={cn("flex flex-col gap-2.5 p-4", selectable.className)}
+      {...selectable.dragProps}
+    >
       <div className="flex items-center gap-2.5">
         <span
           className="flex size-8 shrink-0 items-center justify-center rounded-full font-semibold"

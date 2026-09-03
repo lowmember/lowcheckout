@@ -70,7 +70,7 @@ function FooterLink({
   });
 
   return (
-    <li className={cn("rounded-sm", selectable.className)}>
+    <li className={cn("rounded-sm", selectable.className)} {...selectable.dragProps}>
       <a
         href={link.url}
         target="_blank"

@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, useContext } from "react";
+import { createContext, type ReactNode, useContext, useMemo, useState } from "react";
 
 import type { CheckoutFormController } from "../types/checkout-buyer";
 import type { CheckoutContent } from "../types/checkout-content";
@@ -29,6 +29,14 @@ export interface CheckoutRendererSelection {
     direction: SelectionDirection,
   ) => void;
   onRemoveItem: (sectionId: string, fieldKey: string, itemId: string) => void;
+  /** Arrastar e soltar: reposiciona a seção/elemento arrastado no lugar do alvo. */
+  onReorderSection: (sectionId: string, targetSectionId: string) => void;
+  onReorderItem: (
+    sectionId: string,
+    fieldKey: string,
+    itemId: string,
+    targetItemId: string,
+  ) => void;
 }
 
 interface RendererContextValue {
@@ -77,4 +85,48 @@ export function SectionScopeProvider({ sectionId, children }: SectionScopeProvid
 
 export function useSectionId() {
   return useContext(SectionScopeContext);
+}
+
+/**
+ * Estado do arrastar-e-soltar de elementos (benefício, depoimento, pergunta,
+ * link). É efêmero e não faz parte de `CheckoutRendererSelection` de
+ * propósito — cada item mora numa seção diferente do componente que enumera
+ * a lista dele, então precisa de um canal próprio para saber quem está sendo
+ * arrastado e sobre qual elemento o mouse está agora.
+ */
+export interface DraggedItem {
+  sectionId: string;
+  fieldKey: string;
+  itemId: string;
+}
+
+interface ItemDragContextValue {
+  dragged: DraggedItem | null;
+  dragOverItemId: string | null;
+  setDragged: (item: DraggedItem | null) => void;
+  setDragOverItemId: (itemId: string | null) => void;
+}
+
+const ItemDragContext = createContext<ItemDragContextValue | null>(null);
+
+export function ItemDragProvider({ children }: { children: ReactNode }) {
+  const [dragged, setDragged] = useState<DraggedItem | null>(null);
+  const [dragOverItemId, setDragOverItemId] = useState<string | null>(null);
+
+  const value = useMemo(
+    () => ({ dragged, dragOverItemId, setDragged, setDragOverItemId }),
+    [dragged, dragOverItemId],
+  );
+
+  return <ItemDragContext.Provider value={value}>{children}</ItemDragContext.Provider>;
+}
+
+export function useItemDrag() {
+  const value = useContext(ItemDragContext);
+
+  if (!value) {
+    throw new Error("useItemDrag precisa estar dentro de <CheckoutRenderer>.");
+  }
+
+  return value;
 }

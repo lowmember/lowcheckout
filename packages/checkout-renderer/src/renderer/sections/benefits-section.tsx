@@ -33,7 +33,7 @@ function BenefitRow({ item, index, total }: { item: BenefitItem; index: number; 
   const selectable = useSelectableItem("items", item.id, item.title, { index, total });
 
   return (
-    <li className={cn("flex gap-3", selectable.className)}>
+    <li className={cn("flex gap-3", selectable.className)} {...selectable.dragProps}>
       <span
         className="flex size-6 shrink-0 items-center justify-center rounded-full"
         style={{ backgroundColor: "var(--lc-primary)", color: "var(--lc-primary-text)" }}
